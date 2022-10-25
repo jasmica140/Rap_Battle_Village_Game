@@ -1,0 +1,3 @@
+/Users/jasminemicallef/Desktop/Uni Docs/Comp Sci/Yr2/CPS2004/Assignment/Task1/cmake-build-debug/CMakeFiles/Task1.dir
+/Users/jasminemicallef/Desktop/Uni Docs/Comp Sci/Yr2/CPS2004/Assignment/Task1/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/jasminemicallef/Desktop/Uni Docs/Comp Sci/Yr2/CPS2004/Assignment/Task1/cmake-build-debug/CMakeFiles/rebuild_cache.dir
