@@ -310,63 +310,114 @@ void actions(int playno){
             loop3:
             cout << "Which troops would you like to train?\n";
 
-            int real[trooptot];
-            int j=0;
             int troopno;
 
+            int k=0,l=0,m=0;
             for(int i=0; i<trooptot; i++){
-                real[i]=j;
-                if(troops[playno][i].type!="master"){
-                    cout << i+1 << ". " << troops[playno][i].type << endl;
+                if(troops[playno][i].type=="untrained"){
+                    k++;
+                }else if(troops[playno][i].type=="rookie"){
+                    l++;
+                }else if(troops[playno][i].type=="expert"){
+                    m++;
                 }
-                if(troops[playno][i].type=="rookie"){
-
-                }
-                j++;
             }
+
+            cout << "1. Untrained troops x" << k << " available" << endl;
+            cout << "2. Rookie troops x" << l << " available" << endl;
+            cout << "3. Expert troops x" << m << " available" << endl;
+
             cin >> select;
 
-            cout << "How many " << troops[playno][real[select]].type << "troops would you like to upgrade?" << endl;
+            cout << "How many " << troops[playno][select-1].type << "troops would you like to upgrade?" << endl;
             cin >> troopno;
 
-            int k=0;
-            for(int i=0; i<trooptot; i++){
-                if(troops[playno][i].type==troops[playno][real[select]].type){
-                    k++;
+            int j=0;
+            if(food<15*troopno){
+                cout << "Not enough resources!\nPlease select another option:" << endl;
+                goto loop;
+            }else if(select==1){
+                if(troopno>k){
+                    cout << "Not enough troops!" << endl;
+                    goto loop3;
+                }else{
+                    for(int i=0; i<trooptot; i++){
+                        if(troops[playno][i].type==troops[playno][select-1].type){
+                            troops[playno][i].type = "Rookie";
+                            j++;
+                            if(j==troopno){
+                                break;
+                            }
+                        }
+                    }
+                }
+            }else if(select==2){
+                if(troopno>l){
+                    cout << "Not enough troops!" << endl;
+                    goto loop3;
+                }else{
+                    for(int i=0; i<trooptot; i++){
+                        if(troops[playno][i].type==troops[playno][select-1].type){
+                            troops[playno][i].type = "Expert";
+                            j++;
+                            if(j==troopno){
+                                break;
+                            }
+                        }
+                    }
+                }
+            }else if(select==3){
+                if(troopno>m){
+                    cout << "Not enough troops!" << endl;
+                    goto loop3;
+                }else{
+                    for(int i=0; i<trooptot; i++){
+                        if(troops[playno][i].type==troops[playno][select-1].type){
+                            troops[playno][i].type = "Master";
+                            j++;
+                            if(j==troopno){
+                                break;
+                            }
+                        }
+                    }
                 }
             }
-            if(troopno>k){
-                cout << "Not enough troops!" << endl;
-                goto loop3;
-            } else if(food<15*troopno){
-                cout << "Not enough resources!\nPlease select another option:" << endl;
+
+            food-=15*troopno;
+
+        }else if(select==4){ //attack village
+
+            int vilno;
+            cout << "Which village would you like to attack? " << endl;
+            cin >> vilno;
+
+            if(vilno>totplay || vilno<1){
+                cout << "Invalid option!" << endl;
                 goto loop;
             }else{
 
             }
 
-
-
-
-        }else if(select==4){ //attack village
-
         }else if(select==5){ //surrender
+
+            string ans;
+            cout << "Are you sure you want to surrender? [y/n]" << endl;
+            cin >> ans;
+
+            if(ans == "y"){
+                village[playno].health = 0;
+                cout << "VILLAGE DESTROYED!" << endl;
+                totplay--;
+                break;
+            }else{
+                goto loop;
+            }
 
         }else if(select==6){ //done
 
+            break;
         }
-
-
-
-
-
-
-
-
-
     }
-
-
 }
 
 void turnphase(int playno){

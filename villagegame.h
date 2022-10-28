@@ -53,7 +53,7 @@ public:
     int carrycap;
     int speed;
     string status;      //status of troop - defending/offending/stationed
-    string type;        //type of troop - untrained/rookies/advanced/masters
+    string type;        //type of troop - untrained/rookie/expert/master
 };
 
 class ResourceBuidlings
