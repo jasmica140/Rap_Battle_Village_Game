@@ -29,8 +29,9 @@ public:
     int x;
     int y;
     int health;         //village health
-    int troopbuildings;      //amount of troop-training buildings owned
-    int resbuildings;      //amount of resource buildings owned
+    int tbuildings;      //amount of troop-training buildings owned
+    int rbuildings;      //amount of resource buildings owned
+    int troops;         //amount of troops available
     bool ptype;      //AI or real player
 };
 
@@ -38,7 +39,7 @@ class Resource
 {
 public:
     string player;        //resource owner
-    string type;        //type of resource - tools/spinach/weights
+    string type;        //type of resource - tools/spinach/money
     int amount;        //amount of resources owned
 };
 
