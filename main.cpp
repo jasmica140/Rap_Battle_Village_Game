@@ -78,7 +78,7 @@ Village *villagesetup(){
         village[i].health = maxhealth;
         village[i].tbuildings = 0;
         village[i].rbuildings = 0;
-        village[i].troops = 25;
+        village[i].troops = 50;
         village[i].index = i;
 
         if(i<rplay){
@@ -122,6 +122,186 @@ Resource **resourcesetup(){
     }
     return resource;
 }
+
+
+
+void friendtroop(int playno){
+
+    Village *village = villagesetup();
+    Resource **resource = resourcesetup();
+
+    int trooptot = village[playno].troops;      //update village troop number
+    int idx = village[playno].index;
+
+    int *players = gamesetup();
+    int totplay = players[0]+players[1];
+
+    Troops troops[totplay][50];
+
+    //for each troop that made it back home
+    for(int i=0; i<trooptot; i++){
+
+        //set status to stationed
+        troops[idx][i].status = "stationed";
+
+        //transfer resources obtain to player and reset troop resources
+        resource[playno][0].amount += troops[idx][i].tools;
+        troops[idx][i].tools=0;
+        resource[playno][1].amount += troops[idx][i].spinach;
+        troops[idx][i].spinach=0;
+        resource[playno][2].amount += troops[idx][i].money;
+        troops[idx][i].money=0;
+    }
+}
+
+void enemytroop(int playno, int attackno){
+
+    Village *village = villagesetup();
+    Resource **resource = resourcesetup();
+
+    int ptroop = village[playno].troops;      //update village troop number
+    int atroop = village[attackno].troops;
+
+    int *players = gamesetup();
+    int totplay = players[0]+players[1];
+
+    Troops troops[totplay][50];
+
+    //winning probabilities
+    int pwinprob=0;
+    int awinprob=0;
+
+    if(village[playno].troops>village[attackno].troops){
+        pwinprob+=15;
+    }else{awinprob+=15;}
+
+
+    for(int i=0; i<ptroop; i++){
+        if(troops[playno][i].type=="rookie"){
+            pwinprob+=5;
+        }else if(troops[playno][i].type=="expert"){
+            pwinprob+=25;
+        }else if(troops[playno][i].type=="master"){
+            pwinprob+=75;
+        }
+    }
+
+    for(int i=0; i<atroop; i++){
+        if(troops[attackno][i].type=="rookie"){
+            awinprob+=5;
+        }else if(troops[attackno][i].type=="expert"){
+            awinprob+=25;
+        }else if(troops[attackno][i].type=="master"){
+            awinprob+=75;
+        }
+    }
+
+    if(pwinprob>=5*awinprob){
+
+        //village losses
+        village[attackno].health = 0;
+        village[attackno].troops = round(village[attackno].troops*0.4);
+        village[attackno].rbuildings = round(village[attackno].rbuildings*0.5);
+        village[attackno].tbuildings = round(village[attackno].tbuildings*0.5);
+
+    }else if(pwinprob>=3*awinprob){
+
+        //village losses
+        village[attackno].health = village[attackno].health*0.25;
+        village[attackno].troops = round(village[attackno].troops*0.6);
+        village[attackno].rbuildings = round(village[attackno].rbuildings*0.65);
+        village[attackno].tbuildings = round(village[attackno].tbuildings*0.65);
+
+        //attacker losses
+        village[playno].troops = round(village[playno].troops*0.8);
+
+    }else if(pwinprob>=1.5*awinprob){
+
+        //village losses
+        village[attackno].health = village[attackno].health*0.75;
+        village[attackno].troops = round(village[attackno].troops*0.8);
+        village[attackno].rbuildings = round(village[attackno].rbuildings*0.85);
+        village[attackno].tbuildings = round(village[attackno].tbuildings*0.85);
+
+        //attacker losses
+        village[playno].troops = round(village[playno].troops*0.6);
+
+    }else if(pwinprob<awinprob){
+
+        //attacker losses
+        village[playno].troops = round(village[playno].troops*0.4);
+    }
+
+    //update village troops
+    for(int i=0; i<village[attackno].troops; i++){
+        loop0:
+        int rdm = rand() % 50;
+        if(troops[playno][rdm].status != "dead"){
+            troops[playno][rdm].status = "dead";
+        }else{
+            goto loop0;
+        }
+    }
+
+    //update attacker troops
+    for(int i=0; i<village[playno].troops; i++){
+        loop:
+        int rdm = rand() % 50;
+        if(troops[playno][rdm].status != "dead"){
+            troops[playno][rdm].status = "dead";
+        }else{
+            goto loop;
+        }
+    }
+
+    //update carrying capacity
+    int carrycap=0;      //total carrying capacity
+    for(int i=0; i<50; i++){
+        if(troops[playno][i].status != "dead"){
+            carrycap += troops[playno][i].carrycap;
+        }
+    }
+
+    cout<<"Your carrying capacity is %d!\nHow many of the following resources would you like to take:"<< carrycap << endl;
+
+    int tools;
+    int spinach;
+    int money;
+
+    loop1:
+    cout<<"Tools [%d available]:"<<resource[attackno][0].amount;
+    cin>>tools;
+    if(tools>resource[attackno][0].amount){
+        cout<<"Not enough resources available!"<<endl;
+        goto loop1;
+    }
+
+    loop2:
+    cout<<"Spinach [%d available]:"<<resource[attackno][1].amount;
+    cin>>spinach;
+    if(spinach>resource[attackno][1].amount){
+        cout<<"Not enough resources available!"<<endl;
+        goto loop2;
+    }
+
+    loop3:
+    cout<<"Money [%d available]:"<<resource[attackno][2].amount;
+    cin>>money;
+    if(money>resource[attackno][2].amount){
+        cout<<"Not enough resources available!"<<endl;
+        goto loop3;
+    }
+
+    if(tools+spinach+money>carrycap){
+        cout<<"Max carrying capacity exceeded!\n Pick again."<<endl;
+        goto loop1;
+    }
+
+    resource[attackno][0].amount -= tools;
+    resource[attackno][1].amount -= spinach;
+    resource[attackno][2].amount -= money;
+}
+
 
 void earnres(int playno){
 
@@ -261,7 +441,7 @@ void actions(int playno){
             int totbuild = resbno+troopbno;
 
             if(totbuild==0){
-                cout << "You have no buildins to upgrade yet!" << endl;
+                cout << "You have no buildings to upgrade yet!" << endl;
                 goto loop;
             }
 
@@ -430,12 +610,9 @@ void turnphase(int playno){
     earnres(playno);
 
     //player actions
-
-    //next player
+    actions(playno);
 
 }
-
-void wincond(){}
 
 void marching(){}
 
@@ -456,7 +633,7 @@ void gameloop(){
     cout << aiplay << endl;
 
     int playno = 0;
-    while(totplay > 1){
+    while(totplay > 1){ //win condition
 
         turnphase(playno);
 

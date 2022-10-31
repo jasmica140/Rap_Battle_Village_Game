@@ -2,6 +2,8 @@
 #define TASK1_VILLAGEGAME_H
 
 #include <iostream>
+#include <cmath>
+
 
 using namespace std;
 
@@ -47,13 +49,16 @@ class Troops
 {
 public:
     int village;        //troop location
-    int cost;
+    int cost;           //cost of training
     int health;
-    int attack;
-    int carrycap;
-    int speed;
-    string status;      //status of troop - defending/offending/stationed
+    int attack;         //strength
+    int carrycap;       //carrying capacity
+    int speed;          //marching speed
+    string status;      //status of troop - defending/offending/stationed/dead
     string type;        //type of troop - untrained/rookie/expert/master
+    int tools;          //amount of tools taken from village after attack
+    int spinach;        //amount of spinach taken from village after attack
+    int money;          //amount of money taken from village after attack
 };
 
 class ResourceBuidlings
