@@ -6,24 +6,28 @@
 
 using namespace std;
 
-#define mapsize 10000
+#define mapx 100
+#define mapy 100
 #define maxhealth 100
 #define maxplay 10
 #define maxtroops 50
 #define maxrbuild 50
 #define maxtbuild 50
 
+class Map{
+public:
+    string status;
+}map[mapx][mapy];
 
 class Village
 {
 public:
-    int index;
-    int loc[2];         //(x,y)
-    int health;         //village health
+    int loc[2];          //(x,y)
+    int health;          //village health
     int tbuildings;      //amount of troop-training buildings owned
     int rbuildings;      //amount of resource buildings owned
-    int troops;         //amount of troops available
-    bool ptype;      //AI or real player
+    int troops;          //amount of troops available
+    bool ptype;          //AI or real player
 }village[maxplay];
 
 class Resource
@@ -36,23 +40,18 @@ public:
 class Troops
 {
 public:
-    int index{};            //troop index
     int cost{};           //cost of training
     int health{};
     int attack{};         //strength
     int carrycap{};       //carrying capacity
     int speed{};          //marching speed
-    string status;        //status of troop - defending/offending/stationed/dead
+    string status;        //status of troop - army/stationed/dead
     string type;          //type of troop - untrained/rookie/expert/master
+    bool army;
+    int loc[2]{};           //troop location
     int resource[3]{};      //amount of resources taken from village after attack
 }troops[maxplay][maxtroops];
 
-class Armies
-{
-public:
-    int troop;              //troop index
-    int loc[2];             //troop location
-}army[maxplay];
 
 
 class ResourceBuidlings
@@ -72,7 +71,6 @@ public:
 }tbuild[maxplay][maxtbuild];
 
 
-
 string V = "                                          \n"
            "                           _.-^-._    .--.\n"
            "                        .-'   _   '-. |__|\n"
@@ -85,20 +83,23 @@ string V = "                                          \n"
            " ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^";
 
 //main
+void gameloop();
+
+//setup
 int *gamesetup();
 void villagesetup();
 void resourcesetup();
-void gameloop();
+void troopsetup();
 
 //roundphases
-void turnphase(int playno);
-void marching(int playno, int villno, int mspeed);
+int turnphase(int playno, int totplay);
+bool marching(int playno, int villno, int mspeed);
 int endround(int playno);
 void startround(int playno);
 
 //turnphases
 void friendtroop(int playno);
-void enemytroop(int playno, int attackno);
+int enemytroop(int playno, int totplay);
 void earnres(int playno);
 void attack(int playno, int villno);
 void actions(int playno);

@@ -3,171 +3,37 @@
 
 void friendtroop(int playno){
 
-    int trooptot = village[playno].troops;      //update village troop number
-    int idx = village[playno].index;
-
     int *players = gamesetup();
     int totplay = players[0]+players[1];
 
     //for each troop that made it back home
-    for(int i=0; i<trooptot; i++){
+    for(int i=0; i<maxtroops; i++){
 
-        //set status to stationed
-        troops[idx][i].status = "stationed";
+        if(troops[playno][i].army && troops[playno][i].status != "dead"){
 
-        //transfer resources obtain to player and reset troop resources
-        resource[playno][0].amount += troops[idx][i].resource[0];
-        troops[idx][i].resource[0]=0;
-        resource[playno][1].amount += troops[idx][i].resource[1];
-        troops[idx][i].resource[1]=0;
-        resource[playno][2].amount += troops[idx][i].resource[2];
-        troops[idx][i].resource[2]=0;
+            troops[playno][i].status = "stationed";                 //set status to stationed
+            troops[playno][i].army = false;                 //reset army status
+
+            //transfer resources obtain to player and reset troop resources
+            resource[playno][0].amount += troops[playno][i].resource[0];
+            troops[playno][i].resource[0]=0;
+            resource[playno][1].amount += troops[playno][i].resource[1];
+            troops[playno][i].resource[1]=0;
+            resource[playno][2].amount += troops[playno][i].resource[2];
+            troops[playno][i].resource[2]=0;
+        }
     }
 }
 
-void enemytroop(int playno, int attackno){
+int enemytroop(int playno, int totplay){
 
-    int ptroop = village[playno].troops;      //update village troop number
-    int atroop = village[attackno].troops;
-
-    int *players = gamesetup();
-    int totplay = players[0]+players[1];
-
-    Troops troops[totplay][50];
-
-    //winning probabilities
-    int pwinprob=0;
-    int awinprob=0;
-
-    if(village[playno].troops>village[attackno].troops){
-        pwinprob+=15;
-    }else{awinprob+=15;}
-
-
-    for(int i=0; i<ptroop; i++){
-        if(troops[playno][i].type=="rookie"){
-            pwinprob+=5;
-        }else if(troops[playno][i].type=="expert"){
-            pwinprob+=25;
-        }else if(troops[playno][i].type=="master"){
-            pwinprob+=75;
-        }
+    if(village[playno].health==0){
+        village[playno].loc[0]=0;
+        village[playno].loc[1]=0;
+        totplay--;
     }
 
-    for(int i=0; i<atroop; i++){
-        if(troops[attackno][i].type=="rookie"){
-            awinprob+=5;
-        }else if(troops[attackno][i].type=="expert"){
-            awinprob+=25;
-        }else if(troops[attackno][i].type=="master"){
-            awinprob+=75;
-        }
-    }
-
-    if(pwinprob>=5*awinprob){
-
-        //village losses
-        village[attackno].health = 0;
-        village[attackno].troops = round(village[attackno].troops*0.4);
-        village[attackno].rbuildings = round(village[attackno].rbuildings*0.5);
-        village[attackno].tbuildings = round(village[attackno].tbuildings*0.5);
-
-    }else if(pwinprob>=3*awinprob){
-
-        //village losses
-        village[attackno].health = village[attackno].health*0.25;
-        village[attackno].troops = round(village[attackno].troops*0.6);
-        village[attackno].rbuildings = round(village[attackno].rbuildings*0.65);
-        village[attackno].tbuildings = round(village[attackno].tbuildings*0.65);
-
-        //attacker losses
-        village[playno].troops = round(village[playno].troops*0.8);
-
-    }else if(pwinprob>=1.5*awinprob){
-
-        //village losses
-        village[attackno].health = village[attackno].health*0.75;
-        village[attackno].troops = round(village[attackno].troops*0.8);
-        village[attackno].rbuildings = round(village[attackno].rbuildings*0.85);
-        village[attackno].tbuildings = round(village[attackno].tbuildings*0.85);
-
-        //attacker losses
-        village[playno].troops = round(village[playno].troops*0.6);
-
-    }else if(pwinprob<awinprob){
-
-        //attacker losses
-        village[playno].troops = round(village[playno].troops*0.4);
-    }
-
-    //update village troops
-    for(int i=0; i<village[attackno].troops; i++){
-        loop0:
-        int rdm = rand() % 50;
-        if(troops[playno][rdm].status != "dead"){
-            troops[playno][rdm].status = "dead";
-        }else{
-            goto loop0;
-        }
-    }
-
-    //update attacker troops
-    for(int i=0; i<village[playno].troops; i++){
-        loop:
-        int rdm = rand() % 50;
-        if(troops[playno][rdm].status != "dead"){
-            troops[playno][rdm].status = "dead";
-        }else{
-            goto loop;
-        }
-    }
-
-    //update carrying capacity
-    int carrycap=0;      //total carrying capacity
-    for(int i=0; i<50; i++){
-        if(troops[playno][i].status != "dead"){
-            carrycap += troops[playno][i].carrycap;
-        }
-    }
-
-    cout<<"Your carrying capacity is %d!\nHow many of the following resources would you like to take:"<< carrycap << endl;
-
-    int tools;
-    int spinach;
-    int money;
-
-    loop1:
-    cout<<"Tools [%d available]:"<<resource[attackno][0].amount;
-    cin>>tools;
-    if(tools>resource[attackno][0].amount){
-        cout<<"Not enough resources available!"<<endl;
-        goto loop1;
-    }
-
-    loop2:
-    cout<<"Spinach [%d available]:"<<resource[attackno][1].amount;
-    cin>>spinach;
-    if(spinach>resource[attackno][1].amount){
-        cout<<"Not enough resources available!"<<endl;
-        goto loop2;
-    }
-
-    loop3:
-    cout<<"Money [%d available]:"<<resource[attackno][2].amount;
-    cin>>money;
-    if(money>resource[attackno][2].amount){
-        cout<<"Not enough resources available!"<<endl;
-        goto loop3;
-    }
-
-    if(tools+spinach+money>carrycap){
-        cout<<"Max carrying capacity exceeded!\n Pick again."<<endl;
-        goto loop1;
-    }
-
-    resource[attackno][0].amount -= tools;
-    resource[attackno][1].amount -= spinach;
-    resource[attackno][2].amount -= money;
+    return totplay;
 }
 
 
@@ -249,7 +115,7 @@ void attack(int playno, int villno){
     cout<<"2.Expert troops x"<<l<<endl;
     cout<<"3.Master troops x"<<m<<endl;
 
-    int rookie, expert, master;
+    int rookie=0, expert=0, master=0;
 
     loop1:
     cout<<"How many rookie troops are you taking?"<<endl;
@@ -257,6 +123,13 @@ void attack(int playno, int villno){
     if(rookie>k){
         cout<<"Not enough rookie troops available!"<<endl;
         goto loop1;
+    }else{
+        for(int i=0; i<rookie; i++){
+            if(troops[playno][i].type=="rookie"){
+                troops[playno][i].status="army";
+                troops[playno][i].army = true;
+            }
+        }
     }
 
     loop2:
@@ -265,6 +138,13 @@ void attack(int playno, int villno){
     if(expert>l){
         cout<<"Not enough expert troops available!"<<endl;
         goto loop2;
+    }else{
+        for(int i=0; i<expert; i++){
+            if(troops[playno][i].type=="expert"){
+                troops[playno][i].status="army";
+                troops[playno][i].army = true;
+            }
+        }
     }
 
     loop3:
@@ -273,6 +153,13 @@ void attack(int playno, int villno){
     if(master>m){
         cout<<"Not enough master troops available!"<<endl;
         goto loop3;
+    }else{
+        for(int i=0; i<master; i++){
+            if(troops[playno][i].type=="master"){
+                troops[playno][i].status="army";
+                troops[playno][i].army = true;
+            }
+        }
     }
 
     //army marching speed
@@ -284,7 +171,169 @@ void attack(int playno, int villno){
     }else{
         mspeed = 25;
     }
+
+    //if army successfully arrived
+    if(marching(playno, villno, mspeed)){
+
+        int pattack=0;
+        int vattack=0;
+        int phealth=0;
+
+        for(int i=0; i<maxtroops; i++){
+            if(troops[playno][i].status=="army"){
+                pattack += troops[playno][i].attack; //sum of player troops attack
+                phealth += troops[playno][i].health; //sum of player troops health
+            }
+        }
+
+        for(int i=0; i<maxtroops; i++){
+            if(troops[villno][i].status=="stationed"){
+                vattack += troops[villno][i].attack; //sum of villager troops attack
+            }
+        }
+
+        //until player troop health = villager troops health
+        while(phealth>vattack) {
+
+            //kill player troop
+            loop4:
+            int rnd = (rand() %maxtroops);
+            if (troops[playno][rnd].status == "army") {
+                troops[playno][rnd].cost = 0;
+                troops[playno][rnd].health = 0;
+                troops[playno][rnd].attack = 0;
+                troops[playno][rnd].carrycap = 0;
+                troops[playno][rnd].speed = 0;
+                troops[playno][rnd].status = "dead";
+            }else{
+                goto loop4;
+            }
+
+            //kill villager troop
+            loop5:
+            rnd = (rand() %maxtroops);
+            if (troops[villno][rnd].status == "stationed") {
+                troops[villno][rnd].cost = 0;
+                troops[villno][rnd].health = 0;
+                troops[villno][rnd].attack = 0;
+                troops[villno][rnd].carrycap = 0;
+                troops[villno][rnd].speed = 0;
+                troops[villno][rnd].status = "dead";
+            }else{
+                goto loop5;
+            }
+
+            //recalculate health and attack
+            vattack=0;
+            phealth=0;
+            for(int i=0; i<maxtroops; i++){
+                if(troops[playno][i].status=="army"){
+                    phealth += troops[playno][i].health; //sum of player troops health
+                }
+                if (troops[villno][rnd].status == "stationed") {
+                    vattack += troops[villno][i].attack; //sum of villager troops attack
+                }
+            }
+        }
+
+        bool success;
+        for(int i=0; i<maxtroops; i++){
+            if(troops[playno][i].army && troops[playno][i].status != "dead"){
+                success=true;
+                break;
+            }else{
+                success=false;
+            }
+        }
+
+        if(success){
+
+            //sum of surviving player troops attack
+            for(int i=0; i<maxtroops; i++){
+                if(troops[playno][i].army && troops[playno][i].status != "dead"){
+                    pattack += troops[playno][i].attack;
+                }
+            }
+
+            //reduce village health
+            village[villno].health-= pattack;
+
+
+            //calculate carrying capacity
+            int carrycap=0;
+            for(int i=0; i<50; i++){
+                if(troops[playno][i].army && troops[playno][i].status != "dead"){
+                    carrycap += troops[playno][i].carrycap;
+                }
+            }
+
+            //steal resources
+            cout<<"Your carrying capacity is "<< carrycap <<"!\nHow many of the following resources would you like to take:"<< endl;
+
+            int tools;
+            int spinach;
+            int money;
+
+            loop6:
+            cout<<"Tools [" <<resource[villno][0].amount<<" available]:";
+            cin>>tools;
+            if(tools>resource[villno][0].amount){
+                cout<<"Not enough resources available!"<<endl;
+                goto loop6;
+            }
+
+            loop7:
+            cout<<"Spinach ["<<resource[villno][1].amount<<" available]:";
+            cin>>spinach;
+            if(spinach>resource[villno][1].amount){
+                cout<<"Not enough resources available!"<<endl;
+                goto loop7;
+            }
+
+            loop8:
+            cout<<"Money ["<<resource[villno][2].amount<<" available]:";
+            cin>>money;
+            if(money>resource[villno][2].amount){
+                cout<<"Not enough resources available!"<<endl;
+                goto loop8;
+            }
+
+            if(tools+spinach+money>carrycap){
+                cout<<"Max carrying capacity exceeded!\n Pick resources again."<<endl;
+                goto loop6;
+            }
+
+            resource[villno][0].amount -= tools;
+            resource[villno][1].amount -= spinach;
+            resource[villno][2].amount -= money;
+
+            //update army marching speed
+            mspeed=0;
+            for(int i=0; i<maxtroops; i++){
+                if(troops[playno][i].army && troops[playno][i].status == "rookie"){
+                    mspeed = 10;
+                }
+            }
+
+            if(mspeed==0){
+                for(int i=0; i<maxtroops; i++){
+                    if(troops[playno][i].army && troops[playno][i].status == "expert"){
+                        mspeed = 15;
+                    }
+                }
+            }
+
+            if(mspeed==0){
+                mspeed=25;
+            }
+
+            //surviving troops march back home
+            marching(playno, playno, mspeed);
+        }
+    }
 }
+
+
 
 
 void actions(int playno){
@@ -445,7 +494,7 @@ void actions(int playno){
                 }else{
                     for(int i=0; i<trooptot; i++){
                         if(troops[playno][i].type==troops[playno][select-1].type){
-                            troops[playno][i].type = "Rookie";
+                            troops[playno][i].type = "rookie";
                             j++;
                             if(j==troopno){
                                 break;
@@ -460,7 +509,7 @@ void actions(int playno){
                 }else{
                     for(int i=0; i<trooptot; i++){
                         if(troops[playno][i].type==troops[playno][select-1].type){
-                            troops[playno][i].type = "Expert";
+                            troops[playno][i].type = "expert";
                             j++;
                             if(j==troopno){
                                 break;
@@ -475,7 +524,7 @@ void actions(int playno){
                 }else{
                     for(int i=0; i<trooptot; i++){
                         if(troops[playno][i].type==troops[playno][select-1].type){
-                            troops[playno][i].type = "Master";
+                            troops[playno][i].type = "master";
                             j++;
                             if(j==troopno){
                                 break;
@@ -490,15 +539,33 @@ void actions(int playno){
         }else if(select==4){ //attack village
 
             int villno;
+
             cout << "Which village would you like to attack? " << endl;
             cin >> villno;
+
+            int vattack=0;
+            int phealth=0;
+
+            for(int i=0; i<maxtroops; i++){
+                if(troops[playno][i].status=="army"){
+                    phealth += troops[playno][i].health; //sum of player troops health
+                }
+            }
+
+            for(int i=0; i<maxtroops; i++){
+                if(troops[villno][i].status=="stationed"){
+                    vattack += troops[villno][i].attack; //sum of villager troops attack
+                }
+            }
 
             if(villno>totplay || villno<1){
                 cout << "Invalid option!" << endl;
                 goto loop;
+            }else if(phealth<=vattack){
+                cout << "Not enough health to attack village!" << endl;
+                goto loop;
             }else{
-                enemytroop(playno,villno);
-                friendtroop(playno);
+                attack(playno,villno);
             }
 
         }else if(select==5){ //surrender

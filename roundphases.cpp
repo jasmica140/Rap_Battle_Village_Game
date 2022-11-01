@@ -1,59 +1,91 @@
 #include "villagegame.h"
 
 
-void turnphase(int playno){
+int turnphase(int playno, int totplay){
 
     //friendly troop arrival
+    friendtroop(playno);
 
     //enemy troop arrival
+    totplay = enemytroop(playno,totplay);
 
     //resource earning
     earnres(playno);
 
     //player actions
     actions(playno);
+
+    return totplay;
 }
 
-void marching(int playno, int villno, int mspeed){
-
-    //min steps required to get to target
-    int minstep = max(abs(village[playno].loc[0] - village[villno].loc[0]), abs(village[playno].loc[1] - village[villno].loc[1]));
+bool marching(int playno, int villno, int mspeed){
 
     //shortest path to get to target
     int i=0;
-    int playx = village[playno].loc[0];
-    int playy = village[playno].loc[1];
     int villx = village[villno].loc[0];
     int villy = village[villno].loc[1];
 
+    int k;
+    for(k=0; k<maxtroops; k++) {
+        if (troops[playno][k].status == "army") {
+            break;
+        }
+    }
+
+    //min steps required to get to target
+    int minstep = max(abs(troops[playno][k].loc[0] - villx), abs(troops[playno][k].loc[1] - villy));
+
     // while army is not in same row or column as target and army's steps per round not exceeded
-    while (((playx != villx) || (playy != villy)) && i<mspeed){
+    while (((troops[playno][k].loc[0] != villx) || (troops[playno][k].loc[1] != villy)) && i<mspeed){
 
         //go up
-        if (playx < villx) {
-            army[playno].loc[0]++;      //update army location
-            playx++;
+        if (troops[playno][k].loc[0] < villx) {
+            for(int j=0; i<maxtroops; i++){
+                if(troops[playno][j].status=="army"){
+                    troops[playno][j].loc[0]++;      //update army location
+                }
+            }
         }
 
         //go down
-        if (playx > villx) {
-            army[playno].loc[0]--;      //update army location
-            playx--;
+        if (troops[playno][k].loc[0] > villx) {
+            for(int j=0; i<maxtroops; i++){
+                if(troops[playno][j].status=="army"){
+                    troops[playno][j].loc[0]--;      //update army location
+                }
+            }
         }
 
         //go left
-        if (playy > villy) {
-            army[playno].loc[1]++;      //update army location
-            playy--;
+        if (troops[playno][k].loc[1] > villy) {
+            for(int j=0; i<maxtroops; i++){
+                if(troops[playno][j].status=="army"){
+                    troops[playno][j].loc[1]--;      //update army location
+                }
+            }
         }
 
         //go right
-        if (playy < villy) {
-            army[playno].loc[1]--;      //update army location
-            playy++;
+        if (troops[playno][k].loc[1] < villy) {
+            for(int j=0; i<maxtroops; i++){
+                if(troops[playno][j].status=="army"){
+                    troops[playno][j].loc[1]++;      //update army location
+                }
+            }
         }
+
         i++;
     }
+
+    bool success;
+
+    if(mspeed<=minstep){
+        success=true;
+    }else{
+        success=false;
+    }
+
+    return success;
 }
 
 int endround(int playno){
