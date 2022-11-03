@@ -4,7 +4,7 @@
 int turnphase(int playno, int totplay){
 
     //friendly troop arrival
-    friendtroop(playno);
+    friendtroop(playno,totplay);
 
     //enemy troop arrival
     totplay = enemytroop(playno,totplay);
@@ -13,7 +13,7 @@ int turnphase(int playno, int totplay){
     earnres(playno);
 
     //player actions
-    actions(playno);
+    actions(playno, totplay);
 
     return totplay;
 }
@@ -89,11 +89,11 @@ bool marching(int playno, int villno, int mspeed){
 }
 
 int endround(int playno){
-    cout << "Player " << playno << "'s turn complete!" << endl;
+    cout << "Player " << playno+1 << "'s turn complete!" << endl;
     playno++;
     return playno;
 }
 
 void startround(int playno){
-    cout << "Player " << playno << "'s turn!" << endl;
+    cout << "Player " << playno+1 << "'s turn!" << endl;
 }

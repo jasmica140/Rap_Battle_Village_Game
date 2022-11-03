@@ -1,6 +1,5 @@
 #include "villagegame.h"
 
-
 int *gamesetup(){
 
     int rplay;      //real players
@@ -25,91 +24,45 @@ int *gamesetup(){
         goto loop2;
     }
 
-    int players[] = {rplay,aiplay};
+    int totplay = rplay+aiplay;
 
-    return players;
-}
+    for(int i=0; i<totplay; i++){
+        int rndx = 1 + (rand() %mapx);
+        int rndy = 1 + (rand() %mapy);
+        int loc[2]={rndx,rndy};
 
-
-void villagesetup(){
-
-    int *players = gamesetup();
-    int totplay = players[0]+players[1];
-
-    //village and resources for each player
-    for(int i=0; i<totplay; i++) {
-
-        loop:
-        //not evenly spaced yet...fix later
-        village[i].loc[0] = 1 + (rand() %100);
-        village[i].loc[1] = 1 + (rand() %100);
-
-        //different coordinates for each village
-        for(int j=0; j<i; j++){
-            if(village[i].loc[0] == village[j].loc[0]){
-                if(village[i].loc[1] == village[j].loc[1]){
-                    goto loop;
-                }
-            }
-        }
-
-        village[i].health = maxhealth;
-        village[i].tbuildings = 0;
-        village[i].rbuildings = 0;
-        village[i].troops = 50;
-
-        if(i<players[0]){
-            village[i].ptype = true;
+        if(i<rplay){
+            village[i] = Village(loc, maxhealth, 0, 0, maxtroops, true);
         }else{
-            village[i].ptype = false;
+            village[i] = Village(loc, maxhealth, 0, 0, maxtroops, false);
         }
 
-        map[village[i].loc[0]][village[i].loc[1]].status = "V";      //assign village location in map
+        map[rndx][rndy].status = "  V  ";
     }
-}
 
-void resourcesetup(){
-
-    int *players = gamesetup();
-    int totplay = players[0]+players[1];
-
-    //resources for each player
-    for(int i=0; i<totplay; i++) {
+    //initialise resources for each player
+    for(int i=0; i<totplay; i++){
 
         //assign 50 of each resource to each player
-        resource[i][0].type = "tools";
-        resource[i][0].amount = 50;
-
-        resource[i][1].type = "spinach";
-        resource[i][1].amount = 50;
-
-        resource[i][2].type = "tv";
-        resource[i][2].amount = 50;
+        resource[i][0] = Resource("tools",50);
+        resource[i][1] = Resource("spinach",50);
+        resource[i][2] = Resource("tv",50);
     }
-}
 
-void troopsetup(){
-
-    int *players = gamesetup();
-    int totplay = players[0]+players[1];
 
     //initialise troops for each player
     for(int i=0; i<totplay; i++) {
         for(int j=0; j<maxtroops; j++){
 
-            troops[i][j].cost = 15;
-            troops[i][j].health = 0;
-            troops[i][j].attack = 0;
-            troops[i][j].carrycap = 0;
-            troops[i][j].speed = 0;
-            troops[i][j].status = "stationed";
-            troops[i][j].type = "untrained";
-            troops[i][j].army = false;
-            troops[i][j].loc[0] = village[i].loc[0];
-            troops[i][j].loc[1] = village[i].loc[1];
-            troops[i][j].resource[0] = 0;
-            troops[i][j].resource[1] = 0;
-            troops[i][j].resource[2] = 0;
+            int loc[2] = {village[i].loc[0],village[i].loc[1]};
+            int res[3] = {0,0,0};
+
+            troops[i][j] = Troops(15,0,0,0,0,"stationed","untrained",false,loc,res);
         }
     }
+
+    int players[] = {rplay,aiplay};
+
+    return players;
 }
+

@@ -1,10 +1,6 @@
 #include "villagegame.h"
 
-
-void friendtroop(int playno){
-
-    int *players = gamesetup();
-    int totplay = players[0]+players[1];
+void friendtroop(int playno, int totplay){
 
     //for each troop that made it back home
     for(int i=0; i<maxtroops; i++){
@@ -88,14 +84,9 @@ void earnres(int playno){
 }
 
 
-void attack(int playno, int villno){
+void attack(int playno, int villno, int totplay){
 
     int ptroop = village[playno].troops;      //update village troop number
-    int atroop = village[villno].troops;
-
-    int *players = gamesetup();
-    int totplay = players[0]+players[1];
-
 
     //count troops by status
     int k=0,l=0,m=0;
@@ -336,13 +327,10 @@ void attack(int playno, int villno){
 
 
 
-void actions(int playno){
+void actions(int playno, int totplay){
 
     int resbno = village[playno].rbuildings;
     int troopbno = village[playno].tbuildings;
-
-    int *players = gamesetup();
-    int totplay = players[0]+players[1];
 
     int select=0;
     int cost;
@@ -353,6 +341,8 @@ void actions(int playno){
     int trooptot = village[playno].troops;
 
     while(select!=6){
+
+        villagecli(playno);
 
         loop:
         cout << "Please select one of the following options: \n"
@@ -565,7 +555,7 @@ void actions(int playno){
                 cout << "Not enough health to attack village!" << endl;
                 goto loop;
             }else{
-                attack(playno,villno);
+                attack(playno,villno,totplay);
             }
 
         }else if(select==5){ //surrender

@@ -3,6 +3,5 @@ project(Task1)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(Task1 main.cpp roundphases.cpp turnphases.cpp setup.cpp)
-
+add_executable(Task1 villagegame.h main.cpp roundphases.cpp turnphases.cpp setup.cpp cli.cpp main.cpp)
 

@@ -70,6 +70,12 @@ build CMakeFiles/Task1.dir/setup.cpp.o: CXX_COMPILER__Task1_Debug /Users/jasmine
   OBJECT_DIR = CMakeFiles/Task1.dir
   OBJECT_FILE_DIR = CMakeFiles/Task1.dir
 
+build CMakeFiles/Task1.dir/cli.cpp.o: CXX_COMPILER__Task1_Debug /Users/jasminemicallef/Desktop/Uni$ Docs/Comp$ Sci/Yr2/CPS2004/Assignment/Task1/cli.cpp || cmake_object_order_depends_target_Task1
+  DEP_FILE = CMakeFiles/Task1.dir/cli.cpp.o.d
+  FLAGS = -g -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk -mmacosx-version-min=12.2 -std=gnu++20
+  OBJECT_DIR = CMakeFiles/Task1.dir
+  OBJECT_FILE_DIR = CMakeFiles/Task1.dir
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target Task1
@@ -78,7 +84,7 @@ build CMakeFiles/Task1.dir/setup.cpp.o: CXX_COMPILER__Task1_Debug /Users/jasmine
 #############################################
 # Link the executable Task1
 
-build Task1: CXX_EXECUTABLE_LINKER__Task1_Debug CMakeFiles/Task1.dir/main.cpp.o CMakeFiles/Task1.dir/roundphases.cpp.o CMakeFiles/Task1.dir/turnphases.cpp.o CMakeFiles/Task1.dir/setup.cpp.o
+build Task1: CXX_EXECUTABLE_LINKER__Task1_Debug CMakeFiles/Task1.dir/main.cpp.o CMakeFiles/Task1.dir/roundphases.cpp.o CMakeFiles/Task1.dir/turnphases.cpp.o CMakeFiles/Task1.dir/setup.cpp.o CMakeFiles/Task1.dir/cli.cpp.o
   FLAGS = -g -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk -mmacosx-version-min=12.2
   OBJECT_DIR = CMakeFiles/Task1.dir
   POST_BUILD = :
