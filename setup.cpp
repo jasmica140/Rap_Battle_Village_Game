@@ -5,22 +5,25 @@ int *gamesetup(){
     int rplay;      //real players
     int aiplay;     //AI players
 
+    wrefresh(win);
+    keypad(win,true);
+
     //ask user for player amounts
     loop1:
-    cout << "Please provide the number of players:" << endl;
-    cin >> rplay;
+    mvwprintw(win,texty,1,"Please provide the number of players:");
+    rplay = wgetch(win)-48;
 
     if(rplay<1){
-        cout << "At least one player required!" << endl;
+        mvwprintw(win,texty+1,1,"At least one player required!" );
         goto loop1;
     }
 
     loop2:
-    cout << "How many AI players would you like?" << endl;
-    cin >> aiplay;
+    mvwprintw(win,texty+2,1,"Please provide the number of AI players:");
+    aiplay= wgetch(win)-48;
 
     if(aiplay<0){
-        cout << "Number must be zero or greater!" << endl;
+        mvwprintw(win,texty+3,1,"Number must be zero or greater!" );
         goto loop2;
     }
 
@@ -44,9 +47,9 @@ int *gamesetup(){
     for(int i=0; i<totplay; i++){
 
         //assign 50 of each resource to each player
-        resource[i][0] = Resource("tools",50);
-        resource[i][1] = Resource("spinach",50);
-        resource[i][2] = Resource("tv",50);
+        resource[i][0] = Resource("tools",500);
+        resource[i][1] = Resource("food",500);
+        resource[i][2] = Resource("money",500);
     }
 
 
@@ -60,6 +63,8 @@ int *gamesetup(){
             troops[i][j] = Troops(15,0,0,0,0,"stationed","untrained",false,loc,res);
         }
     }
+
+    //initialise
 
     int players[] = {rplay,aiplay};
 

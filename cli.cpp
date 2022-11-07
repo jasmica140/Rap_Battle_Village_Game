@@ -1,26 +1,26 @@
 #include "villagegame.h"
 
+void mapcli(){
 
-void cli(){
-
-    for(int k=0; k<mapy; k++){
-        for(int i=0; i<mapx;i++){
-            cout << MAGENTA << "+-----";
+    int i,j,k;
+    for(k=0; k<mapy; k++){
+        for(i=0; i<mapx; i++){
+            mvwprintw(win,14+(k*2),86+(i*6),"+-----");
         }
-        cout << "+" << endl;
+        mvwprintw(win,14+(k*2),86+(i*6),"+");
 
-        for(int i=0; i<2; i++){
-            for(int j=0; j<(mapx/2)+1; j++){
-                cout << CYAN << "|" << MAGENTA << map[j][k].status;
+        for(i=0; i<mapy-2; i++){
+            for(j=0; j<mapx; j++){
+                mvwprintw(win,15+(k*2),86+(j*6), "|%s", map[j][k].status.c_str());
             }
         }
-        cout << endl;
+        mvwprintw(win,15+(k*2),86+(j*6), "|");
     }
 
-    for(int i=0; i<mapx;i++){
-        cout << MAGENTA << "+-----";
+    for(i=0; i<mapx; i++){
+        mvwprintw(win,14+(k*2),86+(i*6),"+-----");
     }
-    cout << "+" << endl;
+    mvwprintw(win,14+(k*2),86+(i*6),"+");
 }
 
 void villagecli(int playno){
@@ -30,7 +30,7 @@ void villagecli(int playno){
     int vill = village[playno].rbuildings + village[playno].tbuildings;
 
     if(vill==0){
-        vart = "                                                           |>>>\n"
+        vart = "                                                          |>>>\n"
                "                   _                                       |\n"
                "    ____________ .' '.                                    / \\\n"
                "   //// ////// /V_.-._\\                                  /___\\\n"
@@ -54,7 +54,7 @@ void villagecli(int playno){
                "___|_______|__[ == ==]/.::::::;;;:::::::::::::::;;;:::::::.\\[=  == ]___|_____";
 
     }else if(vill==1){
-        vart = "                                                           |>>>\n"
+        vart = "                                                          |>>>\n"
                "                   _                                       |\n"
                "    ____________ .' '.                       /========\\   / \\\n"
                "   //// ////// /V_.-._\\                      | u    u |  /___\\\n"
@@ -79,7 +79,7 @@ void villagecli(int playno){
 
     }else if(vill==2){
 
-        vart = "                                                           |>>>\n"
+        vart = "                                                          |>>>\n"
                "                   _                      _                |\n"
                "    ____________ .' '.                  .' './========\\   / \\\n"
                "   //// ////// /V_.-._\\                |-----| u    u |  /___\\\n"
@@ -104,7 +104,7 @@ void villagecli(int playno){
 
     }else if(vill==3){
 
-        vart = "                                                           |>>>\n"
+        vart = "                                                          |>>>\n"
                "                   _                      _                |\n"
                "    ____________ .' '.             /-\\ .' './========\\   / \\\n"
                "   //// ////// /V_.-._\\            | _ |-----| u    u |  /___\\\n"
@@ -128,7 +128,7 @@ void villagecli(int playno){
                "___|_______|__[ == ==]/.::::::;;;:::::::::::::::;;;:::::::.\\[=  == ]___|_____";
 
     } else if(vill==4){
-        vart = "                                                           |>>>\n"
+        vart = "                                                          |>>>\n"
                "                   _                      _                |\n"
                "    ____________ .' '.        /----/-\\ .' './========\\   / \\\n"
                "   //// ////// /V_.-._\\        |===| _ |-----| u    u |  /___\\\n"
@@ -152,9 +152,9 @@ void villagecli(int playno){
                "___|_______|__[ == ==]/.::::::;;;:::::::::::::::;;;:::::::.\\[=  == ]___|_____";
     } else if(vill>=5){
 
-        vart = "                                                           |>>>\n"
+        vart = "                                                          |>>>\n"
                "                   _                      _                |\n"
-               "    ____________ .' '.   _____/----/-\\ .' './========\\   / \\\n"
+               "    ____________ .' '.    _____/----/-\\ .' './========\\   / \\\n"
                "   //// ////// /V_.-._\\  |.-.-.|===| _ |-----| u    u |  /___\\\n"
                "  // /// // ///==\\ u |.  || | ||===||||| |T| |   ||   | .| u |_ _ _ _ _ _\n"
                " ///////-\\////====\\==|:::::::::::::::::::::::::::::::::::|u u| U U U U U\n"
@@ -176,12 +176,26 @@ void villagecli(int playno){
                "___|_______|__[ == ==]/.::::::;;;:::::::::::::::;;;:::::::.\\[=  == ]___|_____";
     }
 
-    cout << "\033[50J\033[;H";
-    cout << endl << CYAN << "Player 1's village:" << endl;
-    cout << "Village health: " << village[playno].health << endl;
-    cout << "Troops: " << village[playno].troops << endl;
-    cout << "Resource generating buildings: " << village[playno].rbuildings << endl;
-    cout << "Troop training buildings: " << village[playno].tbuildings << endl;
 
-    cout << endl << BOLDYELLOW << vart << endl << endl;
+    mvwprintw(win,1,1,"%s",vart.c_str());
+
+    mvwprintw(win,2,80,"Player 1's village:");
+    mvwprintw(win,3,81,"Village health: %d",village[playno].health);
+    mvwprintw(win,4,81,"Troops: %d",village[playno].troops);
+    mvwprintw(win,5,81,"Resource generating buildings: %d",village[playno].rbuildings);
+    mvwprintw(win,6,81,"Troop training buildings: %d",village[playno].tbuildings);
+
+
+    mvwprintw(win,8,80,"Resources:\n");
+    mvwprintw(win,9,81,"Tools: %d\n",resource[playno][0].amount);
+    mvwprintw(win,10,81,"Food: %d\n",resource[playno][1].amount);
+    mvwprintw(win,11,81,"Money: %d\n",resource[playno][2].amount);
+}
+
+void refreshcli(int playno){
+    wclear(win);
+    wrefresh(win);
+    villagecli(playno);
+    mvwprintw(win,1,1,"Player %d's turn!",playno+1);
+    mapcli();
 }

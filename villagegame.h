@@ -4,16 +4,18 @@
 #include <iostream>
 #include <cmath>
 #include <cstdlib>
+#include <curses.h>
 
 using namespace std;
 
-#define mapx 20
-#define mapy 20
+#define mapx 13
+#define mapy 11
 #define maxhealth 100
 #define maxplay 10
 #define maxtroops 50
 #define maxrbuild 50
 #define maxtbuild 50
+#define texty 25
 
 //the following are UBUNTU/LINUX, and MacOS ONLY terminal color codes.
 #define RESET   "\033[0m"
@@ -33,6 +35,9 @@ using namespace std;
 #define BOLDMAGENTA "\033[1m\033[35m"      /* Bold Magenta */
 #define BOLDCYAN    "\033[1m\033[36m"      /* Bold Cyan */
 #define BOLDWHITE   "\033[1m\033[37m"      /* Bold White */
+
+
+extern WINDOW *win;
 
 class Map{
 public:
@@ -91,7 +96,7 @@ public:
     string status;        //status of troop - army/stationed/dead
     string type;          //type of troop - untrained/rookie/expert/master
     bool army{};
-    int loc[2]{};             //troop location
+    int loc[2]{};           //troop location
     int resource[3]{};      //amount of resources taken from village after attack
 
     Troops() = default;
@@ -127,7 +132,6 @@ extern ResourceBuidlings rbuild[maxplay][maxrbuild];
 class TroopBuidlings
 {
 public:
-    int resources{};      //amount of resources required to train troops
     string type;          //type of resource required
     int level{};
 };
@@ -136,6 +140,7 @@ extern TroopBuidlings tbuild[maxplay][maxtbuild];
 
 
 //main
+int options(int n, string choices[n]);
 void gameloop();
 
 //setup
@@ -152,12 +157,19 @@ void startround(int playno);
 void friendtroop(int playno, int totplay);
 int enemytroop(int playno, int totplay);
 void earnres(int playno);
-void attack(int playno, int villno, int totplay);
 void actions(int playno, int totplay);
 
+//actions
+void build(int playno);
+int upgrade(int playno);
+int train(int playno);
+void attack(int playno, int villno, int totplay);
+
 //cli
-void clrscr();
-void cli();
+void mapcli();
 void villagecli(int playno);
+void refreshcli(int playno);
+
+void moveTo(int row, int col);
 
 #endif //TASK1_VILLAGEGAME_H
