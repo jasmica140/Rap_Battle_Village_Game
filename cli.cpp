@@ -1,26 +1,28 @@
 #include "villagegame.h"
 
-void mapcli(){
+void mapcli(int playno){
 
+    mvwprintw(win,10,122,"--MAP--");
     int i,j,k;
     for(k=0; k<mapy; k++){
         for(i=0; i<mapx; i++){
-            mvwprintw(win,14+(k*2),86+(i*6),"+-----");
+            mvwprintw(win,11+(k*2),86+(i*6),"+-----");
         }
-        mvwprintw(win,14+(k*2),86+(i*6),"+");
+        mvwprintw(win,11+(k*2),86+(i*6),"+");
 
         for(i=0; i<mapy-2; i++){
             for(j=0; j<mapx; j++){
-                mvwprintw(win,15+(k*2),86+(j*6), "|%s", map[j][k].status.c_str());
+                mvwprintw(win,12+(k*2),86+(j*6), "|%s", map[j][k].status.c_str());
             }
         }
-        mvwprintw(win,15+(k*2),86+(j*6), "|");
+        mvwprintw(win,12+(k*2),86+(j*6), "|");
+
     }
 
     for(i=0; i<mapx; i++){
-        mvwprintw(win,14+(k*2),86+(i*6),"+-----");
+        mvwprintw(win,11+(k*2),86+(i*6),"+-----");
     }
-    mvwprintw(win,14+(k*2),86+(i*6),"+");
+    mvwprintw(win,11+(k*2),86+(i*6),"+");
 }
 
 void villagecli(int playno){
@@ -130,7 +132,7 @@ void villagecli(int playno){
     } else if(vill==4){
         vart = "                                                          |>>>\n"
                "                   _                      _                |\n"
-               "    ____________ .' '.        /----/-\\ .' './========\\   / \\\n"
+               "    ____________ .' '.         /----/-\\ .' './========\\   / \\\n"
                "   //// ////// /V_.-._\\        |===| _ |-----| u    u |  /___\\\n"
                "  // /// // ///==\\ u |.        |===||||| |T| |   ||   | .| u |_ _ _ _ _ _\n"
                " ///////-\\////====\\==|:::::::::::::::::::::::::::::::::::|u u| U U U U U\n"
@@ -176,20 +178,41 @@ void villagecli(int playno){
                "___|_______|__[ == ==]/.::::::;;;:::::::::::::::;;;:::::::.\\[=  == ]___|_____";
     }
 
+    //count troops
+    int k=0,l=0,m=0,n=0;
+    for(int i=0; i<village[playno].troops; i++){
+        if(troops[playno][i].type=="untrained"){
+            k++;
+        }else if(troops[playno][i].type=="rookie"){
+            l++;
+        }else if(troops[playno][i].type=="expert"){
+            m++;
+        }else if(troops[playno][i].type=="master"){
+            n++;
+        }
+    }
 
     mvwprintw(win,1,1,"%s",vart.c_str());
 
-    mvwprintw(win,2,80,"Player 1's village:");
-    mvwprintw(win,3,81,"Village health: %d",village[playno].health);
-    mvwprintw(win,4,81,"Troops: %d",village[playno].troops);
-    mvwprintw(win,5,81,"Resource generating buildings: %d",village[playno].rbuildings);
-    mvwprintw(win,6,81,"Troop training buildings: %d",village[playno].tbuildings);
+    mvwprintw(win,1,86,"Player 1's village:");
+    mvwprintw(win,2,86,"Village health: %d",village[playno].health);
+    mvwprintw(win,3,86,"Troops: %d",village[playno].troops);
+    mvwprintw(win,4,86,"Armies: %d",village[playno].army);
+    mvwprintw(win,5,86,"Resource generating buildings: %d",village[playno].rbuildings);
+    mvwprintw(win,6,86,"Troop training buildings: %d",village[playno].tbuildings);
 
 
-    mvwprintw(win,8,80,"Resources:\n");
-    mvwprintw(win,9,81,"Tools: %d\n",resource[playno][0].amount);
-    mvwprintw(win,10,81,"Food: %d\n",resource[playno][1].amount);
-    mvwprintw(win,11,81,"Money: %d\n",resource[playno][2].amount);
+    mvwprintw(win,1,126,"Resources: ");
+    mvwprintw(win,2,126,"Tools: %d ",resource[playno][0].amount);
+    mvwprintw(win,3,126,"Food: %d ",resource[playno][1].amount);
+    mvwprintw(win,4,126,"Money: %d ",resource[playno][2].amount);
+
+
+    mvwprintw(win,1,146,"Troops: ");
+    mvwprintw(win,2,146,"Untrained: %d ",k);
+    mvwprintw(win,3,146,"Rookies: %d ",l);
+    mvwprintw(win,4,146,"Experts: %d ",m);
+    mvwprintw(win,5,146,"Masters: %d ",n);
 }
 
 void refreshcli(int playno){
@@ -197,5 +220,9 @@ void refreshcli(int playno){
     wrefresh(win);
     villagecli(playno);
     mvwprintw(win,1,1,"Player %d's turn!",playno+1);
-    mapcli();
+    mapcli(playno);
+    mvwhline(win, 24, 1, '_', 80);
+    mvwhline(win, 8, 80, '_', 100);
+    mvwvline(win, 1, 80, '|', 37);
+    mvwhline(win, 36, 1, '_', 79);
 }

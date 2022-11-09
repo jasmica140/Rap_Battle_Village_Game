@@ -4,6 +4,7 @@ Map map[mapx][mapy];
 Village village[maxplay];
 Resource resource[maxplay][3];
 Troops troops[maxplay][maxtroops];
+Army army[maxplay][maxarmy];
 ResourceBuidlings rbuild[maxplay][maxrbuild];
 TroopBuidlings tbuild[maxplay][maxtbuild];
 
@@ -28,7 +29,7 @@ void gameloop(){
     }
 }
 
-int options(int n, string choices[n]){
+int options(int n, string choices[n],int y, int x, bool sameline){
 
     int choice;
     int hl=0;
@@ -38,26 +39,50 @@ int options(int n, string choices[n]){
             if (i == hl) {
                 wattron(win, A_REVERSE);
             }
-            mvwprintw(win, i + 1 + 25, 1, choices[i].c_str());
-            wattroff(win, A_REVERSE);
-
+            if(sameline){
+                mvwprintw(win, y, x+(i*3), choices[i].c_str());
+                wattroff(win, A_REVERSE);
+            }else{
+                mvwprintw(win, y+i, x, choices[i].c_str());
+                wattroff(win, A_REVERSE);
+            }
         }
         choice = wgetch(win);
 
-        switch(choice) {
-            case KEY_UP:
-                hl--;
-                if (hl == -1) {
-                    hl = 0;
-                }
-                break;
+        if(sameline){
+            switch(choice) {
 
-            case KEY_DOWN:
-                hl++;
-                if (hl == n) {
-                    hl = n - 1;
-                }
-                break;
+                case KEY_LEFT:
+                    hl--;
+                    if (hl == -1) {
+                        hl = 0;
+                    }
+                    break;
+
+                case KEY_RIGHT:
+                    hl++;
+                    if (hl == n) {
+                        hl = n - 1;
+                    }
+                    break;
+            }
+        }else{
+            switch(choice) {
+
+                case KEY_UP:
+                    hl--;
+                    if (hl == -1) {
+                        hl = 0;
+                    }
+                    break;
+
+                case KEY_DOWN:
+                    hl++;
+                    if (hl == n) {
+                        hl = n - 1;
+                    }
+                    break;
+            }
         }
 
         if (choice == 10) {
@@ -67,19 +92,18 @@ int options(int n, string choices[n]){
     return hl+1;
 }
 
-
 int main() {
 
     initscr();
-    echo();
+    noecho();
     cbreak();
+
 
     int ymax, xmax;
     getmaxyx(stdscr,ymax,xmax);
 
     win = newwin(39, xmax-8, ymax-39, 5);
-    box(win,0,0);
-    hline(2,xmax-8);
+
     refresh();
     wrefresh(win);
     //enable arrow keys
@@ -92,4 +116,3 @@ int main() {
 
     return 0;
 }
-

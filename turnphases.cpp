@@ -2,21 +2,26 @@
 
 void friendtroop(int playno, int totplay){
 
-    //for each troop that made it back home
-    for(int i=0; i<maxtroops; i++){
+    int acnt = village[playno].army;
+    int i;
 
-        if(troops[playno][i].army && troops[playno][i].status != "dead"){
+    for(i=0; i<acnt; i++){
+        //if army made it home
+        if(army[playno][i].loc[0] == village[playno].loc[0] && army[playno][i].loc[1] == village[playno].loc[1]){
+            //transfer resources obtained to player
+            resource[playno][0].amount += army[playno][i].resource[0];
+            resource[playno][1].amount += army[playno][i].resource[1];
+            resource[playno][2].amount += army[playno][i].resource[2];
 
-            troops[playno][i].status = "stationed";                 //set status to stationed
-            troops[playno][i].army = false;                 //reset army status
+            //set status to stationed
+            for(int j=0; j<army[playno][acnt].troops; j++){
+                if(army[playno][acnt].trps[j]->status != "dead"){
+                    army[playno][acnt].trps[j]->status = "stationed";
+                }
+            }
 
-            //transfer resources obtain to player and reset troop resources
-            resource[playno][0].amount += troops[playno][i].resource[0];
-            troops[playno][i].resource[0]=0;
-            resource[playno][1].amount += troops[playno][i].resource[1];
-            troops[playno][i].resource[1]=0;
-            resource[playno][2].amount += troops[playno][i].resource[2];
-            troops[playno][i].resource[2]=0;
+            //decrease village army count
+            village[playno].army--;
         }
     }
 }
@@ -85,21 +90,21 @@ void earnres(int playno){
 
 void actions(int playno, int totplay){
 
-    int select=0;
+    int select;
 
-    while(select!=7){
+    while(true){
 
         refreshcli(playno);
 
         loop:
-        printw("Select an action: \n\n");
+        mvwprintw(win,texty,1,"Select an action: ");
 
         string choices[] = {
                 "1.Build new buildings","2.Upgrade existing buildings","3.Train troops",
-                "4.Attack Villages","5.Surrender", "6.View map", "7.End turn"
+                "4.Attack Villages","5.Surrender", "6.End turn"
         };
 
-        select = options(7, choices);
+        select = options(6, choices,texty+1, 1,false);
 
         refreshcli(playno);
 
@@ -121,56 +126,33 @@ void actions(int playno, int totplay){
 
         }else if(select==4){ //attack village
 
-            int villno;
-
-            cout << "Which village would you like to attack? " << endl;
-            cin >> villno;
-
-            int vattack=0;
-            int phealth=0;
-
-            for(int i=0; i<maxtroops; i++){
-                if(troops[playno][i].status=="army"){
-                    phealth += troops[playno][i].health; //sum of player troops health
+            if(village[playno].army<6){
+                if(attack(playno,totplay)==1){
+                    goto loop;
                 }
-            }
-
-            for(int i=0; i<maxtroops; i++){
-                if(troops[villno][i].status=="stationed"){
-                    vattack += troops[villno][i].attack; //sum of villager troops attack
-                }
-            }
-
-            if(villno>totplay || villno<1){
-                cout << "Invalid option!" << endl;
-                goto loop;
-            }else if(phealth<=vattack){
-                cout << "Not enough health to attack village!" << endl;
-                goto loop;
             }else{
-                attack(playno,villno,totplay);
+                refreshcli(playno);
+                mvwprintw(win,erry,1,"Error: Maximum army limit reached!");
+                goto loop;
             }
 
         }else if(select==5){ //surrender
 
-            string ans;
-            cout << "Are you sure you want to surrender? [y/n]" << endl;
-            cin >> ans;
+            mvwprintw(win,texty,1,"Are you sure you want to surrender?");
+            string yn[]={"YES","NO"};
+            int ans = options(2,yn,texty+1, 1,false);
 
-            if(ans == "y"){
+            if(ans == 1){
                 village[playno].health = 0;
-                cout << "VILLAGE DESTROYED!" << endl;
+                refreshcli(playno);
+                mvwprintw(win,texty,1,"VILLAGE DESTROYED!");
                 totplay--;
                 break;
             }else{
                 goto loop;
             }
 
-        }else if(select==6){ //show map
-
-            mapcli();
-
-        }else if(select==7){ //done
+        }else if(select==6){ //done
             break;
         }
 

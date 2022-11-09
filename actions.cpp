@@ -5,47 +5,39 @@ void build(int playno){
     int bno;
     int select;
 
-    refreshcli(playno);
-
-    loop:
-    mvwprintw(win,texty,1,"Select building type: \n");
+    mvwprintw(win,texty,1,"Select building type: ");
     string choices[]={"1.Resource-generating","2.Troop-training"};
-    select = options(2,choices);
+    select = options(2,choices,texty+1, 1,false);
 
     refreshcli(playno);
 
     int type;
 
     if(select==1){
-        mvwprintw(win,texty,1,"Select a resource to generate:\n");
+        mvwprintw(win,texty,1,"Select a resource to generate:");
         string types[]={"1.Tools","2.Food","3.Money"};
-        type = options(3,types);
+        type = options(3,types,texty+1, 1,false);
 
     }else if(select==2){
-        mvwprintw(win,texty,1,"Select the type of troops to train:\n");
+        mvwprintw(win,texty,1,"Select the type of troops to train:");
         string types[]={"1.Untrained","2.Rookies","3.Experts"};
-        type = options(3,types);
+        type = options(3,types,texty+1, 1,false);
     }
 
     refreshcli(playno);
 
-    loop2:
+    int maxbuild = round(resource[playno][2].amount / 65);
     mvwprintw(win,texty,1,"How many buildings would you like to build? ");
-    bno = wgetch(win)-48;
+
+    string nums[maxbuild];
+    for(int i=0; i<maxbuild; i++){
+        nums[i] = {to_string(i)};
+    }
+    bno = options(maxbuild,nums,texty+1,1,true)-1;
 
     refreshcli(playno);
 
-    if(bno<1){
-        mvwprintw(win,texty+1,1,"At least one building required!");
-        refreshcli(playno);
-        goto loop2;
-    }
-
-    int cost = bno*35;
-    if(resource[playno][2].amount<cost){
-        mvwprintw(win,texty,1,"Insufficient funds!\nPlease select another option:");
-        goto loop;
-    }
+    int cost = bno*65;
 
     if(select==1){ //resource
         village[playno].rbuildings+=bno;
@@ -80,7 +72,7 @@ int upgrade(int playno){
     int totbuild = village[playno].rbuildings+village[playno].tbuildings;
 
     if(totbuild==0){
-        mvwprintw(win,texty,1,"You have no buildings to upgrade yet!");
+        mvwprintw(win,erry,1,"Error: You have no buildings to upgrade yet!");
         return 1;
     }
 
@@ -113,22 +105,19 @@ int upgrade(int playno){
         }
         j++;
     }
-    select = options(i,choices);
+    select = options(i,choices,texty+1, 1,false);
 
     refreshcli(playno);
 
-    if(resource[playno][0].amount<15){
-        mvwprintw(win,texty,1,"Insufficient funds!\n Please select another option:");
-        return 1;
+    if(select<count+1){
+        rbuild[playno][real[select-1]].level++;
     }else{
-        if(select<count+1){
-            rbuild[playno][real[select-1]].level++;
-        }else{
-            tbuild[playno][real[select-1]].level++;
-        }
+        tbuild[playno][real[select-1]].level++;
     }
 
-    resource[playno][2].amount-=15;
+    //decrease tools
+    resource[playno][0].amount-=65;
+
     return 0;
 }
 
@@ -136,7 +125,6 @@ int train(int playno){
 
     int select;
 
-    loop3:
     mvwprintw(win,texty,1,"Select which type of troops to train:");
 
     int troopno;
@@ -155,78 +143,85 @@ int train(int playno){
     string choices[] = {"1. Untrained troops x"+to_string(k)+" available",
                        "2. Rookie troops x"+ to_string(l) +" available",
                        "3. Expert troops x" + to_string(m) + " available"};
-    select = options(3,choices);
+    select = options(3,choices,texty+1,1,false);
+
+    refreshcli(playno);
 
     mvwprintw(win,texty,1,"How many %s troops would you like to upgrade? ",troops[playno][select-1].type.c_str());
-    troopno = wgetch(win);
+    int maxtroop = round(resource[playno][1].amount / troops[playno][select-1].cost);
+
+    if(select==1){
+        if(maxtroop>k){
+            maxtroop = k;
+        }
+    }else if(select==2){
+        if(maxtroop>l){
+            maxtroop = l;
+        }
+    } else if(select==3){
+        if(maxtroop>m){
+            maxtroop = m;
+        }
+    }
+
+    string nums[maxtroops];
+    for(int i=0; i<maxtroop; i++){
+        nums[i] = {to_string(i)};
+    }
+    troopno = options(maxtroop,nums,texty+1,1,true)-1;
+    refreshcli(playno);
 
     int j=0;
     if(select==1){ //rookies
 
-        if(resource[playno][1].amount<15*troopno){
-            mvwprintw(win,texty,1,"Not enough resources!");
-            return 1;
-        }else{
-            if(troopno>k){
-                mvwprintw(win,texty,1,"Not enough troops!");
-                goto loop3;
-            }else{
-                for(int i=0; i<village[playno].troops; i++){
-                    if(troops[playno][i].type==troops[playno][select-1].type){
-                        troops[playno][i].type = "rookie";
-                        resource[playno][1].amount-=troops[playno][j].cost;
-                        j++;
-                        if(j==troopno){
-                            break;
-                        }
-                    }
+        for(int i=0; i<village[playno].troops; i++){
+            if(troops[playno][i].type=="untrained"){
+
+                if(j==troopno){
+                    break;
                 }
+                resource[playno][1].amount-=troops[playno][i].cost;
+
+                //update troop specs
+                int loc[2] = {village[playno].loc[0],village[playno].loc[1]};
+                troops[playno][i] = Troops(35,50,50,30,10,"stationed","rookie",loc);
+
+                j++;
             }
         }
-
     }else if(select==2){ //expert
 
-        if(resource[playno][1].amount<15*troopno){
-            mvwprintw(win,texty,1,"Not enough resources!");
-            return 1;
-        }else{
-            if(troopno>l){
-                mvwprintw(win,texty,1,"Not enough troops!");
-                goto loop3;
-            }else{
-                for(int i=0; i<village[playno].troops; i++){
-                    if(troops[playno][i].type==troops[playno][select-1].type){
-                        troops[playno][i].type = "expert";
-                        resource[playno][1].amount-=troops[playno][j].cost;
-                        j++;
-                        if(j==troopno){
-                            break;
-                        }
-                    }
+        for(int i=0; i<village[playno].troops; i++){
+            if(troops[playno][i].type=="rookie"){
+
+                if(j==troopno){
+                    break;
                 }
+                resource[playno][1].amount-=troops[playno][i].cost;
+
+                //update troop specs
+                int loc[2] = {village[playno].loc[0],village[playno].loc[1]};
+                troops[playno][i] = Troops(80,175,175,50,15,"stationed","expert",loc);
+
+                j++;
             }
         }
 
     }else if(select==3){ //master
 
-        if(resource[playno][1].amount<15*troopno){
-            mvwprintw(win,texty,1,"Not enough resources!");
-            return 1;
-        }else{
-            if(troopno>m){
-                mvwprintw(win,texty,1,"Not enough troops!");
-                goto loop3;
-            }else{
-                for(int i=0; i<village[playno].troops; i++){
-                    if(troops[playno][i].type==troops[playno][select-1].type){
-                        troops[playno][i].type = "master";
-                        resource[playno][1].amount-=troops[playno][j].cost;
-                        j++;
-                        if(j==troopno){
-                            break;
-                        }
-                    }
+        for(int i=0; i<village[playno].troops; i++){
+            if(troops[playno][i].type=="expert"){
+
+                if(j==troopno){
+                    break;
                 }
+                resource[playno][1].amount-=troops[playno][i].cost;
+
+                //update troop specs
+                int loc[2] = {village[playno].loc[0],village[playno].loc[1]};
+                troops[playno][i] = Troops(0,350,350,90,25,"stationed","master",loc);
+
+                j++;
             }
         }
     }
@@ -234,7 +229,50 @@ int train(int playno){
 }
 
 
-void attack(int playno, int villno, int totplay){
+int attack(int playno, int totplay){
+
+    refreshcli(playno);
+
+    mvwprintw(win,texty,1,"Select a village to attack :");
+
+    string vills[totplay-1-village[playno].army];
+
+    int cnt=0;
+
+    for(int j=0; j<totplay; j++){
+
+        bool ok = true;
+
+        //rounds required
+        int minstep = max(abs(village[playno].loc[0] - village[j].loc[0]), abs(village[playno].loc[1] - village[j].loc[1]));
+
+        //village troops total attack
+        int vattack=0;
+        for(int i=0; i<maxtroops; i++){
+            if (troops[j][i].status == "stationed") {
+                vattack += troops[j][i].attack; //sum of villager troops attack
+            }
+        }
+
+        if(j!=playno-1){ //can't attack their own village
+            for(int i=0; i<village[playno].army; i++){
+                if(army[playno][i].target == j){ //can't attack villages player is already attacking
+                    ok = false;
+                    break;
+                }
+            }
+        }
+
+        if(ok){
+            vills[cnt] = {"Player "+to_string(cnt+1)+"'s Village - health "+to_string(village[cnt].health)+" - total attack "+to_string(vattack)+" - tools x"+to_string(resource[cnt][0].amount)+" - food x"+to_string(resource[cnt][1].amount)+" - money x"+to_string(resource[cnt][2].amount)+" - "+to_string(minstep)+" rounds to reach target "};
+            cnt++;
+        }
+    }
+
+    int villno = options(totplay-1,vills,texty+1, 1,false);
+    refreshcli(playno);
+
+    //create new army
 
     int ptroop = village[playno].troops;      //update village troop number
 
@@ -250,82 +288,131 @@ void attack(int playno, int villno, int totplay){
         }
     }
 
-    //ask for troops to send for battle
-    cout<<"Troops available for battle:"<<endl;
-    cout<<"1.Rookie troops x"<<k<<endl;
-    cout<<"2.Expert troops x"<<l<<endl;
-    cout<<"3.Master troops x"<<m<<endl;
+    int trooptot = k+l+m;
+    if(trooptot==0){
+        refreshcli(playno);
+        mvwprintw(win,erry,1,"Error: No troops available for battle!");
+        return 1;
+    }
 
     int rookie=0, expert=0, master=0;
 
-    loop1:
-    cout<<"How many rookie troops are you taking?"<<endl;
-    cin>>rookie;
-    if(rookie>k){
-        cout<<"Not enough rookie troops available!"<<endl;
-        goto loop1;
-    }else{
-        for(int i=0; i<rookie; i++){
-            if(troops[playno][i].type=="rookie"){
-                troops[playno][i].status="army";
-                troops[playno][i].army = true;
-            }
+    if(k>0){
+        //ask for troops to send for battle
+        mvwprintw(win,texty,1,"Troops available for battle:");
+        mvwprintw(win,texty+1,1,"1.Rookie troops x%d",k);
+        mvwprintw(win,texty+2,1,"2.Expert troops x%d",l);
+        mvwprintw(win,texty+3,1,"3.Master troops x%d",m);
+
+        mvwprintw(win,texty+5,1,"How many rookie troops are you taking?");
+        string rook[k];
+        for(int i=0; i<k; i++){
+            rook[i] = {to_string(i)};
+        }
+        rookie = options(k,rook,texty+6,1,true)-1;
+        refreshcli(playno);
+    }
+
+    if(l>0){
+        //ask for troops to send for battle
+        mvwprintw(win,texty,1,"Troops available for battle:");
+        mvwprintw(win,texty+1,1,"1.Rookie troops x%d",k);
+        mvwprintw(win,texty+2,1,"2.Expert troops x%d",l);
+        mvwprintw(win,texty+3,1,"3.Master troops x%d",m);
+
+        mvwprintw(win,texty+5,1,"How many expert troops are you taking?");
+        string exp[l];
+        for(int i=0; i<l; i++){
+            exp[i] = {to_string(i)};
+        }
+        expert = options(l,exp,texty+6,1,true)-1;
+        refreshcli(playno);
+    }
+
+
+    if(m>0){
+        //ask for troops to send for battle
+        mvwprintw(win,texty,1,"Troops available for battle:");
+        mvwprintw(win,texty+1,1,"1.Rookie troops x%d",k);
+        mvwprintw(win,texty+2,1,"2.Expert troops x%d",l);
+        mvwprintw(win,texty+3,1,"3.Master troops x%d",m);
+
+        mvwprintw(win,texty+5,1,"How many master troops are you taking?");
+        string mst[m];
+        for(int i=0; i<m; i++){
+            mst[i] = {to_string(i)};
+        }
+        master = options(m,mst,texty+6,1,true)-1;
+        refreshcli(playno);
+    }
+
+    trooptot = rookie+expert+master;
+
+    //segmentation fault: 11
+    Troops *trps[trooptot];
+
+    int tcnt=0;
+    for(int i=0; i<maxtroops; i++){
+        if(tcnt==rookie){
+            break;
+        }
+        if(troops[playno][i].type=="rookie"){
+            *trps[i] = troops[playno][i];
+            tcnt++;
         }
     }
 
-    loop2:
-    cout<<"How many expert troops are you taking?"<<endl;
-    cin>>expert;
-    if(expert>l){
-        cout<<"Not enough expert troops available!"<<endl;
-        goto loop2;
-    }else{
-        for(int i=0; i<expert; i++){
-            if(troops[playno][i].type=="expert"){
-                troops[playno][i].status="army";
-                troops[playno][i].army = true;
-            }
+    tcnt=0;
+    for(int i=0; i<maxtroops; i++){
+        if(tcnt==expert){
+            break;
+        }
+        if(troops[playno][i].type=="expert"){
+            *trps[i] = troops[playno][i];
+            tcnt++;
         }
     }
 
-    loop3:
-    cout<<"How many master troops are you taking?"<<endl;
-    cin>>master;
-    if(master>m){
-        cout<<"Not enough master troops available!"<<endl;
-        goto loop3;
-    }else{
-        for(int i=0; i<master; i++){
-            if(troops[playno][i].type=="master"){
-                troops[playno][i].status="army";
-                troops[playno][i].army = true;
-            }
+    tcnt=0;
+    for(int i=0; i<maxtroops; i++){
+        if(tcnt==master){
+            break;
         }
+        if(troops[playno][i].type=="master"){
+            *trps[i] = troops[playno][i];
+            tcnt++;
+        }
+    }
+
+    int acnt = village[playno].army;
+
+    int res[] = {0,0,0};
+    army[playno][acnt] = Army(trooptot, trps, res, villno);
+
+    int vattack=0;
+    int phealth = army[playno][acnt].health;        //sum of player troops health
+
+    for(int i=0; i<maxtroops; i++){
+        if(troops[villno][i].status=="stationed"){
+            vattack += troops[villno][i].attack; //sum of villager troops attack
+        }
+    }
+
+    if(phealth<=vattack){
+        refreshcli(playno);
+        mvwprintw(win,erry,1,"Error: Not enough health to attack selected village! Try another army combo homedawg ¯\\_(ツ)_/¯.");
+        return 1;
     }
 
     //army marching speed
-    int mspeed;
-    if(rookie>0){
-        mspeed = 10;
-    }else if(expert>0){
-        mspeed=15;
-    }else{
-        mspeed = 25;
-    }
+    int mspeed = army[playno][acnt].speed;
 
     //if army successfully arrived
-    if(marching(playno, villno, mspeed)){
+    if(marching(playno, acnt, villno, mspeed)){
 
-        int pattack=0;
-        int vattack=0;
-        int phealth=0;
-
-        for(int i=0; i<maxtroops; i++){
-            if(troops[playno][i].status=="army"){
-                pattack += troops[playno][i].attack; //sum of player troops attack
-                phealth += troops[playno][i].health; //sum of player troops health
-            }
-        }
+        int pattack = army[playno][acnt].attack;
+        vattack = 0;
+        phealth = army[playno][acnt].health;
 
         for(int i=0; i<maxtroops; i++){
             if(troops[villno][i].status=="stationed"){
@@ -338,14 +425,16 @@ void attack(int playno, int villno, int totplay){
 
             //kill player troop
             loop4:
-            int rnd = (rand() %maxtroops);
-            if (troops[playno][rnd].status == "army") {
-                troops[playno][rnd].cost = 0;
-                troops[playno][rnd].health = 0;
-                troops[playno][rnd].attack = 0;
-                troops[playno][rnd].carrycap = 0;
-                troops[playno][rnd].speed = 0;
-                troops[playno][rnd].status = "dead";
+            int rnd = (rand() %tcnt);
+            if (army[playno][acnt].trps[rnd]->status != "dead") {
+                army[playno][acnt].trps[rnd]->cost = 0;
+                army[playno][acnt].trps[rnd]->health = 0;
+                army[playno][acnt].trps[rnd]->attack = 0;
+                army[playno][acnt].trps[rnd]->carrycap = 0;
+                army[playno][acnt].trps[rnd]->speed = 0;
+                army[playno][acnt].trps[rnd]->status = "dead";
+                army[playno][acnt].trps[rnd]->type = "dead";
+                village[playno].troops--;
             }else{
                 goto loop4;
             }
@@ -360,26 +449,29 @@ void attack(int playno, int villno, int totplay){
                 troops[villno][rnd].carrycap = 0;
                 troops[villno][rnd].speed = 0;
                 troops[villno][rnd].status = "dead";
+                troops[villno][rnd].type = "dead";
+                village[villno].troops--;
             }else{
                 goto loop5;
             }
 
             //recalculate health and attack
-            vattack=0;
-            phealth=0;
+            army[playno][acnt] = Army(trooptot, trps, res, villno);
+
+            vattack = 0;
+            phealth = army[playno][acnt].health;        //sum of player troops health
+
             for(int i=0; i<maxtroops; i++){
-                if(troops[playno][i].status=="army"){
-                    phealth += troops[playno][i].health; //sum of player troops health
-                }
-                if (troops[villno][rnd].status == "stationed") {
+                if (troops[villno][i].status == "stationed") {
                     vattack += troops[villno][i].attack; //sum of villager troops attack
                 }
             }
         }
 
+        //if at least one troop in player's army survives = success
         bool success;
-        for(int i=0; i<maxtroops; i++){
-            if(troops[playno][i].army && troops[playno][i].status != "dead"){
+        for(int i=0; i<tcnt; i++){
+            if(army[playno][acnt].trps[i]->status != "dead"){
                 success=true;
                 break;
             }else{
@@ -389,88 +481,70 @@ void attack(int playno, int villno, int totplay){
 
         if(success){
 
+            refreshcli(playno);
+
+            loop6:
+            mvwprintw(win,texty,20,"ATTACK SUCCESSFUL!");
+            mvwhline(win, texty+1, 1, '_', 80);
+
+            //update army
+            army[playno][acnt] = Army(trooptot, trps, res, villno);
+
             //sum of surviving player troops attack
-            for(int i=0; i<maxtroops; i++){
-                if(troops[playno][i].army && troops[playno][i].status != "dead"){
-                    pattack += troops[playno][i].attack;
-                }
-            }
+            pattack = army[playno][acnt].attack;
 
             //reduce village health
             village[villno].health-= pattack;
 
-
-            //calculate carrying capacity
-            int carrycap=0;
-            for(int i=0; i<50; i++){
-                if(troops[playno][i].army && troops[playno][i].status != "dead"){
-                    carrycap += troops[playno][i].carrycap;
-                }
-            }
+            //army carrying capacity
+            int carrycap = army[playno][acnt].carrycap;
 
             //steal resources
-            cout<<"Your carrying capacity is "<< carrycap <<"!\nHow many of the following resources would you like to take:"<< endl;
+            mvwprintw(win,texty+2,1,"Your carrying capacity is %d!", carrycap);
+            mvwprintw(win,texty+3,1,"How many of the following resources would you like to take:");
 
             int tools;
-            int spinach;
+            int food;
             int money;
 
-            loop6:
-            cout<<"Tools [" <<resource[villno][0].amount<<" available]:";
-            cin>>tools;
-            if(tools>resource[villno][0].amount){
-                cout<<"Not enough resources available!"<<endl;
-                goto loop6;
+            mvwprintw(win,texty+4,1,"Tools");
+            string tls[resource[villno][0].amount];
+            for(int i=0; i<resource[villno][0].amount; i++){
+                tls[i] = {to_string(i)};
             }
+            tools = options(resource[villno][0].amount,tls,texty+5,1,true)-1;
 
-            loop7:
-            cout<<"Spinach ["<<resource[villno][1].amount<<" available]:";
-            cin>>spinach;
-            if(spinach>resource[villno][1].amount){
-                cout<<"Not enough resources available!"<<endl;
-                goto loop7;
+            mvwprintw(win,texty+6,1,"Food");
+            string fd[resource[villno][1].amount];
+            for(int i=0; i<resource[villno][1].amount; i++){
+                fd[i] = {to_string(i)};
             }
+            food = options(resource[villno][1].amount,fd,texty+7,1,true)-1;
 
-            loop8:
-            cout<<"Money ["<<resource[villno][2].amount<<" available]:";
-            cin>>money;
-            if(money>resource[villno][2].amount){
-                cout<<"Not enough resources available!"<<endl;
-                goto loop8;
+            mvwprintw(win,texty+8,1,"Money");
+            string mny[resource[villno][2].amount];
+            for(int i=0; i<resource[villno][2].amount; i++){
+                mny[i] = {to_string(i)};
             }
+            money = options(resource[villno][2].amount,mny,texty+9,1,true)-1;
 
-            if(tools+spinach+money>carrycap){
-                cout<<"Max carrying capacity exceeded!\n Pick resources again."<<endl;
+            if(tools+food+money>carrycap){
+                refreshcli(playno);
+                mvwprintw(win,erry,1,"Max carrying capacity exceeded! Pick resources again.");
                 goto loop6;
             }
 
             resource[villno][0].amount -= tools;
-            resource[villno][1].amount -= spinach;
+            resource[villno][1].amount -= food;
             resource[villno][2].amount -= money;
 
             //update army marching speed
-            mspeed=0;
-            for(int i=0; i<maxtroops; i++){
-                if(troops[playno][i].army && troops[playno][i].status == "rookie"){
-                    mspeed = 10;
-                }
-            }
-
-            if(mspeed==0){
-                for(int i=0; i<maxtroops; i++){
-                    if(troops[playno][i].army && troops[playno][i].status == "expert"){
-                        mspeed = 15;
-                    }
-                }
-            }
-
-            if(mspeed==0){
-                mspeed=25;
-            }
+            mspeed=army[playno][acnt].speed;
 
             //surviving troops march back home
-            marching(playno, playno, mspeed);
+            marching(playno, acnt, playno, mspeed);
         }
     }
+    return 0;
 }
 
