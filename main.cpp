@@ -2,11 +2,11 @@
 
 Map map[mapx][mapy];
 Village village[maxplay];
-Resource resource[maxplay][3];
+Resource resource[maxplay][4];
 Troops troops[maxplay][maxtroops];
 Army army[maxplay][maxarmy];
-ResourceBuidlings rbuild[maxplay][maxrbuild];
-TroopBuidlings tbuild[maxplay][maxtbuild];
+ResourceBuildings rbuild[maxplay][maxrbuild];
+TroopBuildings tbuild[maxplay][maxtbuild];
 
 WINDOW *win;
 
@@ -16,16 +16,22 @@ void gameloop(){
     int totplay = players[0]+players[1];
 
     int playno = 0;
+    int round = 1;
 
     refreshcli(playno);
-    turnphase(playno,totplay);
+    totplay = turnphase(playno,totplay,round);
 
     while(totplay > 1){ //win condition
 
-        playno = endround(playno);
-        startround(playno);
+        //if village is still standing
+        if(village[playno].health!=0){
+            playno = endround(playno);
+            startround(playno);
 
-        totplay = turnphase(playno,totplay);
+            round++;
+
+            totplay = turnphase(playno,totplay,round);
+        }
     }
 }
 
@@ -94,9 +100,12 @@ int options(int n, string choices[n],int y, int x, bool sameline){
 
 int main() {
 
+    setlocale(LC_ALL, "");
+
     initscr();
     noecho();
     cbreak();
+    curs_set(0);
 
 
     int ymax, xmax;

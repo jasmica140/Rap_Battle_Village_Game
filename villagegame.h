@@ -5,6 +5,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <curses.h>
+#include <clocale>
 
 using namespace std;
 
@@ -15,7 +16,7 @@ using namespace std;
 #define maxtroops 50
 #define maxarmy 5
 #define maxrbuild 50
-#define maxtbuild 50
+#define maxtbuild 3
 #define texty 26
 #define erry 37
 
@@ -37,7 +38,7 @@ public:
     int rbuildings = 0;                   //amount of resource buildings owned
     int troops = maxtroops;               //amount of troops available
     int army = 0;                         //amount of armies
-    bool ptype = true;                    //AI or real player
+    bool preal = true;                    //AI or real player
 
     Village()= default;
 
@@ -49,7 +50,7 @@ public:
         rbuildings = d;
         troops = e;
         army = f;
-        ptype = g;
+        preal = g;
     }
 };
 extern Village village[maxplay];
@@ -64,11 +65,11 @@ public:
     Resource()= default;
 
     Resource(string a, int b){
-        type = a;
+        type = a;           //tools/food/money/elixir
         amount = b;
     }
 };
-extern Resource resource[maxplay][3];
+extern Resource resource[maxplay][4];
 
 class Troops
 {
@@ -103,7 +104,7 @@ class Army{
 
 public:
 
-    int troops;             //no. of troops in the army
+    int troops{};             //no. of troops in the army
     int loc[2]{};           //army locations
     int speed{};            //army speed
     int attack{};           //total attack of army
@@ -149,22 +150,36 @@ public:
 extern Army army[maxplay][maxarmy];
 
 
-class ResourceBuidlings
+class ResourceBuildings
 {
 public:
     string type;            //type of resource generated
     int level{};
+    int cost{};             //cost of upgrading
+
+    ResourceBuildings() = default;
+
+    ResourceBuildings(string a, int b, int c){
+        type = a;
+        level = b;
+        cost = c;
+    }
 };
-extern ResourceBuidlings rbuild[maxplay][maxrbuild];
+extern ResourceBuildings rbuild[maxplay][maxrbuild];
 
 
-class TroopBuidlings
+class TroopBuildings
 {
 public:
     string type;          //type of resource required
-    int level{};
+
+    TroopBuildings() = default;
+
+    explicit TroopBuildings(string a){
+        type = std::move(a);
+    }
 };
-extern TroopBuidlings tbuild[maxplay][maxtbuild];
+extern TroopBuildings tbuild[maxplay][maxtbuild];
 
 
 
@@ -176,7 +191,7 @@ void gameloop();
 int *gamesetup();
 
 //roundphases
-int turnphase(int playno, int totplay);
+int turnphase(int playno, int totplay, int round);
 bool marching(int playno, int armyno, int target, int mspeed);
 int endround(int playno);
 void startround(int playno);
@@ -185,13 +200,14 @@ void startround(int playno);
 void friendtroop(int playno, int totplay);
 int enemytroop(int playno, int totplay);
 void earnres(int playno);
-void actions(int playno, int totplay);
+int actions(int playno, int totplay, int round);
 
 //actions
-void build(int playno);
+int build(int playno);
 int upgrade(int playno);
 int train(int playno);
 int attack(int playno, int totplay);
+int resurrect(int playno);
 
 //cli
 void mapcli(int playno);

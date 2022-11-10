@@ -28,7 +28,10 @@ void friendtroop(int playno, int totplay){
 
 int enemytroop(int playno, int totplay){
 
+    int loc[] = {0,0};
+
     if(village[playno].health==0){
+        village[playno] = Village(loc,0,0,0,0,0,true);
         village[playno].loc[0]=0;
         village[playno].loc[1]=0;
         totplay--;
@@ -88,73 +91,110 @@ void earnres(int playno){
     }
 }
 
-void actions(int playno, int totplay){
+int actions(int playno, int totplay, int round){
 
     int select;
 
     while(true){
 
-        refreshcli(playno);
+        if(village[playno].preal){
 
-        loop:
-        mvwprintw(win,texty,1,"Select an action: ");
+            refreshcli(playno);
 
-        string choices[] = {
-                "1.Build new buildings","2.Upgrade existing buildings","3.Train troops",
-                "4.Attack Villages","5.Surrender", "6.End turn"
-        };
+            loop:
+            mvwprintw(win,texty,1,"Select an action: ");
 
-        select = options(6, choices,texty+1, 1,false);
+            string choices[] = {
+                    "1.Build new buildings","2.Upgrade existing buildings","3.Train troops",
+                    "4.Attack Villages","5.Resurrect troops","6.Surrender","7.End turn"
+            };
 
-        refreshcli(playno);
+            select = options(7, choices,texty+1, 1,false);
 
-        if(select==1){ //build buildings
+            refreshcli(playno);
 
-            build(playno);
+            if(select==1){ //build buildings
 
-        }else if(select==2){ //upgrade buildings
-
-           if(upgrade(playno)==1){
-               goto loop;
-           }
-
-        }else if(select==3){ //train troops
-
-            if(train(playno)==1){
-                goto loop;
-            }
-
-        }else if(select==4){ //attack village
-
-            if(village[playno].army<6){
-                if(attack(playno,totplay)==1){
+                if(build(playno)==1){
                     goto loop;
                 }
-            }else{
-                refreshcli(playno);
-                mvwprintw(win,erry,1,"Error: Maximum army limit reached!");
-                goto loop;
-            }
 
-        }else if(select==5){ //surrender
+            }else if(select==2){ //upgrade buildings
 
-            mvwprintw(win,texty,1,"Are you sure you want to surrender?");
-            string yn[]={"YES","NO"};
-            int ans = options(2,yn,texty+1, 1,false);
+                if(upgrade(playno)==1){
+                    goto loop;
+                }
 
-            if(ans == 1){
-                village[playno].health = 0;
-                refreshcli(playno);
-                mvwprintw(win,texty,1,"VILLAGE DESTROYED!");
-                totplay--;
+            }else if(select==3){ //train troops
+
+                if(train(playno)==1){
+                    goto loop;
+                }
+
+            }else if(select==4){ //attack village
+
+                if(village[playno].army<6){
+                    if(attack(playno,totplay)==1){
+                        goto loop;
+                    }
+                }else{
+                    refreshcli(playno);
+                    mvwprintw(win,erry,1,"Error: Maximum army limit reached!");
+                    goto loop;
+                }
+
+            }else if(select==5){ //resurrect
+
+                if(resurrect(playno)==1){
+                    goto loop;
+                }
+
+            }else if(select==6){ //surrender
+
+                mvwprintw(win,texty,1,"Are you sure you want to surrender?");
+                string yn[]={"YES","NO"};
+                int ans = options(2,yn,texty+1, 1,false);
+
+                if(ans == 1){
+
+                    int loc[] = {0,0};
+                    village[playno] = Village(loc,0,0,0,0,0,true);
+
+                    totplay--;
+
+                    refreshcli(playno);
+                    mvwprintw(win,texty,1,"VILLAGE DESTROYED!");
+                    break;
+
+                }else{
+                    goto loop;
+                }
+
+            }else if(select==7){ //done
                 break;
-            }else{
-                goto loop;
             }
 
-        }else if(select==6){ //done
-            break;
-        }
+        }else{
 
+            //build buildings
+
+            //if no building and sufficient funds
+            if(village[playno].rbuildings == 0 && resource[playno][2].amount>=65){
+
+            }
+
+            //if first round
+            if(round == 1)
+            rbuild[playno][0] = ResourceBuildings("money", 1, 15);
+            village[playno].rbuildings+=3;
+
+
+
+            //upgrade buildings
+            //train troops
+            //ressurect troops
+            //end turn
+        }
     }
+    return totplay;
 }

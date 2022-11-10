@@ -108,7 +108,7 @@ void villagecli(int playno){
 
         vart = "                                                          |>>>\n"
                "                   _                      _                |\n"
-               "    ____________ .' '.             /-\\ .' './========\\   / \\\n"
+               "    ____________ .' '.              /-\\ .' './========\\   / \\\n"
                "   //// ////// /V_.-._\\            | _ |-----| u    u |  /___\\\n"
                "  // /// // ///==\\ u |.            ||||| |T| |   ||   | .| u |_ _ _ _ _ _\n"
                " ///////-\\////====\\==|:::::::::::::::::::::::::::::::::::|u u| U U U U U\n"
@@ -194,25 +194,30 @@ void villagecli(int playno){
 
     mvwprintw(win,1,1,"%s",vart.c_str());
 
-    mvwprintw(win,1,86,"Player 1's village:");
+    mvwprintw(win,1,86,"Player %d's Village:",playno+1);
     mvwprintw(win,2,86,"Village health: %d",village[playno].health);
     mvwprintw(win,3,86,"Troops: %d",village[playno].troops);
     mvwprintw(win,4,86,"Armies: %d",village[playno].army);
-    mvwprintw(win,5,86,"Resource generating buildings: %d",village[playno].rbuildings);
-    mvwprintw(win,6,86,"Troop training buildings: %d",village[playno].tbuildings);
+    mvwprintw(win,5,86,"Resource-generating buildings: %d",village[playno].rbuildings);
+    mvwprintw(win,6,86,"Troop-training buildings: %d",village[playno].tbuildings);
 
 
-    mvwprintw(win,1,126,"Resources: ");
-    mvwprintw(win,2,126,"Tools: %d ",resource[playno][0].amount);
-    mvwprintw(win,3,126,"Food: %d ",resource[playno][1].amount);
-    mvwprintw(win,4,126,"Money: %d ",resource[playno][2].amount);
+    mvwprintw(win,1,121,"Resources: ");
+    mvwprintw(win,2,121,"Tools: %d ",resource[playno][0].amount);
+    mvwprintw(win,3,121,"Food: %d ",resource[playno][1].amount);
+    mvwprintw(win,4,121,"Money: %d ",resource[playno][2].amount);
 
 
-    mvwprintw(win,1,146,"Troops: ");
-    mvwprintw(win,2,146,"Untrained: %d ",k);
-    mvwprintw(win,3,146,"Rookies: %d ",l);
-    mvwprintw(win,4,146,"Experts: %d ",m);
-    mvwprintw(win,5,146,"Masters: %d ",n);
+    mvwprintw(win,1,136,"Troops: ");
+    mvwprintw(win,2,136,"Untrained: %d ",k);
+    mvwprintw(win,3,136,"Rookies: %d ",l);
+    mvwprintw(win,4,136,"Experts: %d ",m);
+    mvwprintw(win,5,136,"Masters: %d ",n);
+
+    mvwprintw(win,1,136,"Resource Buildings: ");
+    mvwprintw(win,2,121,"Tools: %d ",resource[playno][0].amount);
+    mvwprintw(win,3,121,"Food: %d ",resource[playno][1].amount);
+    mvwprintw(win,4,121,"Money: %d ",resource[playno][2].amount);
 }
 
 void refreshcli(int playno){

@@ -1,7 +1,7 @@
 #include "villagegame.h"
 
 
-int turnphase(int playno, int totplay){
+int turnphase(int playno, int totplay, int round){
 
     //friendly troop arrival
     friendtroop(playno,totplay);
@@ -13,7 +13,7 @@ int turnphase(int playno, int totplay){
     earnres(playno);
 
     //player actions
-    actions(playno, totplay);
+    totplay = actions(playno, totplay, round);
 
     return totplay;
 }

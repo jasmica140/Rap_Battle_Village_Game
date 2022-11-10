@@ -5,7 +5,6 @@ int *gamesetup(){
     int rplay;      //real players
     int aiplay=0;     //AI players
 
-    loop1:
     wrefresh(win);
     keypad(win,true);
 
@@ -33,14 +32,12 @@ int *gamesetup(){
     }
 
     int totplay = rplay+aiplay;
-    if(totplay > maxplay){
-        clear();
-        refresh();
-        mvwprintw(win,erry,1,"Error: Max players exceeded!" );
-        goto loop1;
-    }
+
 
     for(int i=0; i<totplay; i++){
+
+        //initialise villages for each player
+
         int rndx = 1 + (rand() %mapx);
         int rndy = 1 + (rand() %mapy);
         int loc[2]={rndx,rndy};
@@ -50,32 +47,31 @@ int *gamesetup(){
         }else{
             village[i] = Village(loc, maxhealth, 0, 0, maxtroops,0, false);
         }
-
         map[rndx][rndy].status = "  V  ";
-    }
-
-    //initialise resources for each player
-    for(int i=0; i<totplay; i++){
-
-        //assign 50 of each resource to each player
-        resource[i][0] = Resource("tools",500);
-        resource[i][1] = Resource("food",500);
-        resource[i][2] = Resource("money",500);
-    }
 
 
-    //initialise troops for each player
-    for(int i=0; i<totplay; i++) {
+        //initialise resources for each player
+        resource[i][0] = Resource("tools", 500);
+        resource[i][1] = Resource("food", 500);
+        resource[i][2] = Resource("money", 500);
+        resource[i][3] = Resource("elixir", 0);
+
+
+        //initialise troops for each player
         for(int j=0; j<maxtroops; j++){
-
-            int loc[2] = {village[i].loc[0],village[i].loc[1]};
-            int res[3] = {0,0,0};
-
             troops[i][j] = Troops(15,0,0,0,0,"stationed","untrained",loc);
         }
-    }
 
-    //initialise
+        //initialise resource buildings
+        for(int j=0; j<maxrbuild; j++){
+            rbuild[i][j] = ResourceBuildings("undefined",0,0);
+        }
+
+        //initialise training buildings
+        for(int j=0; j<maxtbuild; j++){
+            tbuild[i][j] = TroopBuildings("undefined");
+        }
+    }
 
     int players[] = {rplay,aiplay};
 

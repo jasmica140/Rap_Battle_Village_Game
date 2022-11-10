@@ -1,122 +1,123 @@
 #include "villagegame.h"
 
-void build(int playno){
+int build(int playno){
 
     int bno;
     int select;
+    int cost;
 
     mvwprintw(win,texty,1,"Select building type: ");
-    string choices[]={"1.Resource-generating","2.Troop-training"};
+    string choices[]={"1.Resource-generating - cost: money x65","2.Troop-training - cost: money x125"};
     select = options(2,choices,texty+1, 1,false);
 
     refreshcli(playno);
 
     int type;
 
-    if(select==1){
+    if(select==1){ //resource
+
         mvwprintw(win,texty,1,"Select a resource to generate:");
         string types[]={"1.Tools","2.Food","3.Money"};
         type = options(3,types,texty+1, 1,false);
 
-    }else if(select==2){
-        mvwprintw(win,texty,1,"Select the type of troops to train:");
-        string types[]={"1.Untrained","2.Rookies","3.Experts"};
-        type = options(3,types,texty+1, 1,false);
-    }
+        refreshcli(playno);
 
-    refreshcli(playno);
+        int maxbuild = round(resource[playno][2].amount / 65);
+        mvwprintw(win,texty,1,"How many buildings would you like to build? ");
 
-    int maxbuild = round(resource[playno][2].amount / 65);
-    mvwprintw(win,texty,1,"How many buildings would you like to build? ");
+        string nums[maxbuild];
+        for(int i=0; i<maxbuild; i++){
+            nums[i] = {to_string(i)};
+        }
+        bno = options(maxbuild,nums,texty+1,1,true)-1;
+        cost = bno*65;
 
-    string nums[maxbuild];
-    for(int i=0; i<maxbuild; i++){
-        nums[i] = {to_string(i)};
-    }
-    bno = options(maxbuild,nums,texty+1,1,true)-1;
+        village[playno].rbuildings+=bno;        //increase village resource buildings count
 
-    refreshcli(playno);
-
-    int cost = bno*65;
-
-    if(select==1){ //resource
-        village[playno].rbuildings+=bno;
-
+        //update building specs
         for(int i=village[playno].rbuildings-bno; i<village[playno].rbuildings; i++){
-            rbuild[playno][i].level = 1;
-            rbuild[playno][i].type = resource[playno][type-1].type;
+            rbuild[playno][i] = ResourceBuildings(resource[playno][type-1].type, 1, 15);
         }
 
-    }else{ //training
-        village[playno].tbuildings+=bno;
+    }else{ //troops
 
-        for(int i=village[playno].tbuildings-1; i<village[playno].tbuildings+bno-1; i++){
-            rbuild[playno][i].level = 1;
-            if(type==1){
-                tbuild[playno][i].type = "untrained";
-            }else if(type==2){
-                tbuild[playno][i].type = "rookie";
-            }else if(type==3){
-                tbuild[playno][i].type = "expert";
+        //if sufficient funds
+        if(resource[playno][2].amount>=125){
+
+            //building type chosen successively
+            if(village[playno].tbuildings == 3){
+                refreshcli(playno);
+                mvwprintw(win,erry,1,"Error: All troop-training buildings built!");
+                return 1;
+
+            }else if(village[playno].tbuildings == 2){
+                refreshcli(playno);
+                tbuild[playno][2].type = "expert";
+                mvwprintw(win,erry,1,"Update: Expert troop-training building finished!");
+
+            }else if(village[playno].tbuildings == 1){
+                refreshcli(playno);
+                tbuild[playno][1].type = "rookie";
+                mvwprintw(win,erry,1,"Update: Expert troop-training building finished!");
+
+            }else if(village[playno].tbuildings == 0){
+                refreshcli(playno);
+                tbuild[playno][0].type = "untrained";
+                mvwprintw(win,erry,1,"Update: Expert troop-training building finished!");
             }
+
+            village[playno].tbuildings++;    //increase village training buildings count
+            cost = 125;
+
+        }else{
+            refreshcli(playno);
+            mvwprintw(win,erry,1,"Error: Insufficient funds!");
+            return 1;
         }
     }
+
+    refreshcli(playno);
 
     resource[playno][2].amount-=cost;
+    return 0;
 }
 
 int upgrade(int playno){
 
     int select;
 
-    int totbuild = village[playno].rbuildings+village[playno].tbuildings;
-
-    if(totbuild==0){
-        mvwprintw(win,erry,1,"Error: You have no buildings to upgrade yet!");
+    if(village[playno].rbuildings==0){
+        mvwprintw(win,erry,1,"Error: You have no resource buildings to upgrade yet!");
         return 1;
+    }else if(resource[playno][0].amount){
+
     }
 
-    mvwprintw(win,texty,1,"Select a building to upgrade:");
+    mvwprintw(win,texty,1,"Select a resource building to upgrade:");
 
     int count;
-    int real[totbuild];
+    int real[village[playno].rbuildings];
     int j=0;
-    int i=0;
 
-    string choices[totbuild];
+    string choices[village[playno].rbuildings];
 
     for(count=0; count<village[playno].rbuildings; count++){
         real[count]=j;
         if(rbuild[playno][count].level<5){
-            choices[count] = {to_string(count+1) + ". Resource-generating - level " + to_string(rbuild[playno][count].level) + " - generates " + rbuild[playno][count].type};
+            choices[count] = {to_string(count+1) + ". Resource-generating - level " + to_string(rbuild[playno][count].level) + " - generates " + rbuild[playno][count].type + "- cost: tools x" + to_string(rbuild[playno][count].cost)};
         }else{
             count-=1;
         }
-        j++;
     }
-    for(i=count; i<totbuild; i++){
-        real[i]=j;
-        if(rbuild[playno][i].level<5){
-            choices[i] = {to_string(i+1) + ". Troop-training - level "  + to_string(tbuild[playno][i].level+1) + " - trains " + tbuild[playno][i].type};
-        }else{
-            if(i!=totbuild-1){
-                i-=1;
-            }
-        }
-        j++;
-    }
-    select = options(i,choices,texty+1, 1,false);
+    select = options(count,choices,texty+1, 1,false);
+
+    //update building specs
+    rbuild[playno][real[select-1]] = ResourceBuildings(rbuild[playno][real[select-1]].type, rbuild[playno][real[select-1]].level+1, rbuild[playno][real[select-1]].cost+15);
 
     refreshcli(playno);
 
-    if(select<count+1){
-        rbuild[playno][real[select-1]].level++;
-    }else{
-        tbuild[playno][real[select-1]].level++;
-    }
-
     //decrease tools
-    resource[playno][0].amount-=65;
+    resource[playno][0].amount-=rbuild[playno][real[select-1]].cost;
 
     return 0;
 }
@@ -140,27 +141,49 @@ int train(int playno){
         }
     }
 
-    string choices[] = {"1. Untrained troops x"+to_string(k)+" available",
-                       "2. Rookie troops x"+ to_string(l) +" available",
-                       "3. Expert troops x" + to_string(m) + " available"};
+    string choices[] = {"1. Untrained troops x"+to_string(k)+" available - cost: food x15",
+                       "2. Rookie troops x"+ to_string(l) +" available - cost: food x35",
+                       "3. Expert troops x" + to_string(m) + " available - cost: food x80"};
     select = options(3,choices,texty+1,1,false);
 
     refreshcli(playno);
 
-    mvwprintw(win,texty,1,"How many %s troops would you like to upgrade? ",troops[playno][select-1].type.c_str());
     int maxtroop = round(resource[playno][1].amount / troops[playno][select-1].cost);
 
+    //max is either max available or max afforded
+    //error if building not purchased
     if(select==1){
-        if(maxtroop>k){
-            maxtroop = k;
+
+        if(tbuild[playno][0].type=="undefined"){
+            refreshcli(playno);
+            mvwprintw(win,erry,1,"Error: Untrained troop-training building not purchased!");
+            return 1;
+        }else{
+            if(maxtroop>k){
+                maxtroop = k;
+            }
         }
     }else if(select==2){
-        if(maxtroop>l){
-            maxtroop = l;
+
+        if(tbuild[playno][1].type=="undefined"){
+            refreshcli(playno);
+            mvwprintw(win,erry,1,"Error: Rookie troop-training building not purchased!");
+            return 1;
+        }else{
+            if(maxtroop>l){
+                maxtroop = l;
+            }
         }
     } else if(select==3){
-        if(maxtroop>m){
-            maxtroop = m;
+
+        if(tbuild[playno][2].type=="undefined"){
+            refreshcli(playno);
+            mvwprintw(win,erry,1,"Error: Expert troop-training building not purchased!");
+            return 1;
+        }else{
+            if(maxtroop>m){
+                maxtroop = m;
+            }
         }
     }
 
@@ -168,6 +191,8 @@ int train(int playno){
     for(int i=0; i<maxtroop; i++){
         nums[i] = {to_string(i)};
     }
+
+    mvwprintw(win,texty,1,"How many %s troops would you like to upgrade? ",troops[playno][select-1].type.c_str());
     troopno = options(maxtroop,nums,texty+1,1,true)-1;
     refreshcli(playno);
 
@@ -523,7 +548,7 @@ int attack(int playno, int totplay){
 
             if(tools+food+money>carrycap){
                 refreshcli(playno);
-                mvwprintw(win,erry,1,"Max carrying capacity exceeded! Pick resources again.");
+                mvwprintw(win,erry,1,"Error: Max carrying capacity exceeded! Pick resources again.");
                 goto loop6;
             }
 
@@ -543,3 +568,57 @@ int attack(int playno, int totplay){
     return 0;
 }
 
+int resurrect(int playno){
+
+    //count dead troops
+    int dead = 50-village[playno].troops;
+
+    //if no dead troops exit
+    if(dead==0){
+        refreshcli(playno);
+        mvwprintw(win,erry,1,"Error: No dead to troops to resurrect!");
+        return 1;
+
+    }else if(resource[playno][3].amount<45){
+        refreshcli(playno);
+        mvwprintw(win,erry,1,"Error: Insufficient funds!");
+        return 1;
+    }
+
+    refreshcli(playno);
+
+    //max afforded
+    int maxdead= resource[playno][3].amount/45;
+
+    if(dead<maxdead){
+        maxdead = dead;
+    }
+
+    mvwprintw(win,texty+1,1,"How many troops do you want to resurrect?");
+    string d[maxdead+1];
+    for(int i=0; i<maxdead+1; i++){
+        d[i] = {to_string(i)};
+    }
+    int elixir = options(dead,d,texty+6,1,true)-1;
+
+
+    int loc[] = {village[playno].loc[0],village[playno].loc[1]};
+
+
+    int cnt=0;
+    for(int i=0; i<maxtroops; i++){
+
+        if(cnt==elixir){
+            break;
+        }
+
+        if(troops[playno][i].status == "dead"){
+            troops[playno][i] = Troops(15,0,0,0,0,"stationed","untrained",loc);
+            cnt++;
+        }
+    }
+
+    refreshcli(playno);
+
+    return 0;
+}
