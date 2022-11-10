@@ -15,8 +15,8 @@ void friendtroop(int playno, int totplay){
 
             //set status to stationed
             for(int j=0; j<army[playno][acnt].troops; j++){
-                if(army[playno][acnt].trps[j]->status != "dead"){
-                    army[playno][acnt].trps[j]->status = "stationed";
+                if(army[playno][acnt].trps[j].status != "dead"){
+                    army[playno][acnt].trps[j].status = "stationed";
                 }
             }
 

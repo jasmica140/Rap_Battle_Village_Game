@@ -305,11 +305,11 @@ int attack(int playno, int totplay){
         mvwprintw(win,texty+3,1,"3.Master troops x%d",m);
 
         mvwprintw(win,texty+5,1,"How many rookie troops are you taking?");
-        string rook[k];
-        for(int i=0; i<k; i++){
+        string rook[k+1];
+        for(int i=0; i<k+1; i++){
             rook[i] = {to_string(i)};
         }
-        rookie = options(k,rook,texty+6,1,true)-1;
+        rookie = options(k+1,rook,texty+6,1,true)-1;
         refreshcli(playno);
     }
 
@@ -321,11 +321,11 @@ int attack(int playno, int totplay){
         mvwprintw(win,texty+3,1,"3.Master troops x%d",m);
 
         mvwprintw(win,texty+5,1,"How many expert troops are you taking?");
-        string exp[l];
-        for(int i=0; i<l; i++){
+        string exp[l+1];
+        for(int i=0; i<l+1; i++){
             exp[i] = {to_string(i)};
         }
-        expert = options(l,exp,texty+6,1,true)-1;
+        expert = options(l+1,exp,texty+6,1,true)-1;
         refreshcli(playno);
     }
 
@@ -338,18 +338,17 @@ int attack(int playno, int totplay){
         mvwprintw(win,texty+3,1,"3.Master troops x%d",m);
 
         mvwprintw(win,texty+5,1,"How many master troops are you taking?");
-        string mst[m];
-        for(int i=0; i<m; i++){
+        string mst[m+1];
+        for(int i=0; i<m+1; i++){
             mst[i] = {to_string(i)};
         }
-        master = options(m,mst,texty+6,1,true)-1;
+        master = options(m+1,mst,texty+6,1,true)-1;
         refreshcli(playno);
     }
 
     trooptot = rookie+expert+master;
 
-    //segmentation fault: 11
-    Troops *trps[trooptot];
+    Troops trps[trooptot];
 
     int tcnt=0;
     for(int i=0; i<maxtroops; i++){
@@ -357,34 +356,36 @@ int attack(int playno, int totplay){
             break;
         }
         if(troops[playno][i].type=="rookie"){
-            *trps[i] = troops[playno][i];
+            trps[tcnt] = troops[playno][i];
             tcnt++;
         }
     }
 
-    tcnt=0;
     for(int i=0; i<maxtroops; i++){
-        if(tcnt==expert){
+        if(tcnt==expert+rookie){
             break;
         }
         if(troops[playno][i].type=="expert"){
-            *trps[i] = troops[playno][i];
+            trps[tcnt] = troops[playno][i];
             tcnt++;
         }
     }
 
-    tcnt=0;
     for(int i=0; i<maxtroops; i++){
-        if(tcnt==master){
+        if(tcnt==master+expert+rookie){
             break;
         }
         if(troops[playno][i].type=="master"){
-            *trps[i] = troops[playno][i];
+            trps[tcnt] = troops[playno][i];
             tcnt++;
         }
     }
 
-    int acnt = village[playno].army;
+    //segmentation fault: 11
+    village[playno].army++;
+
+    int acnt = village[playno].army-1;
+
 
     int res[] = {0,0,0};
     army[playno][acnt] = Army(trooptot, trps, res, villno);
@@ -394,7 +395,7 @@ int attack(int playno, int totplay){
 
     for(int i=0; i<maxtroops; i++){
         if(troops[villno][i].status=="stationed"){
-            vattack += troops[villno][i].attack; //sum of villager troops attack
+            vattack += troops[villno][i].attack;    //sum of villager troops attack
         }
     }
 
@@ -411,29 +412,21 @@ int attack(int playno, int totplay){
     if(marching(playno, acnt, villno, mspeed)){
 
         int pattack = army[playno][acnt].attack;
-        vattack = 0;
-        phealth = army[playno][acnt].health;
-
-        for(int i=0; i<maxtroops; i++){
-            if(troops[villno][i].status=="stationed"){
-                vattack += troops[villno][i].attack; //sum of villager troops attack
-            }
-        }
 
         //until player troop health = villager troops health
         while(phealth>vattack) {
 
             //kill player troop
             loop4:
-            int rnd = (rand() %tcnt);
-            if (army[playno][acnt].trps[rnd]->status != "dead") {
-                army[playno][acnt].trps[rnd]->cost = 0;
-                army[playno][acnt].trps[rnd]->health = 0;
-                army[playno][acnt].trps[rnd]->attack = 0;
-                army[playno][acnt].trps[rnd]->carrycap = 0;
-                army[playno][acnt].trps[rnd]->speed = 0;
-                army[playno][acnt].trps[rnd]->status = "dead";
-                army[playno][acnt].trps[rnd]->type = "dead";
+            int rnd = (rand() %trooptot);
+            if (army[playno][acnt].trps[rnd].status != "dead") {
+                army[playno][acnt].trps[rnd].cost = 0;
+                army[playno][acnt].trps[rnd].health = 0;
+                army[playno][acnt].trps[rnd].attack = 0;
+                army[playno][acnt].trps[rnd].carrycap = 0;
+                army[playno][acnt].trps[rnd].speed = 0;
+                army[playno][acnt].trps[rnd].status = "dead";
+                army[playno][acnt].trps[rnd].type = "dead";
                 village[playno].troops--;
             }else{
                 goto loop4;
@@ -458,8 +451,8 @@ int attack(int playno, int totplay){
             //recalculate health and attack
             army[playno][acnt] = Army(trooptot, trps, res, villno);
 
-            vattack = 0;
             phealth = army[playno][acnt].health;        //sum of player troops health
+            vattack = 0;
 
             for(int i=0; i<maxtroops; i++){
                 if (troops[villno][i].status == "stationed") {
@@ -470,8 +463,8 @@ int attack(int playno, int totplay){
 
         //if at least one troop in player's army survives = success
         bool success;
-        for(int i=0; i<tcnt; i++){
-            if(army[playno][acnt].trps[i]->status != "dead"){
+        for(int i=0; i<trooptot; i++){
+            if(army[playno][acnt].trps[i].status != "dead"){
                 success=true;
                 break;
             }else{
@@ -543,6 +536,8 @@ int attack(int playno, int totplay){
 
             //surviving troops march back home
             marching(playno, acnt, playno, mspeed);
+        }else{
+            village[playno].army--;
         }
     }
     return 0;

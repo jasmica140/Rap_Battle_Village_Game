@@ -100,6 +100,7 @@ extern Troops troops[maxplay][maxtroops];
 
 
 class Army{
+
 public:
 
     int troops;             //no. of troops in the army
@@ -111,28 +112,28 @@ public:
     int resource[3]{};      //amount of resources taken from village after attack
     int target{};           //target village no.
 
-    Troops *trps[maxtroops]{};
+    Troops trps[maxtroops]{};
 
     Army() = default;
 
-    Army(int n, Troops *a[n], const int b[3], int c){
+    Army(int n, Troops a[n], const int b[3], int c){
 
         for(int i=0; i<n; i++){
 
             trps[i] = a[i];
-            attack += a[i]->attack;
-            health += a[i]->health;
-            carrycap += a[i]->carrycap;
+            attack += a[i].attack;
+            health += a[i].health;
+            carrycap += a[i].carrycap;
 
-            if(a[i]->status != "dead"){
-                loc[0] = a[i]->loc[0];
-                loc[1] = a[i]->loc[1];
+            if(a[i].status != "dead"){
+                loc[0] = a[i].loc[0];
+                loc[1] = a[i].loc[1];
 
-                if(a[i]->type == "rookie"){
+                if(a[i].type == "rookie"){
                     speed = 10;
-                }else if(a[i]->type == "expert"){
+                }else if(a[i].type == "expert"){
                     speed=15;
-                }else if(a[i]->type == "master"){
+                }else if(a[i].type == "master"){
                     speed = 25;
                 }
             }
