@@ -214,10 +214,6 @@ void villagecli(int playno){
     mvwprintw(win,4,136,"Experts: %d ",m);
     mvwprintw(win,5,136,"Masters: %d ",n);
 
-    mvwprintw(win,1,136,"Resource Buildings: ");
-    mvwprintw(win,2,121,"Tools: %d ",resource[playno][0].amount);
-    mvwprintw(win,3,121,"Food: %d ",resource[playno][1].amount);
-    mvwprintw(win,4,121,"Money: %d ",resource[playno][2].amount);
 }
 
 void refreshcli(int playno){

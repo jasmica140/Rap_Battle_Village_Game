@@ -12,26 +12,27 @@ WINDOW *win;
 
 void gameloop(){
 
-    int *players = gamesetup();
-    int totplay = players[0]+players[1];
+    int totplay = gamesetup();
 
     int playno = 0;
-    int round = 1;
+    int roundno = 1;
 
     refreshcli(playno);
-    totplay = turnphase(playno,totplay,round);
 
     while(totplay > 1){ //win condition
 
-        //if village is still standing
-        if(village[playno].health!=0){
-            playno = endround(playno);
+        for(int i=0; i<totplay; i++){
+
+            totplay = turnphase(playno,totplay,roundno);
+
+            if(totplay==1){
+                break;
+            }
+
+            playno = endround(playno, totplay);
             startround(playno);
-
-            round++;
-
-            totplay = turnphase(playno,totplay,round);
         }
+        roundno++;
     }
 }
 
@@ -41,12 +42,22 @@ int options(int n, string choices[n],int y, int x, bool sameline){
     int hl=0;
 
     while(true) {
-        for (int i = 0; i < n; i++) {
+
+        int xspace=0;
+        int yspace=0;
+
+        for (int i = 0; i < n; i++, xspace++) {
+
+            if(i%20==0 && i!=0){
+                yspace++;
+                xspace=0;
+            }
+
             if (i == hl) {
                 wattron(win, A_REVERSE);
             }
             if(sameline){
-                mvwprintw(win, y, x+(i*3), choices[i].c_str());
+                mvwprintw(win, y+yspace, x+(xspace*3), choices[i].c_str());
                 wattroff(win, A_REVERSE);
             }else{
                 mvwprintw(win, y+i, x, choices[i].c_str());
@@ -69,6 +80,20 @@ int options(int n, string choices[n],int y, int x, bool sameline){
                     hl++;
                     if (hl == n) {
                         hl = n - 1;
+                    }
+                    break;
+
+                case KEY_UP:
+                    hl=-20;
+                    if (hl < 0) {
+                        hl+=20;
+                    }
+                    break;
+
+                case KEY_DOWN:
+                    hl=+20;
+                    if (hl >= n) {
+                        hl-= 20;
                     }
                     break;
             }
@@ -106,7 +131,6 @@ int main() {
     noecho();
     cbreak();
     curs_set(0);
-
 
     int ymax, xmax;
     getmaxyx(stdscr,ymax,xmax);

@@ -6,12 +6,14 @@
 #include <cstdlib>
 #include <curses.h>
 #include <clocale>
+#include <utility>
+#include <random>
 
 using namespace std;
 
 #define mapx 13
 #define mapy 13
-#define maxhealth 100
+#define maxhealth 10000
 #define maxplay 15
 #define maxtroops 50
 #define maxarmy 5
@@ -32,17 +34,20 @@ extern Map map[mapx][mapy];
 
 class Village {
 public:
-    int loc[2] = {0, 0};          //(x,y)
+    int idx{};                              //player index
+    int loc[2] = {0, 0};         //(x,y)
     int health = maxhealth;               //village health
     int tbuildings = 0;                   //amount of troop-training buildings owned
     int rbuildings = 0;                   //amount of resource buildings owned
     int troops = maxtroops;               //amount of troops available
     int army = 0;                         //amount of armies
+    bool attack = false;                  //under attack
     bool preal = true;                    //AI or real player
 
     Village()= default;
 
-    Village(const int a[2], int b, int c, int d, int e, int f, bool g) {
+    Village(int i, const int a[2], int b, int c, int d, int e, int f, bool g, bool h) {
+        idx = i;
         loc[0] = a[0];
         loc[1] = a[1];
         health = b;
@@ -50,7 +55,8 @@ public:
         rbuildings = d;
         troops = e;
         army = f;
-        preal = g;
+        attack = g;
+        preal = h;
     }
 };
 extern Village village[maxplay];
@@ -65,7 +71,7 @@ public:
     Resource()= default;
 
     Resource(string a, int b){
-        type = a;           //tools/food/money/elixir
+        type = std::move(a);           //tools/food/money/elixir
         amount = b;
     }
 };
@@ -79,22 +85,20 @@ public:
     int attack{};         //strength
     int carrycap{};       //carrying capacity
     int speed{};          //marching speed
-    string status;        //status of troop - army/stationed/dead
     string type;          //type of troop - untrained/rookie/expert/master
-    int loc[2]{};           //troop location
+    int loc[2]{};         //troop location
 
     Troops() = default;
 
-    Troops(int a, int b, int c, int d, int e, string f, string g, int h[2]){
+    Troops(int a, int b, int c, int d, int e, string f, const int g[2]){
         cost = a;           //cost of training
         health = b;
         attack = c;         //strength
         carrycap = d;       //carrying capacity
         speed = e;          //marching speed
-        status = f;        //status of troop - army/stationed/dead
-        type = g;          //type of troop - untrained/rookie/expert/master
-        loc[0] = h[0];             //troop location
-        loc[1] = h[1];
+        type = std::move(f);           //type of troop - untrained/rookie/expert/master
+        loc[0] = g[0];             //troop location
+        loc[1] = g[1];
     }
 };
 extern Troops troops[maxplay][maxtroops];
@@ -104,7 +108,7 @@ class Army{
 
 public:
 
-    int troops{};             //no. of troops in the army
+    int troops{};           //no. of troops in the army
     int loc[2]{};           //army locations
     int speed{};            //army speed
     int attack{};           //total attack of army
@@ -119,6 +123,8 @@ public:
 
     Army(int n, Troops a[n], const int b[3], int c){
 
+        int r=0,e=0;
+
         for(int i=0; i<n; i++){
 
             trps[i] = a[i];
@@ -126,18 +132,22 @@ public:
             health += a[i].health;
             carrycap += a[i].carrycap;
 
-            if(a[i].status != "dead"){
-                loc[0] = a[i].loc[0];
-                loc[1] = a[i].loc[1];
+            loc[0] = a[i].loc[0];
+            loc[1] = a[i].loc[1];
 
-                if(a[i].type == "rookie"){
-                    speed = 10;
-                }else if(a[i].type == "expert"){
-                    speed=15;
-                }else if(a[i].type == "master"){
-                    speed = 25;
-                }
+            if(a[i].type == "rookie"){
+                r++;
+            }else if(a[i].type == "expert"){
+                e++;
             }
+        }
+
+        if(r>0){
+            speed = 10;
+        }else if(e>0){
+            speed = 15;
+        }else{
+            speed = 25;
         }
 
         troops = n;
@@ -160,7 +170,7 @@ public:
     ResourceBuildings() = default;
 
     ResourceBuildings(string a, int b, int c){
-        type = a;
+        type = std::move(a);
         level = b;
         cost = c;
     }
@@ -182,25 +192,25 @@ public:
 extern TroopBuildings tbuild[maxplay][maxtbuild];
 
 
-
 //main
 int options(int n, string choices[n],int y, int x, bool sameline);
 void gameloop();
 
 //setup
-int *gamesetup();
+int gamesetup();
+void deleteplayer(int playno, int totplay);
 
 //roundphases
-int turnphase(int playno, int totplay, int round);
+int turnphase(int playno, int totplay, int roundno);
 bool marching(int playno, int armyno, int target, int mspeed);
-int endround(int playno);
+int endround(int playno, int totplay);
 void startround(int playno);
 
 //turnphases
-void friendtroop(int playno, int totplay);
+void friendtroop(int playno);
 int enemytroop(int playno, int totplay);
 void earnres(int playno);
-int actions(int playno, int totplay, int round);
+int actions(int playno, int totplay, int roundno);
 
 //actions
 int build(int playno);
@@ -208,6 +218,14 @@ int upgrade(int playno);
 int train(int playno);
 int attack(int playno, int totplay);
 int resurrect(int playno);
+
+//AI
+int AIround1(int playno);
+int AIbuild(int playno);
+int AIupgrade(int playno);
+int AItrain(int playno);
+int AIattack(int playno, int totplay);
+void AIresurrect(int playno, int dead);
 
 //cli
 void mapcli(int playno);

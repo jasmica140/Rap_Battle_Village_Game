@@ -1,10 +1,10 @@
 #include "villagegame.h"
 
 
-int turnphase(int playno, int totplay, int round){
+int turnphase(int playno, int totplay, int roundno){
 
     //friendly troop arrival
-    friendtroop(playno,totplay);
+    friendtroop(playno);
 
     //enemy troop arrival
     totplay = enemytroop(playno,totplay);
@@ -13,7 +13,7 @@ int turnphase(int playno, int totplay, int round){
     earnres(playno);
 
     //player actions
-    totplay = actions(playno, totplay, round);
+    totplay = actions(playno, totplay, roundno);
 
     return totplay;
 }
@@ -68,10 +68,16 @@ bool marching(int playno, int armyno, int target, int mspeed){
     return success;
 }
 
-int endround(int playno){
+int endround(int playno, int totplay){
     refreshcli(playno);
     mvwprintw(win,erry,1,"Player %d's turn complete!", playno+1);
-    playno++;
+
+    if(playno<totplay){
+        playno = village[playno+1].idx;
+    }else{
+        playno = village[0].idx;
+    }
+
     return playno;
 }
 
