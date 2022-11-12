@@ -63,7 +63,7 @@ int AIbuild(int playno){
         return 1;
     }
 
-    int type = 1+(rand() %4);
+    int type = (rand() %4);
 
     int maxbuild = floor(resource[playno][2].amount / 65);
     if(maxbuild==0){
@@ -73,11 +73,12 @@ int AIbuild(int playno){
 
     int cost = bno*65;
 
-    village[playno].rbuildings+=bno;        //increase village resource buildings count
+    //increase village resource buildings count
+    village[playno].rbuildings+=bno;
 
     //update building specs
     for(int i=village[playno].rbuildings-bno; i<village[playno].rbuildings; i++){
-        rbuild[playno][i] = ResourceBuildings(resource[playno][type-1].type, 1, 15);
+        rbuild[playno][i] = ResourceBuildings(resource[playno][type].type, 1, 15);
     }
 
     refreshcli(playno);
@@ -137,13 +138,19 @@ int AItrain(int playno){
         }
     }
 
-    select = (rand() %n);
+    select = rand() %n+1;
 
-    int maxtroop = floor(resource[playno][1].amount / troops[playno][select-1].cost);
+    int maxtroop;
 
     //max is either max available or max afforded
     //error if building not purchased
     if(select==1){
+
+        maxtroop = floor(resource[playno][1].amount / 15);
+
+        if(maxtroop==0){
+            return 1;
+        }
 
         if(tbuild[playno][0].type=="undefined"){
             if(resource[playno][2].amount>=125){
@@ -158,14 +165,16 @@ int AItrain(int playno){
                 maxtroop = k;
             }
 
-            troopno = (rand() %maxtroop);
+            troopno = rand() %maxtroop;
 
             for(int i=0; i<village[playno].troops; i++){
+
+                if(j==troopno){
+                    break;
+                }
+
                 if(troops[playno][i].type=="untrained"){
 
-                    if(j==troopno){
-                        break;
-                    }
                     resource[playno][1].amount-=troops[playno][i].cost;
 
                     //update troop specs
@@ -177,6 +186,12 @@ int AItrain(int playno){
             }
         }
     }else if(select==2){
+
+        maxtroop = floor(resource[playno][1].amount / 35);
+
+        if(maxtroop==0){
+            return 1;
+        }
 
         if(tbuild[playno][1].type=="undefined"){
             if(resource[playno][2].amount>=125){
@@ -191,14 +206,15 @@ int AItrain(int playno){
                 maxtroop = l;
             }
 
-            troopno = (rand() %maxtroop);
+            troopno = rand() %maxtroop;
 
             for(int i=0; i<village[playno].troops; i++){
-                if(troops[playno][i].type=="rookie"){
 
-                    if(j==troopno){
-                        break;
-                    }
+                if(j==troopno){
+                    break;
+                }
+
+                if(troops[playno][i].type=="rookie"){
                     resource[playno][1].amount-=troops[playno][i].cost;
 
                     //update troop specs
@@ -210,6 +226,12 @@ int AItrain(int playno){
             }
         }
     }else if(select==3){
+
+        maxtroop = floor(resource[playno][1].amount / 80);
+
+        if(maxtroop==0){
+            return 1;
+        }
 
         if(tbuild[playno][2].type=="undefined"){
             if(resource[playno][2].amount>=125){
@@ -227,11 +249,13 @@ int AItrain(int playno){
             troopno = (rand() %maxtroop);
 
             for(int i=0; i<village[playno].troops; i++){
+
+                if(j==troopno){
+                    break;
+                }
+
                 if(troops[playno][i].type=="expert"){
 
-                    if(j==troopno){
-                        break;
-                    }
                     resource[playno][1].amount-=troops[playno][i].cost;
 
                     //update troop specs

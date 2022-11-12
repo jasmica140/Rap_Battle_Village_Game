@@ -44,8 +44,6 @@ int gamesetup(){
 
     for(int i=0; i<totplay; i++){
 
-        default_random_engine rng(std::random_device{}());
-        uniform_int_distribution<int> dist(0, mapx);
 
         //initialise villages for each player
         loop:

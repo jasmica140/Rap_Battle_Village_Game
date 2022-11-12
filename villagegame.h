@@ -7,7 +7,7 @@
 #include <curses.h>
 #include <clocale>
 #include <utility>
-#include <random>
+
 
 using namespace std;
 
@@ -19,7 +19,7 @@ using namespace std;
 #define maxarmy 5
 #define maxrbuild 50
 #define maxtbuild 3
-#define texty 26
+#define texty 25
 #define erry 37
 
 

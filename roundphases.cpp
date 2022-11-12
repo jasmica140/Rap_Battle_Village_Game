@@ -72,7 +72,7 @@ int endround(int playno, int totplay){
     refreshcli(playno);
     mvwprintw(win,erry,1,"Player %d's turn complete!", playno+1);
 
-    if(playno<totplay){
+    if(playno<totplay-1){
         playno = village[playno+1].idx;
     }else{
         playno = village[0].idx;

@@ -146,11 +146,13 @@ int train(int playno){
 
     refreshcli(playno);
 
-    int maxtroop = floor(resource[playno][1].amount / troops[playno][select-1].cost);
+    int maxtroop=0;
 
     //max is either max available or max afforded
     //error if building not purchased
     if(select==1){
+
+        maxtroop = floor(resource[playno][1].amount / 15);
 
         if(tbuild[playno][0].type=="undefined"){
             refreshcli(playno);
@@ -163,6 +165,8 @@ int train(int playno){
         }
     }else if(select==2){
 
+        maxtroop = floor(resource[playno][1].amount / 35);
+
         if(tbuild[playno][1].type=="undefined"){
             refreshcli(playno);
             mvwprintw(win,erry,1,"Error: Rookie troop-training building not purchased!");
@@ -173,6 +177,8 @@ int train(int playno){
             }
         }
     } else if(select==3){
+
+        maxtroop = floor(resource[playno][1].amount / 80);
 
         if(tbuild[playno][2].type=="undefined"){
             refreshcli(playno);
