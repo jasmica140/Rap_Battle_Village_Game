@@ -202,7 +202,7 @@ void deleteplayer(int playno, int totplay);
 
 //roundphases
 int turnphase(int playno, int totplay, int roundno);
-bool marching(int playno, int armyno, int target, int mspeed);
+void marching(int playno, int armyno, int target, int mspeed);
 int endround(int playno, int totplay);
 void startround(int playno);
 

@@ -280,13 +280,12 @@ int AIattack(int playno, int totplay){
 
         //can't attack their own village
         //can't attack villages player is already attacking
-        if (j != playno - 1 && !village[j].attack) {
+        if (!village[j].attack && j != playno) {
 
             optattack[j] = 0;
 
             //rounds required
-            optattack[j] += max(abs(village[playno].loc[0] - village[j].loc[0]),
-                                abs(village[playno].loc[1] - village[j].loc[1]));
+            optattack[j] += max(abs(village[playno].loc[0] - village[j].loc[0]),abs(village[playno].loc[1] - village[j].loc[1]));
 
             //target village troops total attack and health
             for (int i = 0; i < village[j].troops; i++) {
@@ -335,165 +334,80 @@ int AIattack(int playno, int totplay){
     Troops trps[trooptot];
 
     int tcnt=0;
-    for(int i=0; i<maxtroops; i++){
+    for(int i=0; i<village[playno].troops; i++){
         if(tcnt==rookie){
             break;
         }
         if(troops[playno][i].type=="rookie"){
             trps[tcnt] = troops[playno][i];
+
+            //delete troops
+            for(int j=i; j<village[playno].troops; j++){
+                troops[playno][j] = troops[playno][j+1];
+            }
+
+            i--;
             tcnt++;
         }
     }
 
-    for(int i=0; i<maxtroops; i++){
+    for(int i=0; i<village[playno].troops; i++){
         if(tcnt==expert+rookie){
             break;
         }
         if(troops[playno][i].type=="expert"){
             trps[tcnt] = troops[playno][i];
+
+            //delete troops
+            for(int j=i; j<village[playno].troops; j++) {
+                troops[playno][j] = troops[playno][j+1];
+            }
+            i--;
             tcnt++;
         }
     }
 
-    for(int i=0; i<maxtroops; i++){
+    for(int i=0; i<village[playno].troops; i++){
         if(tcnt==master+expert+rookie){
             break;
         }
         if(troops[playno][i].type=="master"){
             trps[tcnt] = troops[playno][i];
+
+            //delete troops
+            for(int j=i; j<village[playno].troops; j++){
+                troops[playno][j] = troops[playno][j+1];
+            }
+            i--;
             tcnt++;
         }
     }
 
-    village[playno].army++;
-    int acnt = village[playno].army-1;
-
-    int villno = opt[1];
+    int acnt = village[playno].army;
+    int vattack=0;
 
     int res[] = {0,0,0};
-    army[playno][acnt] = Army(trooptot, trps, res, villno);
+    army[playno][acnt] = Army(trooptot, trps, res, j);
 
-    //update village to under attack
-    village[villno].attack = true;
-
-    int vattack=0;
     int phealth = army[playno][acnt].health;        //sum of player troops health
 
-    for(int i=0; i< village[villno].troops; i++){
-        vattack += troops[villno][i].attack;    //sum of villager troops attack
+    for(int i=0; i<village[j].troops; i++){
+        vattack += troops[j][i].attack;    //sum of villager troops attack
     }
 
-    if(phealth<=vattack){
-        refreshcli(playno);
-        return 1;       //don't attack
+    if(phealth<=vattack){ //don't attack
+
+        for(int k=village[playno].troops-trooptot; k<village[playno].troops; k++){
+            troops[playno][k] = army[playno][acnt].trps[village[playno].troops-k-1];
+        }
+        return 1;
     }
+
+    village[playno].army++;
 
     //army marching speed
     int mspeed = army[playno][acnt].speed;
 
-    //if army successfully arrived
-    if(marching(playno, acnt, villno, mspeed)){
-
-        int pattack = army[playno][acnt].attack;
-
-        int rnd;
-        //until player troop health = villager troops health
-        while(phealth>vattack) {
-
-            //kill player troop
-            if(trooptot>0){
-                rnd = (rand() %trooptot);
-                for(j=rnd; j<trooptot; j++){
-                    army[playno][acnt].trps[j] = army[playno][acnt].trps[j+1];
-                }
-                trooptot--;
-                village[playno].troops--;
-            }
-
-            //kill villager troop
-            if(village[villno].troops>0){
-                rnd = (rand() %village[villno].troops);
-                for(j=rnd; j<village[villno].troops; j++){
-                    troops[villno][j] = troops[playno][j+1];
-                }
-                village[villno].troops--;
-            }
-
-            //recalculate health and attack
-            army[playno][acnt] = Army(trooptot, army[playno][acnt].trps, res, villno);
-
-            phealth = army[playno][acnt].health;        //sum of player troops health
-            vattack = 0;
-
-            for(int i=0; i<village[villno].troops; i++){
-                vattack += troops[villno][i].attack;    //sum of villager troops attack
-            }
-        }
-
-        //if at least one troop in player's army survives = success
-        bool success;
-        for(int i=0; i<trooptot; i++){
-            if(army[playno][acnt].troops != 0){
-                success=true;
-                break;
-            }else{
-                success=false;
-            }
-        }
-
-        //update village to not under attack
-        village[villno].attack = false;
-
-        if(success){
-
-            refreshcli(playno);
-
-            //update army
-            army[playno][acnt] = Army(trooptot, trps, res, villno);
-
-            //sum of surviving player troops attack
-            pattack = army[playno][acnt].attack;
-
-            //reduce village health
-            village[villno].health-= pattack;
-
-            //army carrying capacity
-            int carrycap = army[playno][acnt].carrycap;
-
-            //steal resources
-            loop1:
-            int tools=0;
-            if(resource[villno][0].amount>0){
-                tools = 1+ (rand()% resource[villno][0].amount+1);
-            }
-            int food=0;
-            if(resource[villno][1].amount>0){
-                food = 1+ (rand()% resource[villno][1].amount+1);
-            }
-            int money=0;
-            if(resource[villno][2].amount>0){
-                money = 1+ (rand()% resource[villno][2].amount+1);
-            }
-
-            //max carrying capacity exceeded
-            if(tools+food+money>carrycap){
-                refreshcli(playno);
-                goto loop1;
-            }
-
-            resource[villno][0].amount -= tools;
-            resource[villno][1].amount -= food;
-            resource[villno][2].amount -= money;
-
-            //update army marching speed
-            mspeed=army[playno][acnt].speed;
-
-            //surviving troops march back home
-            marching(playno, acnt, playno, mspeed);
-        }else{
-            village[playno].army--;
-        }
-    }
     return 0;
 }
 

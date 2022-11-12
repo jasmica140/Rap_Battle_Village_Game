@@ -18,7 +18,7 @@ int turnphase(int playno, int totplay, int roundno){
     return totplay;
 }
 
-bool marching(int playno, int armyno, int target, int mspeed){
+void marching(int playno, int armyno, int target, int mspeed){
 
     //shortest path to get to target
     int i=0;
@@ -56,16 +56,6 @@ bool marching(int playno, int armyno, int target, int mspeed){
     }
 
     map[army[playno][armyno].loc[0]][army[playno][armyno].loc[1]].status = "  A  ";
-
-    bool success;
-
-    if(mspeed<=minstep){
-        success=true;
-    }else{
-        success=false;
-    }
-
-    return success;
 }
 
 int endround(int playno, int totplay){

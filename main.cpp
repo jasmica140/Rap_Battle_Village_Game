@@ -29,6 +29,10 @@ void gameloop(){
                 break;
             }
 
+            for(int j=0; j<village[playno].army; j++){
+                marching(playno, i, army[playno][i].target, army[playno][i].speed);
+            }
+
             playno = endround(playno, totplay);
             startround(playno);
         }
