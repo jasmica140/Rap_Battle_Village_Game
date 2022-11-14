@@ -47,7 +47,6 @@ int gamesetup(){
 
         //initialise villages for each player
         loop:
-        //not evenly spaced yet...fix later
         int rndx = rand() %mapx;
         int rndy = rand() %mapy;
 

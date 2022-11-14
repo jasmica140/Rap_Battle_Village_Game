@@ -7,13 +7,14 @@
 #include <curses.h>
 #include <clocale>
 #include <utility>
+#include <ctime>
 
 
 using namespace std;
 
 #define mapx 13
 #define mapy 13
-#define maxhealth 10000
+#define maxhealth 5000
 #define maxplay 15
 #define maxtroops 50
 #define maxarmy 5
@@ -132,9 +133,6 @@ public:
             health += a[i].health;
             carrycap += a[i].carrycap;
 
-            loc[0] = a[i].loc[0];
-            loc[1] = a[i].loc[1];
-
             if(a[i].type == "rookie"){
                 r++;
             }else if(a[i].type == "expert"){
@@ -143,14 +141,16 @@ public:
         }
 
         if(r>0){
-            speed = 10;
+            speed = 1;
         }else if(e>0){
-            speed = 15;
+            speed = 2;
         }else{
-            speed = 25;
+            speed = 3;
         }
 
         troops = n;
+        loc[0] = a[0].loc[0];
+        loc[1] = a[0].loc[1];
         resource[0] = b[0];
         resource[1] = b[1];
         resource[2] = b[2];
@@ -202,7 +202,7 @@ void deleteplayer(int playno, int totplay);
 
 //roundphases
 int turnphase(int playno, int totplay, int roundno);
-void marching(int playno, int armyno, int target, int mspeed);
+void marching(int playno, int armyno, int target, int mspeed, int totplay);
 int endround(int playno, int totplay);
 void startround(int playno);
 
@@ -213,11 +213,11 @@ void earnres(int playno);
 int actions(int playno, int totplay, int roundno);
 
 //actions
-int build(int playno);
-int upgrade(int playno);
-int train(int playno);
+int build(int playno, int totplay);
+int upgrade(int playno, int totplay);
+int train(int playno, int totplay);
 int attack(int playno, int totplay);
-int resurrect(int playno);
+int resurrect(int playno, int toplay);
 
 //AI
 int AIround1(int playno);
@@ -228,8 +228,8 @@ int AIattack(int playno, int totplay);
 void AIresurrect(int playno, int dead);
 
 //cli
-void mapcli(int playno);
+void mapcli(int playno, int totplay);
 void villagecli(int playno);
-void refreshcli(int playno);
+void refreshcli(int playno, int totplay);
 
 #endif //TASK1_VILLAGEGAME_H

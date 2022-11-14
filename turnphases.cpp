@@ -37,16 +37,15 @@ int enemytroop(int playno, int totplay){
 
             int res[] = {0,0,0};        //current resources carried
 
-            int mspeed = army[playno][acnt].speed;          //army marching speed
-            int phealth = army[playno][acnt].health;        //sum of player troops health
-            int trooptot = army[playno][acnt].troops;       //no. of troops in army
+            int phealth = army[playno][cnt].health;        //sum of player troops health
+            int trooptot = army[playno][cnt].troops;       //no. of troops in army
 
             int vattack=0;
             for(int i=0; i<village[villno].troops; i++){
                 vattack += troops[villno][i].attack;        //sum of target village troops attack
             }
 
-            int pattack = army[playno][acnt].attack;
+            int pattack = army[playno][cnt].attack;
 
             int rnd;
             //until player troop health = villager troops health
@@ -56,7 +55,7 @@ int enemytroop(int playno, int totplay){
                 if(trooptot>0){
                     rnd = (rand() %trooptot);
                     for(int j=rnd; j<trooptot; j++){
-                        army[playno][acnt].trps[j] = army[playno][acnt].trps[j+1];
+                        army[playno][cnt].trps[j] = army[playno][cnt].trps[j+1];
                     }
                     trooptot--;
                     village[playno].troops--;
@@ -66,15 +65,15 @@ int enemytroop(int playno, int totplay){
                 if(village[villno].troops>0){
                     rnd = (rand() %village[villno].troops);
                     for(int j=rnd; j<village[villno].troops; j++){
-                        troops[villno][j] = troops[playno][j+1];
+                        troops[villno][j] = troops[villno][j+1];
                     }
                     village[villno].troops--;
                 }
 
                 //recalculate health and attack
-                army[playno][acnt] = Army(trooptot, army[playno][acnt].trps, res, villno);
+                army[playno][cnt] = Army(trooptot, army[playno][cnt].trps, res, villno);
 
-                phealth = army[playno][acnt].health;        //sum of player troops health
+                phealth = army[playno][cnt].health;        //sum of player troops health
 
                 vattack = 0;
                 for(int i=0; i<village[villno].troops; i++){
@@ -85,7 +84,7 @@ int enemytroop(int playno, int totplay){
             //if at least one troop in player's army survives = success
             bool success;
             for(int i=0; i<trooptot; i++){
-                if(army[playno][acnt].troops != 0){
+                if(army[playno][cnt].troops != 0){
                     success=true;
                     break;
                 }else{
@@ -98,19 +97,19 @@ int enemytroop(int playno, int totplay){
 
             if(success){
 
-                refreshcli(playno);
+                refreshcli(playno,totplay);
 
                 //update army
-                army[playno][acnt] = Army(trooptot, army[playno][acnt].trps, res, villno);
+                army[playno][cnt] = Army(trooptot, army[playno][cnt].trps, res, villno);
 
                 //sum of surviving player troops attack
-                pattack = army[playno][acnt].attack;
+                pattack = army[playno][cnt].attack;
 
                 //reduce village health
                 village[villno].health-= pattack;
 
                 //army carrying capacity
-                int carrycap = army[playno][acnt].carrycap;
+                int carrycap = army[playno][cnt].carrycap;
 
                 int tools;
                 int food;
@@ -131,32 +130,32 @@ int enemytroop(int playno, int totplay){
                     for(int i=0; i<resource[villno][0].amount/5; i++){
                         tls[i] = {to_string(i*5)};
                     }
-                    tools = options(resource[villno][0].amount/5,tls,texty+5,1,true)-1;
+                    tools = (options(resource[villno][0].amount/5,tls,texty+5,1,true)-1)*5;
 
+                    refreshcli(playno,totplay);
                     mvwprintw(win,texty+2,1,"Your carrying capacity is %d!", carrycap);
                     mvwprintw(win,texty+3,1,"How many of the following resources would you like to take:");
-                    refreshcli(playno);
 
                     mvwprintw(win,texty+4,1,"Food: ");
                     string fd[resource[villno][1].amount/5];
                     for(int i=0; i<resource[villno][1].amount/5; i++){
                         fd[i] = {to_string(i*5)};
                     }
-                    food = options(resource[villno][1].amount/5,fd,texty+5,1,true)-1;
+                    food = (options(resource[villno][1].amount/5,fd,texty+5,1,true)-1)*5;
 
+                    refreshcli(playno,totplay);
                     mvwprintw(win,texty+2,1,"Your carrying capacity is %d!", carrycap);
                     mvwprintw(win,texty+3,1,"How many of the following resources would you like to take:");
-                    refreshcli(playno);
 
                     mvwprintw(win,texty+4,1,"Money:");
                     string mny[resource[villno][2].amount/5];
                     for(int i=0; i<resource[villno][2].amount/5; i++){
                         mny[i] = {to_string(i*5)};
                     }
-                    money = options(resource[villno][2].amount/5,mny,texty+5,1,true)-1;
+                    money = (options(resource[villno][2].amount/5,mny,texty+5,1,true)-1)*5;
 
                     if(tools+food+money>carrycap){
-                        refreshcli(playno);
+                        refreshcli(playno,totplay);
                         mvwprintw(win,erry,1,"Error: Max carrying capacity exceeded! Pick resources again.");
                         goto loop6;
                     }
@@ -166,41 +165,38 @@ int enemytroop(int playno, int totplay){
                     loop1:
                     tools=0;
                     if(resource[villno][0].amount>0){
-                        tools = 1+ (rand()% resource[villno][0].amount+1);
+                        tools = (rand()% resource[villno][0].amount*5);
                     }
                     food=0;
                     if(resource[villno][1].amount>0){
-                        food = 1+ (rand()% resource[villno][1].amount+1);
+                        food = (rand()% resource[villno][1].amount*5);
                     }
                     money=0;
                     if(resource[villno][2].amount>0){
-                        money = 1+ (rand()% resource[villno][2].amount+1);
+                        money = (rand()% resource[villno][2].amount*5);
                     }
 
                     //max carrying capacity exceeded
                     if(tools+food+money>carrycap){
-                        refreshcli(playno);
+                        refreshcli(playno,totplay);
                         goto loop1;
                     }
                 }
 
-                resource[villno][0].amount -= tools;
-                resource[villno][1].amount -= food;
-                resource[villno][2].amount -= money;
+                resource[villno][0].amount -= tools/5;
+                resource[villno][1].amount -= food/5;
+                resource[villno][2].amount -= money/5;
 
-                res[0] = tools;
-                res[1] = food;
-                res[2] = money;
-
-                //update army marching speed
-                mspeed=army[playno][acnt].speed;
+                res[0] = tools/5;
+                res[1] = food/5;
+                res[2] = money/5;
 
                 //surviving troops march back home
-                army[playno][acnt] = Army(trooptot, army[playno][acnt].trps, res, playno);
+                army[playno][cnt] = Army(trooptot, army[playno][cnt].trps, res, playno);
 
                 if(village[villno].health<=0){
 
-                    refreshcli(playno);
+                    refreshcli(playno,totplay);
                     mvwprintw(win,erry,1,"PLAYER %d's VILLAGE DESTROYED!");
 
                     //delete player
@@ -209,6 +205,15 @@ int enemytroop(int playno, int totplay){
                 }
 
             }else{
+
+                refreshcli(playno,totplay);
+                mvwprintw(win,erry,1,"Attack Failed");
+
+                //delete armies
+                for(int j=0; j<maxarmy; j++){
+                    army[cnt][j] = army[cnt+1][j];
+                }
+
                 village[playno].army--;
             }
         }
@@ -276,7 +281,7 @@ int actions(int playno, int totplay, int roundno) {
 
         if (village[playno].preal) {
 
-            refreshcli(playno);
+            refreshcli(playno,totplay);
 
             loop:
             mvwprintw(win, texty, 1, "Select an action: ");
@@ -288,23 +293,23 @@ int actions(int playno, int totplay, int roundno) {
 
             select = options(7, choices, texty + 1, 1, false);
 
-            refreshcli(playno);
+            refreshcli(playno,totplay);
 
             if (select == 1) { //build buildings
 
-                if (build(playno) == 1) {
+                if (build(playno,totplay) == 1) {
                     goto loop;
                 }
 
             } else if (select == 2) { //upgrade buildings
 
-                if (upgrade(playno) == 1) {
+                if (upgrade(playno,totplay) == 1) {
                     goto loop;
                 }
 
             } else if (select == 3) { //train troops
 
-                if (train(playno) == 1) {
+                if (train(playno,totplay) == 1) {
                     goto loop;
                 }
 
@@ -315,14 +320,14 @@ int actions(int playno, int totplay, int roundno) {
                         goto loop;
                     }
                 } else {
-                    refreshcli(playno);
+                    refreshcli(playno,totplay);
                     mvwprintw(win, erry, 1, "Error: Maximum army limit reached!");
                     goto loop;
                 }
 
             } else if (select == 5) { //resurrect
 
-                if (resurrect(playno) == 1) {
+                if (resurrect(playno,totplay) == 1) {
                     goto loop;
                 }
 
@@ -338,7 +343,7 @@ int actions(int playno, int totplay, int roundno) {
                     deleteplayer(playno, totplay);
                     totplay--;
 
-                    refreshcli(playno);
+                    refreshcli(playno,totplay);
                     mvwprintw(win, erry, 1, "Update: VILLAGE DESTROYED!");
                     break;
 

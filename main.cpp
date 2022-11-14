@@ -17,7 +17,7 @@ void gameloop(){
     int playno = 0;
     int roundno = 1;
 
-    refreshcli(playno);
+    refreshcli(playno,totplay);
 
     while(totplay > 1){ //win condition
 
@@ -30,7 +30,7 @@ void gameloop(){
             }
 
             for(int j=0; j<village[playno].army; j++){
-                marching(playno, i, army[playno][i].target, army[playno][i].speed);
+                marching(playno, j, army[playno][j].target, army[playno][j].speed, totplay);
             }
 
             playno = endround(playno, totplay);
@@ -131,6 +131,8 @@ int main() {
 
     setlocale(LC_ALL, "");
 
+    srand(time(0));  // Initialize random number generator.
+
     initscr();
     noecho();
     cbreak();
@@ -139,7 +141,7 @@ int main() {
     int ymax, xmax;
     getmaxyx(stdscr,ymax,xmax);
 
-    win = newwin(39, xmax-8, ymax-39, 5);
+    win = newwin(ymax, xmax, ymax-39, 5);
 
     refresh();
     wrefresh(win);

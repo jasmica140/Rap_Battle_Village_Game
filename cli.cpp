@@ -1,6 +1,10 @@
 #include "villagegame.h"
 
-void mapcli(int playno){
+void mapcli(int playno, int totplay){
+
+    for(int v=0; v<totplay; v++){
+        map[village[playno].loc[0]][village[playno].loc[1]].status = "  V  ";
+    }
 
     mvwprintw(win,10,122,"--MAP--");
     int i,j,k;
@@ -178,6 +182,11 @@ void villagecli(int playno){
                "___|_______|__[ == ==]/.::::::;;;:::::::::::::::;;;:::::::.\\[=  == ]___|_____";
     }
 
+    //count troops in armies
+    int atrps=0;
+    for(int i=0; i<village[playno].army; i++){
+        atrps+=army[playno][i].troops;
+    }
     //count troops
     int k=0,l=0,m=0,n=0;
     for(int i=0; i<village[playno].troops; i++){
@@ -208,20 +217,19 @@ void villagecli(int playno){
     mvwprintw(win,4,121,"Money: %d ",resource[playno][2].amount);
 
 
-    mvwprintw(win,1,136,"Troops: ");
-    mvwprintw(win,2,136,"Untrained: %d ",k);
+    mvwprintw(win,1,136,"Stationed Troops: ");
+    mvwprintw(win,2,136,"Untrained: %d ",k-atrps);
     mvwprintw(win,3,136,"Rookies: %d ",l);
     mvwprintw(win,4,136,"Experts: %d ",m);
     mvwprintw(win,5,136,"Masters: %d ",n);
-
 }
 
-void refreshcli(int playno){
+void refreshcli(int playno, int totplay){
     wclear(win);
     wrefresh(win);
     villagecli(playno);
     mvwprintw(win,1,1,"Player %d's turn!",playno+1);
-    mapcli(playno);
+    mapcli(playno,totplay);
     mvwhline(win, 24, 1, '_', 80);
     mvwhline(win, 8, 80, '_', 100);
     mvwvline(win, 1, 80, '|', 37);
