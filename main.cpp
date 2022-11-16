@@ -10,138 +10,26 @@ TroopBuildings tbuild[maxplay][maxtbuild];
 
 WINDOW *win;
 
-void gameloop(){
-
-    int totplay = gamesetup();
-
-    int playno = 0;
-    int roundno = 1;
-
-    refreshcli(playno,totplay);
-
-    while(totplay > 1){ //win condition
-
-        for(int i=0; i<totplay; i++){
-
-            totplay = turnphase(playno,totplay,roundno);
-
-            if(totplay==1){
-                break;
-            }
-
-            for(int j=0; j<village[playno].army; j++){
-                marching(playno, j, army[playno][j].target, army[playno][j].speed, totplay);
-            }
-
-            playno = endround(playno, totplay);
-            startround(playno);
-        }
-        roundno++;
-    }
-}
-
-int options(int n, string choices[n],int y, int x, bool sameline){
-
-    int choice;
-    int hl=0;
-
-    while(true) {
-
-        int xspace=0;
-        int yspace=0;
-
-        for (int i = 0; i < n; i++, xspace++) {
-
-            if(i%20==0 && i!=0){
-                yspace++;
-                xspace=0;
-            }
-
-            if (i == hl) {
-                wattron(win, A_REVERSE);
-            }
-            if(sameline){
-                mvwprintw(win, y+yspace, x+(xspace*3), choices[i].c_str());
-                wattroff(win, A_REVERSE);
-            }else{
-                mvwprintw(win, y+i, x, choices[i].c_str());
-                wattroff(win, A_REVERSE);
-            }
-        }
-        choice = wgetch(win);
-
-        if(sameline){
-            switch(choice) {
-
-                case KEY_LEFT:
-                    hl--;
-                    if (hl == -1) {
-                        hl = 0;
-                    }
-                    break;
-
-                case KEY_RIGHT:
-                    hl++;
-                    if (hl == n) {
-                        hl = n - 1;
-                    }
-                    break;
-
-                case KEY_UP:
-                    hl=-20;
-                    if (hl < 0) {
-                        hl+=20;
-                    }
-                    break;
-
-                case KEY_DOWN:
-                    hl=+20;
-                    if (hl >= n) {
-                        hl-= 20;
-                    }
-                    break;
-            }
-        }else{
-            switch(choice) {
-
-                case KEY_UP:
-                    hl--;
-                    if (hl == -1) {
-                        hl = 0;
-                    }
-                    break;
-
-                case KEY_DOWN:
-                    hl++;
-                    if (hl == n) {
-                        hl = n - 1;
-                    }
-                    break;
-            }
-        }
-
-        if (choice == 10) {
-            break;
-        }
-    }
-    return hl+1;
-}
-
 int main() {
 
     setlocale(LC_ALL, "");
 
-    srand(time(0));  // Initialize random number generator.
+    srand(time(nullptr));  // Initialize random number generator.
 
     initscr();
     noecho();
     cbreak();
     curs_set(0);
 
-    int ymax, xmax;
-    getmaxyx(stdscr,ymax,xmax);
+    int xmax = getmaxx(stdscr);
 
-    win = newwin(ymax, xmax, ymax-39, 5);
+    win = newwin(40, xmax-12, 3, 10);
+
+    start_color();
+    init_pair(1, COLOR_MAGENTA, COLOR_BLACK);
+    init_pair(2, COLOR_CYAN, COLOR_BLACK);
+    init_pair(3, COLOR_WHITE, COLOR_BLACK);
+    init_pair(4, COLOR_YELLOW, COLOR_BLACK);
 
     refresh();
     wrefresh(win);

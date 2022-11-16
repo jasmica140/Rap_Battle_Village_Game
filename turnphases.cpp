@@ -117,6 +117,8 @@ int enemytroop(int playno, int totplay){
 
                 if(village[playno].preal){  //real player
 
+                    alertcli(playno,totplay,"success");
+
                     loop6:
                     mvwprintw(win,texty-1,30,"ATTACK SUCCESSFUL!");
                     mvwhline(win, texty, 1, '=', 79);
@@ -207,7 +209,7 @@ int enemytroop(int playno, int totplay){
             }else{
 
                 refreshcli(playno,totplay);
-                mvwprintw(win,erry,1,"Attack Failed");
+                alertcli(playno,totplay,"fail");
 
                 //delete armies
                 for(int j=0; j<maxarmy; j++){
@@ -231,43 +233,43 @@ void earnres(int playno){
 
         if(rbuild[playno][i].level==1){
             if(rbuild[playno][i].type=="tools"){
-                resource[playno][0].amount=+50;
+                resource[playno][0].amount+=50;
             }else if(rbuild[playno][i].type=="food"){
-                resource[playno][1].amount=+50;
+                resource[playno][1].amount+=50;
             }else if(rbuild[playno][i].type=="money"){
-                resource[playno][2].amount=+50;
+                resource[playno][2].amount+=50;
             }
         }else if(rbuild[playno][i].level==2){
             if(rbuild[playno][i].type=="tools"){
-                resource[playno][0].amount=+75;
+                resource[playno][0].amount+=75;
             }else if(rbuild[playno][i].type=="food"){
-                resource[playno][1].amount=+75;
+                resource[playno][1].amount+=75;
             }else if(rbuild[playno][i].type=="money"){
-                resource[playno][2].amount=+75;
+                resource[playno][2].amount+=75;
             }
         }else if(rbuild[playno][i].level==3){
             if(rbuild[playno][i].type=="tools"){
-                resource[playno][0].amount=+120;
+                resource[playno][0].amount+=120;
             }else if(rbuild[playno][i].type=="food"){
-                resource[playno][1].amount=+120;
+                resource[playno][1].amount+=120;
             }else if(rbuild[playno][i].type=="money"){
-                resource[playno][2].amount=+120;
+                resource[playno][2].amount+=120;
             }
         }else if(rbuild[playno][i].level==4){
             if(rbuild[playno][i].type=="tools"){
-                resource[playno][0].amount=+175;
+                resource[playno][0].amount+=175;
             }else if(rbuild[playno][i].type=="food"){
-                resource[playno][1].amount=+175;
+                resource[playno][1].amount+=175;
             }else if(rbuild[playno][i].type=="money"){
-                resource[playno][2].amount=+175;
+                resource[playno][2].amount+=175;
             }
         }else if(rbuild[playno][i].level==5){
             if(rbuild[playno][i].type=="tools"){
-                resource[playno][0].amount=+250;
+                resource[playno][0].amount+=250;
             }else if(rbuild[playno][i].type=="food"){
-                resource[playno][1].amount=+250;
+                resource[playno][1].amount+=250;
             }else if(rbuild[playno][i].type=="money"){
-                resource[playno][2].amount=+250;
+                resource[playno][2].amount+=250;
             }
         }
     }
@@ -291,7 +293,7 @@ int actions(int playno, int totplay, int roundno) {
                     "4.Attack Villages", "5.Resurrect troops", "6.Surrender", "7.End turn"
             };
 
-            select = options(7, choices, texty + 1, 1, false);
+            select = options(7, choices, texty + 2, 1, false);
 
             refreshcli(playno,totplay);
 
@@ -344,14 +346,16 @@ int actions(int playno, int totplay, int roundno) {
                     totplay--;
 
                     refreshcli(playno,totplay);
-                    mvwprintw(win, erry, 1, "Update: VILLAGE DESTROYED!");
+                    alertcli(playno,totplay,"destroy");
                     break;
 
                 } else {
+                    refreshcli(playno,totplay);
                     goto loop;
                 }
 
             } else if (select == 7) { //done
+
                 break;
             }
 

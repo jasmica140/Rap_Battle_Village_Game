@@ -6,8 +6,13 @@ void mapcli(int playno, int totplay){
         map[village[playno].loc[0]][village[playno].loc[1]].status = "  V  ";
     }
 
+    int acnt = village[playno].army;
+
     mvwprintw(win,10,122,"--MAP--");
-    int i,j,k;
+    mvwprintw(win,10,151,"villages left: %d", totplay);
+    wattron(win,COLOR_PAIR(2));
+
+    int i,j,k,l;
     for(k=0; k<mapy; k++){
         for(i=0; i<mapx; i++){
             mvwprintw(win,11+(k*2),86+(i*6),"+-----");
@@ -16,7 +21,24 @@ void mapcli(int playno, int totplay){
 
         for(i=0; i<mapy-2; i++){
             for(j=0; j<mapx; j++){
-                mvwprintw(win,12+(k*2),86+(j*6), "|%s", map[j][k].status.c_str());
+                mvwprintw(win,12+(k*2),86+(j*6), "|", map[j][k].status.c_str());
+
+                wattron(win,COLOR_PAIR(3));
+
+                //change color of current player's village
+                if(j == village[playno].loc[0] && k == village[playno].loc[1]){
+                    wattron(win, COLOR_PAIR(1));
+                }
+
+                //change color of current player's armies
+                for(l=0; l<acnt; l++){
+                    if(j == army[playno][acnt].loc[0] && k == army[playno][acnt].loc[1]) {
+                        wattron(win, COLOR_PAIR(1));
+                    }
+                }
+
+                mvwprintw(win,12+(k*2),87+(j*6), "%s", map[j][k].status.c_str());
+                wattron(win,COLOR_PAIR(2));
             }
         }
         mvwprintw(win,12+(k*2),86+(j*6), "|");
@@ -201,8 +223,10 @@ void villagecli(int playno){
         }
     }
 
+    wattron(win,COLOR_PAIR(4));
     mvwprintw(win,1,1,"%s",vart.c_str());
 
+    wattron(win,COLOR_PAIR(3));
     mvwprintw(win,1,86,"Player %d's Village:",playno+1);
     mvwprintw(win,2,86,"Village health: %d",village[playno].health);
     mvwprintw(win,3,86,"Troops: %d",village[playno].troops);
@@ -224,14 +248,104 @@ void villagecli(int playno){
     mvwprintw(win,5,136,"Masters: %d ",n);
 }
 
+int alertcli(int playno, int totplay, string type){
+
+    if(!village[playno].preal){
+        return 1;
+    }
+
+    wclear(win);
+    wrefresh(win);
+
+    wattron(win,COLOR_PAIR(1));
+    mvwhline(win, 13, 65, '*', 40);
+    mvwhline(win, 17, 65, '*', 40);
+    mvwvline(win, 13, 65, '*', 4);
+    mvwvline(win, 13, 105,'*', 5);
+
+    int x = 25;
+    int y = 8;
+
+    wattron(win,COLOR_PAIR(2));
+    mvwprintw(win,y,x,"  ,   |           ");
+    mvwprintw(win,y+1,x," / \\, | ,        .--.");
+    mvwprintw(win,y+2,x,"|    =|= >      /.--.\\");
+    mvwprintw(win,y+3,x," \\ /` | `       |====|");
+    mvwprintw(win,y+4,x,"  `   |         |`::`|");
+    mvwprintw(win,y+5,x,"      |     .-;`\\..../`;_.-^-._");
+    mvwprintw(win,y+6,x,"     /\\/  /  |...::..|`   :   `|");
+    mvwprintw(win,y+7,x,"     |:'\\ |   /'''::''|   .:.   |");
+    mvwprintw(win,y+8,x,"      \\ /\\;-,/\\   ::  |..:::::..|");
+    mvwprintw(win,y+9,x,"      |\\ <` >  >._::_.| ':::::' |");
+    mvwprintw(win,y+10,x,"      | `\"\"`  /   ^^  |   ':'   |");
+    mvwprintw(win,y+11,x,"      |       |       \\    :    /");
+    mvwprintw(win,y+12,x,"      |       |        \\   :   /");
+    mvwprintw(win,y+13,x,"      |       |___/\\___|`-.:.-`");
+    mvwprintw(win,y+14,x,"      |        \\_ || _/    `");
+    mvwprintw(win,y+15,x,"      |        <_ >< _>");
+    mvwprintw(win,y+16,x,"      |        |  ||  |");
+    mvwprintw(win,y+17,x,"      |        |  ||  |");
+    mvwprintw(win,y+18,x,"      |       _\\.:||:./_");
+    mvwprintw(win,y+19,x,"      |      /____/\\____\\");
+
+    x = 110;
+    mvwprintw(win,y,x,"  ,   |           ");
+    mvwprintw(win,y+1,x," / \\, | ,        .--.");
+    mvwprintw(win,y+2,x,"|    =|= >      /.--.\\");
+    mvwprintw(win,y+3,x," \\ /` | `       |====|");
+    mvwprintw(win,y+4,x,"  `   |         |`::`|");
+    mvwprintw(win,y+5,x,"      |     .-;`\\..../`;_.-^-._");
+    mvwprintw(win,y+6,x,"     /\\/  /  |...::..|`   :   `|");
+    mvwprintw(win,y+7,x,"     |:'\\ |   /'''::''|   .:.   |");
+    mvwprintw(win,y+8,x,"      \\ /\\;-,/\\   ::  |..:::::..|");
+    mvwprintw(win,y+9,x,"      |\\ <` >  >._::_.| ':::::' |");
+    mvwprintw(win,y+10,x,"      | `\"\"`  /   ^^  |   ':'   |");
+    mvwprintw(win,y+11,x,"      |       |       \\    :    /");
+    mvwprintw(win,y+12,x,"      |       |        \\   :   /");
+    mvwprintw(win,y+13,x,"      |       |___/\\___|`-.:.-`");
+    mvwprintw(win,y+14,x,"      |        \\_ || _/    `");
+    mvwprintw(win,y+15,x,"      |        <_ >< _>");
+    mvwprintw(win,y+16,x,"      |        |  ||  |");
+    mvwprintw(win,y+17,x,"      |        |  ||  |");
+    mvwprintw(win,y+18,x,"      |       _\\.:||:./_");
+    mvwprintw(win,y+19,x,"      |      /____/\\____\\");
+
+
+    if(type=="attack"){
+        mvwprintw(win,15,73,"VILLAGE UNDER ATTACK!");
+
+    }else if(type == "success"){
+        mvwprintw(win,15,78,"ATTACK SUCCESSFUL!");
+
+    }else if(type == "fail"){
+        mvwprintw(win,15,76,"ATTACK FAILED!");
+
+    }else if(type == "destroy"){
+        mvwprintw(win,15,76,"VILLAGE DESTROYED!");
+
+    }else if(type == "round"){
+        mvwprintw(win,15,83,"NEXT ROUND");
+    }
+
+    int choice = wgetch(win);
+    if (choice == 10) {
+        refreshcli(playno,totplay);
+        return 0;
+    }
+
+    return 0;
+}
+
 void refreshcli(int playno, int totplay){
     wclear(win);
     wrefresh(win);
     villagecli(playno);
     mvwprintw(win,1,1,"Player %d's turn!",playno+1);
     mapcli(playno,totplay);
+    wattron(win,COLOR_PAIR(1));
     mvwhline(win, 24, 1, '_', 80);
     mvwhline(win, 8, 80, '_', 100);
     mvwvline(win, 1, 80, '|', 37);
     mvwhline(win, 36, 1, '_', 79);
+    wattron(win,COLOR_PAIR(3));
 }

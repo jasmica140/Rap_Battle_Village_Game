@@ -192,19 +192,15 @@ public:
 extern TroopBuildings tbuild[maxplay][maxtbuild];
 
 
-//main
-int options(int n, string choices[n],int y, int x, bool sameline);
-void gameloop();
-
 //setup
 int gamesetup();
-void deleteplayer(int playno, int totplay);
+void gameloop();
 
 //roundphases
 int turnphase(int playno, int totplay, int roundno);
 void marching(int playno, int armyno, int target, int mspeed, int totplay);
 int endround(int playno, int totplay);
-void startround(int playno);
+int startround(int playno, int totplay);
 
 //turnphases
 void friendtroop(int playno);
@@ -230,6 +226,12 @@ void AIresurrect(int playno, int dead);
 //cli
 void mapcli(int playno, int totplay);
 void villagecli(int playno);
+int alertcli(int playno, int totplay, string type);
 void refreshcli(int playno, int totplay);
+
+//other
+int options(int n, string choices[n],int y, int x, bool sameline);
+void deleteplayer(int playno, int totplay);
+
 
 #endif //TASK1_VILLAGEGAME_H

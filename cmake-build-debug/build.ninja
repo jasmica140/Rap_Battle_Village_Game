@@ -88,6 +88,12 @@ build CMakeFiles/Task1.dir/AI.cpp.o: CXX_COMPILER__Task1_Debug /Users/jasminemic
   OBJECT_DIR = CMakeFiles/Task1.dir
   OBJECT_FILE_DIR = CMakeFiles/Task1.dir
 
+build CMakeFiles/Task1.dir/other.cpp.o: CXX_COMPILER__Task1_Debug /Users/jasminemicallef/Desktop/Uni$ Docs/Comp$ Sci/Yr2/CPS2004/Assignment/task1/other.cpp || cmake_object_order_depends_target_Task1
+  DEP_FILE = CMakeFiles/Task1.dir/other.cpp.o.d
+  FLAGS = -g -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk -mmacosx-version-min=12.2 -std=gnu++20
+  OBJECT_DIR = CMakeFiles/Task1.dir
+  OBJECT_FILE_DIR = CMakeFiles/Task1.dir
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target Task1
@@ -96,7 +102,7 @@ build CMakeFiles/Task1.dir/AI.cpp.o: CXX_COMPILER__Task1_Debug /Users/jasminemic
 #############################################
 # Link the executable Task1
 
-build Task1: CXX_EXECUTABLE_LINKER__Task1_Debug CMakeFiles/Task1.dir/main.cpp.o CMakeFiles/Task1.dir/roundphases.cpp.o CMakeFiles/Task1.dir/turnphases.cpp.o CMakeFiles/Task1.dir/setup.cpp.o CMakeFiles/Task1.dir/cli.cpp.o CMakeFiles/Task1.dir/actions.cpp.o CMakeFiles/Task1.dir/AI.cpp.o | /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/usr/lib/libcurses.tbd /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/usr/lib/libform.tbd
+build Task1: CXX_EXECUTABLE_LINKER__Task1_Debug CMakeFiles/Task1.dir/main.cpp.o CMakeFiles/Task1.dir/roundphases.cpp.o CMakeFiles/Task1.dir/turnphases.cpp.o CMakeFiles/Task1.dir/setup.cpp.o CMakeFiles/Task1.dir/cli.cpp.o CMakeFiles/Task1.dir/actions.cpp.o CMakeFiles/Task1.dir/AI.cpp.o CMakeFiles/Task1.dir/other.cpp.o | /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/usr/lib/libcurses.tbd /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/usr/lib/libform.tbd
   FLAGS = -g -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk -mmacosx-version-min=12.2
   LINK_LIBRARIES = /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/usr/lib/libcurses.tbd  /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/usr/lib/libform.tbd
   OBJECT_DIR = CMakeFiles/Task1.dir

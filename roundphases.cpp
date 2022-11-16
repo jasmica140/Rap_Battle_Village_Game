@@ -3,6 +3,10 @@
 
 int turnphase(int playno, int totplay, int roundno){
 
+    if(village[playno].attack){
+        alertcli(playno,totplay,"attack");
+    }
+
     //friendly troop arrival
     friendtroop(playno);
 
@@ -57,19 +61,16 @@ void marching(int playno, int armyno, int target, int mspeed, int totplay){
     refreshcli(playno,totplay);
 }
 
-int endround(int playno, int totplay){
-    refreshcli(playno,totplay);
-    mvwprintw(win,erry,1,"Player %d's turn complete!", playno+1);
+int endround(int playno, int round){
 
-    if(playno<totplay-1){
-        playno = village[playno+1].idx;
-    }else{
-        playno = village[0].idx;
-    }
+    round++;
 
-    return playno;
+    return round;
 }
 
-void startround(int playno){
-    mvwprintw(win,1,1,"Player %d's turn!",playno+1);
+int startround(int playno, int totplay){
+
+    alertcli(playno, totplay, "round");
+    playno = village[0].idx;
+    return playno;
 }

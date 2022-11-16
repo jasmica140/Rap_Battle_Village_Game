@@ -9,26 +9,31 @@ int gamesetup(){
     keypad(win,true);
 
     //boarder
+    wattron(win,COLOR_PAIR(1));
     mvwhline(win, 13, 65, '*', 50);
     mvwhline(win, 18, 65, '*', 51);
     mvwvline(win, 13, 65, '*', 5);
     mvwvline(win, 13, 115,'*', 5);
 
     //ask user for player amounts
+    wattron(win,COLOR_PAIR(2));
     mvwprintw(win,14,67,"Number of real players:");
     string choices[maxplay];
     for(int i=0; i<maxplay; i++){
         choices[i] = {to_string(i+1)};
     }
+    wattron(win,COLOR_PAIR(3));
     rplay = options(maxplay,choices,15,67,true);
 
     //ask user for number of AI players
     if(rplay!=15){
+        wattron(win,COLOR_PAIR(2));
         mvwprintw(win,16,67,"Number of AI players:");
         string ch[maxplay-rplay+1];
         for(int i=0; i<maxplay-rplay+1; i++){
             ch[i] = {to_string(i)};
         }
+        wattron(win,COLOR_PAIR(3));
         aiplay = options(maxplay-rplay+1,ch,17,67,true)-1;
     }
 
@@ -114,37 +119,40 @@ int gamesetup(){
     return players;
 }
 
-void deleteplayer(int playno, int totplay){
+void gameloop(){
 
-    for(int i=playno; i<(totplay-1); i++){
+    int totplay = gamesetup();
 
-        //delete village
-        village[i] = village[i+1];
+    int playno = 0;
+    int roundno = 1;
 
-        //delete troops
-        for(int j=0; j<maxtroops; j++){
-            troops[i][j] = troops[i+1][j];
+    refreshcli(playno,totplay);
+
+    while(totplay > 1){ //win condition
+
+        while(true){
+            totplay = turnphase(playno,totplay,roundno);
+
+            if(playno==totplay-1){
+                break;
+            }else{
+                playno = village[playno+1].idx;
+            }
         }
 
-        //delete resources
-        for(int j=0; j<4; j++){
-            resource[i][j] = resource[i+1][j];
+        if(totplay==1){
+            break;
         }
 
-        //delete resource buildings
-        for(int j=0; j<maxrbuild; j++){
-            rbuild[i][j] = rbuild[i+1][j];
+        for(int i=0; i<totplay; i++){
+            for(int j=0; j<village[playno].army; j++){
+                marching(i, j, army[i][j].target, army[i][j].speed, totplay);
+            }
         }
 
-        //delete training buildings
-        for(int j=0; j<maxtbuild; j++){
-            tbuild[i][j] = tbuild[i+1][j];
-        }
-
-        //delete armies
-        for(int j=0; j<maxarmy; j++){
-            army[i][j] = army[i+1][j];
-        }
+        roundno = endround(playno, roundno);
+        playno = startround(playno, totplay);
     }
 }
+
 

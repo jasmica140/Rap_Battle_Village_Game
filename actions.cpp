@@ -26,7 +26,7 @@ int build(int playno, int totplay){
         mvwprintw(win,texty,1,"How many buildings would you like to build? ");
 
         string nums[maxbuild+1];
-        for(int i=0; i<maxbuild; i++){
+        for(int i=0; i<maxbuild+1; i++){
             nums[i] = {to_string(i)};
         }
         bno = options(maxbuild+1,nums,texty+1,1,true)-1;
@@ -38,6 +38,11 @@ int build(int playno, int totplay){
         for(int i=village[playno].rbuildings-bno; i<village[playno].rbuildings; i++){
             rbuild[playno][i] = ResourceBuildings(resource[playno][type-1].type, 1, 15);
         }
+
+        resource[playno][2].amount-=cost;
+        refreshcli(playno,totplay);
+        mvwprintw(win,erry,1,"Update: Resource generating buildings built!");
+        return 0;
 
     }else{ //troops
 
@@ -53,21 +58,24 @@ int build(int playno, int totplay){
             }else if(village[playno].tbuildings == 2){
                 refreshcli(playno,totplay);
                 tbuild[playno][2].type = "expert";
-                mvwprintw(win,erry,1,"Update: Expert troop-training building finished!");
+                mvwprintw(win,erry,1,"Update: Expert troop-training building built!");
 
             }else if(village[playno].tbuildings == 1){
                 refreshcli(playno,totplay);
                 tbuild[playno][1].type = "rookie";
-                mvwprintw(win,erry,1,"Update: Rookie troop-training building finished!");
+                mvwprintw(win,erry,1,"Update: Rookie troop-training building built!");
 
             }else if(village[playno].tbuildings == 0){
                 refreshcli(playno,totplay);
                 tbuild[playno][0].type = "untrained";
-                mvwprintw(win,erry,1,"Update: Untrained troop-training building finished!");
+                mvwprintw(win,erry,1,"Update: Untrained troop-training building built!");
             }
 
             village[playno].tbuildings++;    //increase village training buildings count
             cost = 125;
+
+            resource[playno][2].amount-=cost;
+            return 0;
 
         }else{
             refreshcli(playno,totplay);
@@ -76,9 +84,6 @@ int build(int playno, int totplay){
         }
     }
 
-    refreshcli(playno,totplay);
-
-    resource[playno][2].amount-=cost;
     return 0;
 }
 
@@ -313,7 +318,7 @@ int attack(int playno, int totplay){
                 vattack += troops[j][i].attack; //sum of villager troops attack
             }
 
-            vills[cnt] = {"Player "+to_string(j+1)+"'s Village - health "+to_string(village[j].health)+" - total attack "+to_string(vattack)+" - tools x"+to_string(resource[j][0].amount)+" - food x"+to_string(resource[j][1].amount)+" - money x"+to_string(resource[j][2].amount)+" - "+to_string(minstep)+" rounds to reach target "};
+            vills[cnt] = {"Player "+to_string(village[j].idx+1)+"'s Village - health "+to_string(village[j].health)+" - total attack "+to_string(vattack)+" - tools x"+to_string(resource[j][0].amount)+" - food x"+to_string(resource[j][1].amount)+" - money x"+to_string(resource[j][2].amount)+" - "+to_string(minstep)+" rounds to reach target "};
             cnt++;
         }
     }
