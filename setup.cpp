@@ -49,7 +49,6 @@ int gamesetup(){
 
     for(int i=0; i<totplay; i++){
 
-
         //initialise villages for each player
         loop:
         int rndx = rand() %mapx;
@@ -57,8 +56,8 @@ int gamesetup(){
 
         //different coordinates for each village
         for(int j=0; j<i; j++){
-            if(abs(rndx - village[j].loc[0]) <= space){
-                if(abs(rndy - village[j].loc[1]) <= space){
+            if(abs(rndx - village[j]->loc[0]) <= space){
+                if(abs(rndy - village[j]->loc[1]) <= space){
                     goto loop;
                 }
             }
@@ -72,24 +71,32 @@ int gamesetup(){
         if(rnd==0){
             //if real player limit is not reached
             if(r!=rplay){
-                village[i] = Village(i,loc, maxhealth, 0, 0, maxtroops,0, false,true);
+
+                auto v = make_unique<Village>(i,loc, maxhealth, 0, 0, false,true);
+                village.push_back(std::move(v));
                 r++;
+
             }else{
-                village[i] = Village(i,loc, maxhealth, 0, 0, maxtroops,0, false,false);
+
+                auto v = make_unique<Village>(i,loc, maxhealth, 0, 0, false,false);
+                village.push_back(std::move(v));
                 ai++;
             }
         }else{
             //if AI player limit is not reached
             if(ai!=aiplay){
-                village[i] = Village(i,loc, maxhealth, 0, 0, maxtroops,0, false,false);
+
+                auto v = make_unique<Village>(i,loc, maxhealth, 0, 0, false,false);
+                village.push_back(std::move(v));
                 ai++;
             }else{
-                village[i] = Village(i,loc, maxhealth, 0, 0, maxtroops,0, false, true);
+
+                auto v = make_unique<Village>(i,loc, maxhealth, 0, 0, false,true);
+                village.push_back(std::move(v));
                 r++;
             }
         }
         map[rndx][rndy].status = "  V  ";
-
 
         //initialise resources for each player
         resource[i][0] = Resource("tools", 500);
@@ -100,7 +107,7 @@ int gamesetup(){
 
         //initialise troops for each player
         for(int j=0; j<maxtroops; j++){
-            troops[i][j] = Troops(15,0,20,0,0,"untrained",loc);
+            village[i]->addtroops(Troops(15,0,20,0,0,"untrained",loc));
         }
 
         //initialise resource buildings
@@ -126,32 +133,31 @@ void gameloop(){
     int playno = 0;
     int roundno = 1;
 
-    refreshcli(playno,totplay);
+    while(village.size() > 1){ //win condition
 
-    while(totplay > 1){ //win condition
+        for(int i=0; i<village.size(); i++, playno++){
+            turnphase(playno,roundno);
 
-        while(true){
-            totplay = turnphase(playno,totplay,roundno);
+            if(village.size()<totplay){
+                playno -= (totplay - village.size());
+                totplay = village.size();
+                i--;
+            }
 
-            if(playno==totplay-1){
+            if(village.size()==1){
                 break;
-            }else{
-                playno = village[playno+1].idx;
             }
         }
 
-        if(totplay==1){
-            break;
-        }
-
-        for(int i=0; i<totplay; i++){
-            for(int j=0; j<village[playno].army; j++){
-                marching(i, j, army[i][j].target, army[i][j].speed, totplay);
+        for(int i=0; i<village.size(); i++){
+            for(int j=0; j<village[i]->army.size(); j++){
+                marching(i, j, village[i]->army[j]->target, village[i]->army[j]->speed);
             }
         }
 
-        roundno = endround(playno, roundno);
-        playno = startround(playno, totplay);
+        roundno = endround(roundno);
+        playno = 0; //start from first surviving player
+        startround(playno);
     }
 }
 

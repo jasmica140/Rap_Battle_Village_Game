@@ -8,6 +8,8 @@
 #include <clocale>
 #include <utility>
 #include <ctime>
+#include <memory>
+#include <vector>
 
 
 using namespace std;
@@ -32,35 +34,6 @@ public:
 };
 extern Map map[mapx][mapy];
 
-
-class Village {
-public:
-    int idx{};                              //player index
-    int loc[2] = {0, 0};         //(x,y)
-    int health = maxhealth;               //village health
-    int tbuildings = 0;                   //amount of troop-training buildings owned
-    int rbuildings = 0;                   //amount of resource buildings owned
-    int troops = maxtroops;               //amount of troops available
-    int army = 0;                         //amount of armies
-    bool attack = false;                  //under attack
-    bool preal = true;                    //AI or real player
-
-    Village()= default;
-
-    Village(int i, const int a[2], int b, int c, int d, int e, int f, bool g, bool h) {
-        idx = i;
-        loc[0] = a[0];
-        loc[1] = a[1];
-        health = b;
-        tbuildings = c;
-        rbuildings = d;
-        troops = e;
-        army = f;
-        attack = g;
-        preal = h;
-    }
-};
-extern Village village[maxplay];
 
 
 class Resource
@@ -102,14 +75,12 @@ public:
         loc[1] = g[1];
     }
 };
-extern Troops troops[maxplay][maxtroops];
 
 
 class Army{
 
 public:
 
-    int troops{};           //no. of troops in the army
     int loc[2]{};           //army locations
     int speed{};            //army speed
     int attack{};           //total attack of army
@@ -118,24 +89,23 @@ public:
     int resource[3]{};      //amount of resources taken from village after attack
     int target{};           //target village no.
 
-    Troops trps[maxtroops]{};
+    vector<shared_ptr<Troops>> troops;
 
     Army() = default;
 
-    Army(int n, Troops a[n], const int b[3], int c){
+    void refresharmy(const Army& army, const int b[3], int c){
 
-        int r=0,e=0;
+        int r=0, e=0;
 
-        for(int i=0; i<n; i++){
+        for(auto & troop : troops){
 
-            trps[i] = a[i];
-            attack += a[i].attack;
-            health += a[i].health;
-            carrycap += a[i].carrycap;
+            attack += troop->attack;
+            health += troop->health;
+            carrycap += troop->carrycap;
 
-            if(a[i].type == "rookie"){
+            if(troop->type == "rookie"){
                 r++;
-            }else if(a[i].type == "expert"){
+            }else if(troop->type == "expert"){
                 e++;
             }
         }
@@ -148,16 +118,22 @@ public:
             speed = 3;
         }
 
-        troops = n;
-        loc[0] = a[0].loc[0];
-        loc[1] = a[0].loc[1];
+        if(!troops.empty()){
+            loc[0] = troops[0]->loc[0];
+            loc[1] = troops[0]->loc[1];
+        }
+
         resource[0] = b[0];
         resource[1] = b[1];
         resource[2] = b[2];
         target = c;
     }
+
+    void addtroops(const Troops& newtroop){
+        auto t = make_shared<Troops>(newtroop);
+        troops.push_back(std::move(t));
+    }
 };
-extern Army army[maxplay][maxarmy];
 
 
 class ResourceBuildings
@@ -192,46 +168,89 @@ public:
 extern TroopBuildings tbuild[maxplay][maxtbuild];
 
 
+class Village {
+
+public:
+    int idx{};                            //player index
+    int loc[2] = {0, 0};         //(x,y) - village location
+    int health = maxhealth;               //village health
+    int tbuildings = 0;                   //amount of troop-training buildings owned
+    int rbuildings = 0;                   //amount of resource buildings owned
+    bool attack = false;                  //under attack
+    bool preal = true;                    //AI or real player
+
+    vector<shared_ptr<Troops>> troops;
+    vector<unique_ptr<Resource>> resvec;
+    vector<unique_ptr<ResourceBuildings>> rbuildvec;
+    vector<unique_ptr<TroopBuildings>> tbuildvec;
+    vector<shared_ptr<Army>> army;
+
+    Village()= default;
+
+    Village(int i, const int a[2], int b, int c, int d, bool g, bool h) {
+        idx = i;
+        loc[0] = a[0];
+        loc[1] = a[1];
+        health = b;
+        tbuildings = c;
+        rbuildings = d;
+        attack = g;
+        preal = h;
+    }
+
+    void addtroops(const Troops& newtroop){
+        auto t = make_shared<Troops>(newtroop);
+        troops.push_back(std::move(t));
+    }
+
+    void addarmy(const Army& newarmy){
+        auto a = make_shared<Army>(newarmy);
+        army.push_back(std::move(a));
+    }
+};
+extern vector<unique_ptr<Village>> village;
+
+
 //setup
 int gamesetup();
 void gameloop();
 
 //roundphases
-int turnphase(int playno, int totplay, int roundno);
-void marching(int playno, int armyno, int target, int mspeed, int totplay);
-int endround(int playno, int totplay);
-int startround(int playno, int totplay);
+void turnphase(int playno, int roundno);
+void marching(int playno, int armyno, int target, int mspeed);
+int endround(int roundno);
+void startround(int playno);
 
 //turnphases
 void friendtroop(int playno);
-int enemytroop(int playno, int totplay);
+void enemytroop(int playno);
 void earnres(int playno);
-int actions(int playno, int totplay, int roundno);
+void actions(int playno, int roundno);
 
 //actions
-int build(int playno, int totplay);
-int upgrade(int playno, int totplay);
-int train(int playno, int totplay);
-int attack(int playno, int totplay);
-int resurrect(int playno, int toplay);
+int build(int playno);
+int upgrade(int playno);
+int train(int playno);
+int attack(int playno);
+int resurrect(int playno);
 
 //AI
 int AIround1(int playno);
 int AIbuild(int playno);
 int AIupgrade(int playno);
 int AItrain(int playno);
-int AIattack(int playno, int totplay);
+int AIattack(int playno);
 void AIresurrect(int playno, int dead);
 
 //cli
-void mapcli(int playno, int totplay);
+void mapcli(int playno);
 void villagecli(int playno);
-int alertcli(int playno, int totplay, string type);
-void refreshcli(int playno, int totplay);
+int alertcli(int playno, const string& type);
+void refreshcli(int playno);
 
 //other
 int options(int n, string choices[n],int y, int x, bool sameline);
-void deleteplayer(int playno, int totplay);
+void deleteplayer(int playno);
 
 
 #endif //TASK1_VILLAGEGAME_H

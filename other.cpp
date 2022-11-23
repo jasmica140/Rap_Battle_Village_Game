@@ -1,17 +1,16 @@
 #include "villagegame.h"
 
-void deleteplayer(int playno, int totplay){
+void deleteplayer(int playno){
 
-    for(int i=playno; i<totplay; i++){
+    int idx;
+    for(idx=0; idx<playno; idx++){}
 
-        //delete village
-        map[village[playno].loc[0]][village[playno].loc[1]].status = "     ";
-        village[i] = village[i+1];
+    //delete village
+    map[village[playno]->loc[0]][village[playno]->loc[1]].status = "     ";
+    village.erase(village.begin() + idx);
 
-        //delete troops
-        for(int j=0; j<maxtroops; j++){
-            troops[i][j] = troops[i+1][j];
-        }
+
+    for(int i=playno; i<village.size(); i++){
 
         //delete resources
         for(int j=0; j<4; j++){
@@ -26,11 +25,6 @@ void deleteplayer(int playno, int totplay){
         //delete training buildings
         for(int j=0; j<maxtbuild; j++){
             tbuild[i][j] = tbuild[i+1][j];
-        }
-
-        //delete armies
-        for(int j=0; j<maxarmy; j++){
-            army[i][j] = army[i+1][j];
         }
     }
 }

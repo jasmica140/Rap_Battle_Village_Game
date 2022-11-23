@@ -1,15 +1,15 @@
 #include "villagegame.h"
 
-void mapcli(int playno, int totplay){
+void mapcli(int playno){
 
-    for(int v=0; v<totplay; v++){
-        map[village[playno].loc[0]][village[playno].loc[1]].status = "  V  ";
+    for(int v=0; v<village.size(); v++){
+        map[village[playno]->loc[0]][village[playno]->loc[1]].status = "  V  ";
     }
 
-    int acnt = village[playno].army;
+    int acnt = village[playno]->army.size();
 
     mvwprintw(win,10,122,"--MAP--");
-    mvwprintw(win,10,151,"villages left: %d", totplay);
+    mvwprintw(win,10,151,"villages left: %d", village.size());
     wattron(win,COLOR_PAIR(2));
 
     int i,j,k,l;
@@ -26,13 +26,13 @@ void mapcli(int playno, int totplay){
                 wattron(win,COLOR_PAIR(3));
 
                 //change color of current player's village
-                if(j == village[playno].loc[0] && k == village[playno].loc[1]){
+                if(j == village[playno]->loc[0] && k == village[playno]->loc[1]){
                     wattron(win, COLOR_PAIR(1));
                 }
 
                 //change color of current player's armies
                 for(l=0; l<acnt; l++){
-                    if(j == army[playno][acnt].loc[0] && k == army[playno][acnt].loc[1]) {
+                    if(j == village[playno]->army[l]->loc[0] && k == village[playno]->army[l]->loc[1]) {
                         wattron(win, COLOR_PAIR(1));
                     }
                 }
@@ -55,7 +55,7 @@ void villagecli(int playno){
 
     string vart;
 
-    int vill = village[playno].rbuildings + village[playno].tbuildings;
+    int vill = village[playno]->rbuildings + village[playno]->tbuildings;
 
     if(vill==0){
         vart = "                                                          |>>>\n"
@@ -206,19 +206,19 @@ void villagecli(int playno){
 
     //count troops in armies
     int atrps=0;
-    for(int i=0; i<village[playno].army; i++){
-        atrps+=army[playno][i].troops;
+    for(auto & i : village[playno]->army){
+        atrps+=i->troops.size();
     }
     //count troops
     int k=0,l=0,m=0,n=0;
-    for(int i=0; i<village[playno].troops; i++){
-        if(troops[playno][i].type=="untrained"){
+    for(auto & troop : village[playno]->troops){
+        if(troop->type=="untrained"){
             k++;
-        }else if(troops[playno][i].type=="rookie"){
+        }else if(troop->type=="rookie"){
             l++;
-        }else if(troops[playno][i].type=="expert"){
+        }else if(troop->type=="expert"){
             m++;
-        }else if(troops[playno][i].type=="master"){
+        }else if(troop->type=="master"){
             n++;
         }
     }
@@ -228,11 +228,11 @@ void villagecli(int playno){
 
     wattron(win,COLOR_PAIR(3));
     mvwprintw(win,1,86,"Player %d's Village:",playno+1);
-    mvwprintw(win,2,86,"Village health: %d",village[playno].health);
-    mvwprintw(win,3,86,"Troops: %d",village[playno].troops);
-    mvwprintw(win,4,86,"Armies: %d",village[playno].army);
-    mvwprintw(win,5,86,"Resource-generating buildings: %d",village[playno].rbuildings);
-    mvwprintw(win,6,86,"Troop-training buildings: %d",village[playno].tbuildings);
+    mvwprintw(win,2,86,"Village health: %d",village[playno]->health);
+    mvwprintw(win,3,86,"Troops: %d",village[playno]->troops.size());
+    mvwprintw(win,4,86,"Armies: %d",village[playno]->army.size());
+    mvwprintw(win,5,86,"Resource-generating buildings: %d",village[playno]->rbuildings);
+    mvwprintw(win,6,86,"Troop-training buildings: %d",village[playno]->tbuildings);
 
 
     mvwprintw(win,1,121,"Resources: ");
@@ -248,9 +248,9 @@ void villagecli(int playno){
     mvwprintw(win,5,136,"Masters: %d ",n);
 }
 
-int alertcli(int playno, int totplay, string type){
+int alertcli(int playno, const string& type){
 
-    if(!village[playno].preal){
+    if(!village[playno]->preal){
         return 1;
     }
 
@@ -329,19 +329,19 @@ int alertcli(int playno, int totplay, string type){
 
     int choice = wgetch(win);
     if (choice == 10) {
-        refreshcli(playno,totplay);
+        refreshcli(playno);
         return 0;
     }
 
     return 0;
 }
 
-void refreshcli(int playno, int totplay){
+void refreshcli(int playno){
     wclear(win);
     wrefresh(win);
     villagecli(playno);
     mvwprintw(win,1,1,"Player %d's turn!",playno+1);
-    mapcli(playno,totplay);
+    mapcli(playno);
     wattron(win,COLOR_PAIR(1));
     mvwhline(win, 24, 1, '_', 80);
     mvwhline(win, 8, 80, '_', 100);
