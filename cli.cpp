@@ -204,11 +204,7 @@ void villagecli(int playno){
                "___|_______|__[ == ==]/.::::::;;;:::::::::::::::;;;:::::::.\\[=  == ]___|_____";
     }
 
-    //count troops in armies
-    int atrps=0;
-    for(auto & i : village[playno]->army){
-        atrps+=i->troops.size();
-    }
+
     //count troops
     int k=0,l=0,m=0,n=0;
     for(auto & troop : village[playno]->troops){
@@ -227,7 +223,7 @@ void villagecli(int playno){
     mvwprintw(win,1,1,"%s",vart.c_str());
 
     wattron(win,COLOR_PAIR(3));
-    mvwprintw(win,1,86,"Player %d's Village:",playno+1);
+    mvwprintw(win,1,86,"Player %d's Village:",village[playno]->idx+1);
     mvwprintw(win,2,86,"Village health: %d",village[playno]->health);
     mvwprintw(win,3,86,"Troops: %d",village[playno]->troops.size());
     mvwprintw(win,4,86,"Armies: %d",village[playno]->army.size());
@@ -242,7 +238,7 @@ void villagecli(int playno){
 
 
     mvwprintw(win,1,136,"Stationed Troops: ");
-    mvwprintw(win,2,136,"Untrained: %d ",k-atrps);
+    mvwprintw(win,2,136,"Untrained: %d ",k);
     mvwprintw(win,3,136,"Rookies: %d ",l);
     mvwprintw(win,4,136,"Experts: %d ",m);
     mvwprintw(win,5,136,"Masters: %d ",n);

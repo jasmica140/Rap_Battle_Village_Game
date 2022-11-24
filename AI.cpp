@@ -303,13 +303,14 @@ int AIattack(int playno){
                 optattack += troop->health; //sum of villager troops health
             }
             track++;
-        }
-        if(j==0){
-            opt[0] = optattack;
-            opt[1] = 0;
-        }else if (optattack < opt[0]) {  //if current player has fewer points
-            opt[0] = optattack;
-            opt[1] = j;
+
+            if(track==1){
+                opt[0] = optattack;
+                opt[1] = j;
+            }else if (optattack < opt[0]) {  //if current player has fewer points
+                opt[0] = optattack;
+                opt[1] = j;
+            }
         }
     }
 
@@ -393,7 +394,6 @@ int AIattack(int playno){
     village[playno]->army[acnt]->refresharmy(*village[playno]->army[acnt],res, village[villno]->idx);
 
     int vattack=0;
-
     int phealth = village[playno]->army[acnt]->health;        //sum of player troops health
 
     for(auto & troop : village[villno]->troops){
@@ -412,6 +412,10 @@ int AIattack(int playno){
         village[playno]->army.erase(village[playno]->army.begin()+acnt);
         return 1;
     }
+
+    //set army location
+    village[playno]->army[acnt]->loc[0] = village[playno]->loc[0];
+    village[playno]->army[acnt]->loc[1] = village[playno]->loc[1];
 
     //update village to under attack
     village[villno]->attack = true;

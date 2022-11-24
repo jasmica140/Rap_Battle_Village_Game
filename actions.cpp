@@ -305,7 +305,7 @@ int attack(int playno){
     string vills[village.size()-1-village[playno]->army.size()];
 
     int cnt=0;
-    int realno=0;
+    int real[village.size()];
     for(int j=0; j<village.size(); j++){
 
         //can't attack villages player is already under attack
@@ -322,9 +322,8 @@ int attack(int playno){
             }
 
             vills[cnt] = {"Player "+to_string(village[j]->idx+1)+"'s Village - health "+to_string(village[j]->health)+" - total attack "+to_string(vattack)+" - tools x"+to_string(resource[j][0].amount)+" - food x"+to_string(resource[j][1].amount)+" - money x"+to_string(resource[j][2].amount)+" - "+to_string(minstep)+" rounds to reach target "};
+            real[cnt] = j;
             cnt++;
-        }else{
-            realno++;
         }
     }
 
@@ -334,7 +333,8 @@ int attack(int playno){
         return 1;
     }
 
-    int villno = options(cnt,vills,texty+1, 1,false);
+    int villno = options(cnt,vills,texty+1, 1,false)-1;
+    villno = real[villno];
     refreshcli(playno);
 
     //ask for troops to send for battle
@@ -467,6 +467,10 @@ int attack(int playno){
         mvwprintw(win,erry,1,"Error: Increase army health to attack selected village!");
         return 1;
     }
+
+    //set army location
+    village[playno]->army[acnt]->loc[0] = village[playno]->loc[0];
+    village[playno]->army[acnt]->loc[1] = village[playno]->loc[1];
 
     //update village to under attack
     village[villno]->attack = true;

@@ -34,8 +34,6 @@ public:
 };
 extern Map map[mapx][mapy];
 
-
-
 class Resource
 {
 public:
@@ -97,6 +95,10 @@ public:
 
         int r=0, e=0;
 
+        attack=0;
+        health=0;
+        carrycap=0;
+
         for(auto & troop : troops){
 
             attack += troop->attack;
@@ -116,11 +118,6 @@ public:
             speed = 2;
         }else{
             speed = 3;
-        }
-
-        if(!troops.empty()){
-            loc[0] = troops[0]->loc[0];
-            loc[1] = troops[0]->loc[1];
         }
 
         resource[0] = b[0];

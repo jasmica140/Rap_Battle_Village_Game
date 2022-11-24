@@ -38,7 +38,7 @@ void marching(int playno, int armyno, int target, int mspeed){
     map[village[playno]->army[armyno]->loc[0]][village[playno]->army[armyno]->loc[1]].status = "     ";
 
     // while army is not in same row or column as target and army's steps per round not exceeded
-    while (((village[playno]->army[armyno]->loc[0] != villx) || (village[playno]->army[armyno]->loc[1] != villy)) && i<mspeed){
+    while ((village[playno]->army[armyno]->loc[0] != villx || village[playno]->army[armyno]->loc[1] != villy) && i<mspeed){
 
         //go up
         if (village[playno]->army[armyno]->loc[0] < villx) {

@@ -2,10 +2,8 @@
 
 void friendtroop(int playno){
 
-    int acnt = village[playno]->army.size();
-    int i;
+    for(int i=0; i<village[playno]->army.size(); i++){
 
-    for(i=0; i<acnt; i++){
         //if army made it home
         if(village[playno]->army[i]->loc[0] == village[playno]->loc[0] && village[playno]->army[i]->loc[1] == village[playno]->loc[1]){
             //transfer resources obtained to player
@@ -14,23 +12,23 @@ void friendtroop(int playno){
             resource[playno][2].amount += village[playno]->army[i]->resource[2];
 
             //bring troops home
-            for(int j=0; j<village[playno]->army[acnt]->troops.size(); j++){
-                village[playno]->addtroops(*village[playno]->army[acnt]->troops[0]);
+            while(!village[playno]->army[i]->troops.empty()){
+                village[playno]->addtroops(*village[playno]->army[i]->troops[0]);
                 village[playno]->army[i]->troops.erase(village[playno]->army[i]->troops.begin());
             }
 
             //remove army
             village[playno]->army.erase(village[playno]->army.begin()+i);
+            i--;
         }
     }
 }
 
 void enemytroop(int playno){
 
-    int acnt = village[playno]->army.size();
     int villno;
 
-    for(int cnt=0; cnt<acnt; cnt++){
+    for(int cnt=0; cnt<village[playno]->army.size(); cnt++){
 
         for(int v=0; v<village.size(); v++){
             if(village[v]->idx == village[playno]->army[cnt]->target){
@@ -45,13 +43,12 @@ void enemytroop(int playno){
             int res[] = {0,0,0};        //current resources carried
 
             int phealth = village[playno]->army[cnt]->health;        //sum of player troops health
+            int pattack = village[playno]->army[cnt]->attack;
 
             int vattack=0;
             for(auto & troop : village[villno]->troops){
                 vattack += troop->attack;        //sum of target village troops attack
             }
-
-            int pattack = village[playno]->army[cnt]->attack;
 
             int rnd;
             //until player troop health = villager troops health
@@ -59,19 +56,18 @@ void enemytroop(int playno){
 
                 //kill player troop
                 if(!village[playno]->army[cnt]->troops.empty()){
-                    rnd = (rand() %village[playno]->army[cnt]->troops.size());
+                    rnd = (rand() %(int)village[playno]->army[cnt]->troops.size());
                     village[playno]->army[cnt]->troops.erase(village[playno]->army[cnt]->troops.begin()+rnd);
                 }
 
                 //kill villager troop
                 if(!village[villno]->troops.empty()){
-                    rnd = (rand() %village[villno]->troops.size());
+                    rnd = (rand() %(int)village[villno]->troops.size());
                     village[villno]->troops.erase(village[villno]->troops.begin() + rnd);
                 }
 
                 //recalculate health and attack
                 village[playno]->army[cnt]->refresharmy(*village[playno]->army[cnt],res, village[villno]->idx);
-
                 phealth = village[playno]->army[cnt]->health;        //sum of player troops health
 
                 vattack = 0;
@@ -84,7 +80,6 @@ void enemytroop(int playno){
             bool success;
             if(!village[playno]->army[cnt]->troops.empty()){
                 success=true;
-                break;
             }else{
                 success=false;
             }
@@ -93,11 +88,6 @@ void enemytroop(int playno){
             village[villno]->attack = false;
 
             if(success){
-
-                refreshcli(playno);
-
-                //update army
-                village[playno]->army[cnt]->refresharmy(*village[playno]->army[cnt],res, village[villno]->idx);
 
                 //sum of surviving player troops attack
                 pattack = village[playno]->army[cnt]->attack;
@@ -163,16 +153,19 @@ void enemytroop(int playno){
                     //steal resources
                     loop1:
                     tools=0;
-                    if(resource[villno][0].amount>0){
-                        tools = (rand()% resource[villno][0].amount*5);
+                    if(resource[villno][0].amount>5){
+                        tools = (rand()% (int)floor(resource[villno][0].amount/5));
+                        tools *= 5;
                     }
                     food=0;
-                    if(resource[villno][1].amount>0){
-                        food = (rand()% resource[villno][1].amount*5);
+                    if(resource[villno][1].amount>5){
+                        food = (rand()% (int)floor(resource[villno][1].amount/5));
+                        food *= 5;
                     }
                     money=0;
-                    if(resource[villno][2].amount>0){
-                        money = (rand()% resource[villno][2].amount*5);
+                    if(resource[villno][2].amount>5){
+                        money = (rand()% (int)floor(resource[villno][2].amount/5));
+                        money *= 5;
                     }
 
                     //max carrying capacity exceeded
@@ -182,16 +175,16 @@ void enemytroop(int playno){
                     }
                 }
 
-                resource[villno][0].amount -= tools/5;
-                resource[villno][1].amount -= food/5;
-                resource[villno][2].amount -= money/5;
+                resource[villno][0].amount -= tools;
+                resource[villno][1].amount -= food;
+                resource[villno][2].amount -= money;
 
-                village[playno]->army[cnt]->resource[0] = tools/5;
-                village[playno]->army[cnt]->resource[1] = food/5;
-                village[playno]->army[cnt]->resource[2] = money/5;
+                village[playno]->army[cnt]->resource[0] = tools;
+                village[playno]->army[cnt]->resource[1] = food;
+                village[playno]->army[cnt]->resource[2] = money;
 
                 //surviving troops march back home
-                village[playno]->army[cnt]->target = playno;
+                village[playno]->army[cnt]->target = village[playno]->idx;
 
                 if(village[villno]->health<=0){
 
@@ -203,11 +196,10 @@ void enemytroop(int playno){
                 }
 
             }else{
-
                 //delete army
                 village[playno]->army.erase(village[playno]->army.begin()+cnt);
-
                 alertcli(playno,"fail");
+                cnt--;
             }
         }
     }
