@@ -18,13 +18,8 @@ using namespace std;
 #define mapy 13
 #define maxhealth 5000
 #define maxplay 15
-#define maxtroops 50
-#define maxarmy 5
-#define maxrbuild 50
-#define maxtbuild 3
 #define texty 25
 #define erry 37
-
 
 extern WINDOW *win;
 
@@ -47,7 +42,6 @@ public:
         amount = b;
     }
 };
-extern Resource resource[maxplay][4];
 
 class Troops
 {
@@ -56,21 +50,16 @@ public:
     int health{};
     int attack{};         //strength
     int carrycap{};       //carrying capacity
-    int speed{};          //marching speed
     string type;          //type of troop - untrained/rookie/expert/master
-    int loc[2]{};         //troop location
 
     Troops() = default;
 
-    Troops(int a, int b, int c, int d, int e, string f, const int g[2]){
+    Troops(int a, int b, int c, int d, string f){
         cost = a;           //cost of training
         health = b;
         attack = c;         //strength
         carrycap = d;       //carrying capacity
-        speed = e;          //marching speed
         type = std::move(f);           //type of troop - untrained/rookie/expert/master
-        loc[0] = g[0];             //troop location
-        loc[1] = g[1];
     }
 };
 
@@ -133,36 +122,21 @@ public:
 };
 
 
-class ResourceBuildings
-{
+class Building{
+
 public:
-    string type;            //type of resource generated
+    string type;            //type of resources/troops to generate
     int level{};
     int cost{};             //cost of upgrading
 
-    ResourceBuildings() = default;
+    Building() = default;
 
-    ResourceBuildings(string a, int b, int c){
+    Building(string a, int b, int c){
         type = std::move(a);
         level = b;
         cost = c;
     }
 };
-extern ResourceBuildings rbuild[maxplay][maxrbuild];
-
-
-class TroopBuildings
-{
-public:
-    string type;          //type of resource required
-
-    TroopBuildings() = default;
-
-    explicit TroopBuildings(string a){
-        type = std::move(a);
-    }
-};
-extern TroopBuildings tbuild[maxplay][maxtbuild];
 
 
 class Village {
@@ -171,26 +145,22 @@ public:
     int idx{};                            //player index
     int loc[2] = {0, 0};         //(x,y) - village location
     int health = maxhealth;               //village health
-    int tbuildings = 0;                   //amount of troop-training buildings owned
-    int rbuildings = 0;                   //amount of resource buildings owned
     bool attack = false;                  //under attack
     bool preal = true;                    //AI or real player
 
     vector<shared_ptr<Troops>> troops;
-    vector<unique_ptr<Resource>> resvec;
-    vector<unique_ptr<ResourceBuildings>> rbuildvec;
-    vector<unique_ptr<TroopBuildings>> tbuildvec;
+    vector<shared_ptr<Resource>> resource;
+    vector<shared_ptr<Building>> rbuild;
+    vector<shared_ptr<Building>> tbuild;
     vector<shared_ptr<Army>> army;
 
     Village()= default;
 
-    Village(int i, const int a[2], int b, int c, int d, bool g, bool h) {
+    Village(int i, const int a[2], int b, bool g, bool h) {
         idx = i;
         loc[0] = a[0];
         loc[1] = a[1];
         health = b;
-        tbuildings = c;
-        rbuildings = d;
         attack = g;
         preal = h;
     }
@@ -203,6 +173,21 @@ public:
     void addarmy(const Army& newarmy){
         auto a = make_shared<Army>(newarmy);
         army.push_back(std::move(a));
+    }
+
+    void addres(const Resource& newres){
+        auto r = make_shared<Resource>(newres);
+        resource.push_back(std::move(r));
+    }
+
+    void addrbuild(const Building& newbuild){
+        auto rb = make_shared<Building>(newbuild);
+        rbuild.push_back(std::move(rb));
+    }
+
+    void addtbuild(const Building& newbuild){
+        auto tb = make_shared<Building>(newbuild);
+        tbuild.push_back(std::move(tb));
     }
 };
 extern vector<unique_ptr<Village>> village;
@@ -229,7 +214,6 @@ int build(int playno);
 int upgrade(int playno);
 int train(int playno);
 int attack(int playno);
-int resurrect(int playno);
 
 //AI
 int AIround1(int playno);
@@ -237,7 +221,6 @@ int AIbuild(int playno);
 int AIupgrade(int playno);
 int AItrain(int playno);
 int AIattack(int playno);
-void AIresurrect(int playno, int dead);
 
 //cli
 void mapcli(int playno);

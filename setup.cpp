@@ -72,13 +72,13 @@ int gamesetup(){
             //if real player limit is not reached
             if(r!=rplay){
 
-                auto v = make_unique<Village>(i,loc, maxhealth, 0, 0, false,true);
+                auto v = make_unique<Village>(i,loc, maxhealth, false, true);
                 village.push_back(std::move(v));
                 r++;
 
             }else{
 
-                auto v = make_unique<Village>(i,loc, maxhealth, 0, 0, false,false);
+                auto v = make_unique<Village>(i,loc, maxhealth, false, false);
                 village.push_back(std::move(v));
                 ai++;
             }
@@ -86,12 +86,12 @@ int gamesetup(){
             //if AI player limit is not reached
             if(ai!=aiplay){
 
-                auto v = make_unique<Village>(i,loc, maxhealth, 0, 0, false,false);
+                auto v = make_unique<Village>(i,loc, maxhealth, false, false);
                 village.push_back(std::move(v));
                 ai++;
             }else{
 
-                auto v = make_unique<Village>(i,loc, maxhealth, 0, 0, false,true);
+                auto v = make_unique<Village>(i,loc, maxhealth, false, true);
                 village.push_back(std::move(v));
                 r++;
             }
@@ -99,26 +99,9 @@ int gamesetup(){
         map[rndx][rndy].status = "  V  ";
 
         //initialise resources for each player
-        resource[i][0] = Resource("tools", 500);
-        resource[i][1] = Resource("food", 500);
-        resource[i][2] = Resource("money", 500);
-        resource[i][3] = Resource("elixir", 0);
-
-
-        //initialise troops for each player
-        for(int j=0; j<maxtroops; j++){
-            village[i]->addtroops(Troops(15,0,20,0,0,"untrained",loc));
-        }
-
-        //initialise resource buildings
-        for(int j=0; j<maxrbuild; j++){
-            rbuild[i][j] = ResourceBuildings("undefined",0,0);
-        }
-
-        //initialise training buildings
-        for(int j=0; j<maxtbuild; j++){
-            tbuild[i][j] = TroopBuildings("undefined");
-        }
+        village[i]->addres(Resource("tools", 500));
+        village[i]->addres(Resource("food", 500));
+        village[i]->addres(Resource("money", 500));
     }
 
     int players = totplay;

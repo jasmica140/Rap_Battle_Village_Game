@@ -2,9 +2,7 @@
 
 int build(int playno){
 
-    int bno;
     int select;
-    int cost;
 
     mvwprintw(win,texty,1,"Select building type: ");
     string choices[]={"1.Resource-generating - cost: money x65","2.Troop-training - cost: money x125"};
@@ -12,17 +10,24 @@ int build(int playno){
 
     refreshcli(playno);
 
-    int type;
+    if(select==1) { //resource
 
-    if(select==1){ //resource
+        if(village[playno]->resource[2]->amount<65){
+            refreshcli(playno);
+            mvwprintw(win,erry,1,"Error: Insufficient funds!");
+            return 1;
+        }
 
-        mvwprintw(win,texty,1,"Select a resource to generate:");
-        string types[]={"1.Tools","2.Food","3.Money"};
-        type = options(3,types,texty+1, 1,false);
+        int cost;
+        int bno;
 
+        mvwprintw(win, texty, 1, "Select a type of resource to generate:");
+        string types[] = {"1.Tools", "2.Food", "3.Money"};
+
+        int type = options(3, types, texty + 1, 1, false);
         refreshcli(playno);
 
-        int maxbuild = floor(resource[playno][2].amount / 65);
+        int maxbuild = floor(village[playno]->resource[2]->amount / 65);
         mvwprintw(win,texty,1,"How many buildings would you like to build? ");
 
         string nums[maxbuild+1];
@@ -32,58 +37,83 @@ int build(int playno){
         bno = options(maxbuild+1,nums,texty+1,1,true)-1;
         cost = bno*65;
 
-        village[playno]->rbuildings+=bno;        //increase village resource buildings count
-
-        //update building specs
-        for(int i=village[playno]->rbuildings-bno; i<village[playno]->rbuildings; i++){
-            rbuild[playno][i] = ResourceBuildings(resource[playno][type-1].type, 1, 15);
+        //create buildings
+        for (int i = 0; i < bno; i++) {
+            village[playno]->addrbuild(Building(village[playno]->resource[type-1]->type, 1, 15));
         }
 
-        resource[playno][2].amount-=cost;
-        refreshcli(playno);
-        mvwprintw(win,erry,1,"Update: Resource generating buildings built!");
-        return 0;
+        village[playno]->resource[2]->amount-=cost;
 
-    }else{ //troops
+    }else { //troop
 
-        //if sufficient funds
-        if(resource[playno][2].amount>=125){
-
-            //building type chosen successively
-            if(village[playno]->tbuildings == 3){
-                refreshcli(playno);
-                mvwprintw(win,erry,1,"Error: All troop-training buildings built!");
-                return 1;
-
-            }else if(village[playno]->tbuildings == 2){
-                refreshcli(playno);
-                tbuild[playno][2].type = "expert";
-                mvwprintw(win,erry,1,"Update: Expert troop-training building built!");
-
-            }else if(village[playno]->tbuildings == 1){
-                refreshcli(playno);
-                tbuild[playno][1].type = "rookie";
-                mvwprintw(win,erry,1,"Update: Rookie troop-training building built!");
-
-            }else if(village[playno]->tbuildings == 0){
-                refreshcli(playno);
-                tbuild[playno][0].type = "untrained";
-                mvwprintw(win,erry,1,"Update: Untrained troop-training building built!");
-            }
-
-            village[playno]->tbuildings++;    //increase village training buildings count
-            cost = 125;
-
-            resource[playno][2].amount-=cost;
-            return 0;
-
-        }else{
+        if(village[playno]->resource[2]->amount<125){
             refreshcli(playno);
             mvwprintw(win,erry,1,"Error: Insufficient funds!");
             return 1;
         }
+
+        if(village[playno]->tbuild.size()==3){
+            refreshcli(playno);
+            mvwprintw(win,erry,1,"Error: All troop training buildings built!");
+            return 1;
+        }
+
+        string types[3-village[playno]->tbuild.size()];
+
+        if(village[playno]->tbuild.empty()){
+            types[0] = "snoopdawgz";
+            types[1] = "biggies";
+            types[2] = "tupacs";
+
+        }else{
+            bool s=true;
+            bool b=true;
+            bool t=true;
+
+            for(auto & i : village[playno]->tbuild){
+                if(i->type=="snoopdawgz"){
+                    s=false;
+                }else if(i->type=="biggies"){
+                    b=false;
+                }else if(i->type=="tupacs"){
+                    t=false;
+                }
+            }
+
+            if(village[playno]->tbuild.size()==1){
+                if(!s){
+                    types[0] = "biggies";
+                    types[1] = "tupacs";
+                }else if(!b){
+                    types[0] = "snoopdawgz";
+                    types[1] = "tupacs";
+                }else if(!t){
+                    types[0] = "snoopdawgz";
+                    types[1] = "biggies";
+                }
+            }
+
+            if(village[playno]->tbuild.size()==2){
+                if(!s && !b){
+                    types[0] = "tupacs";
+                }else if(!s && !t){
+                    types[0] = "biggies";
+                }else if(!b && !t){
+                    types[0] = "snoopdawgz";
+                }
+            }
+        }
+
+        mvwprintw(win, texty, 1, "Select a type of troop to train:");
+        int type = options(3-(int)village[playno]->tbuild.size(), types, texty + 1, 1, false);
+        refreshcli(playno);
+
+        //create building
+        village[playno]->addtbuild(Building(types[type-1], 0, 0));
+        village[playno]->resource[2]->amount-=125;
     }
 
+    refreshcli(playno);
     return 0;
 }
 
@@ -91,21 +121,21 @@ int upgrade(int playno){
 
     int select;
 
-    if(village[playno]->rbuildings==0){
+    if(village[playno]->rbuild.empty()){
         refreshcli(playno);
         mvwprintw(win,erry,1,"Error: You have no resource buildings to upgrade yet!");
         return 1;
     }
 
-    int real[village[playno]->rbuildings];
+    int real[village[playno]->rbuild.size()];
     int count=0;
 
-    string choices[village[playno]->rbuildings];
+    string choices[village[playno]->rbuild.size()];
 
-    for(int j=0; j<village[playno]->rbuildings; j++){
-        real[count]=j;
-        if(rbuild[playno][j].level<5 && resource[playno][0].amount>=rbuild[playno][j].cost){
-            choices[count] = {to_string(count+1) + ". Resource-generating - level " + to_string(rbuild[playno][j].level) + " - generates " + rbuild[playno][j].type + "- cost: tools x" + to_string(rbuild[playno][j].cost)};
+    for(int j=0; j<village[playno]->rbuild.size(); j++){
+        if(village[playno]->rbuild[j]->level<5 && village[playno]->resource[0]->amount>=village[playno]->rbuild[j]->cost){
+            choices[count] = {to_string(count+1) + ". level " + to_string(village[playno]->rbuild[j]->level) + " - generates " + village[playno]->rbuild[j]->type + "- cost: tools x" + to_string(village[playno]->rbuild[j]->cost)};
+            real[count]=j;
             count++;
         }
     }
@@ -118,13 +148,14 @@ int upgrade(int playno){
 
     mvwprintw(win,texty,1,"Select a resource building to upgrade:");
     select = options(count,choices,texty+1, 1,false)-1;
+    select = real[select];
 
     //decrease tools
-    resource[playno][0].amount-=rbuild[playno][real[select]].cost;
+    village[playno]->resource[0]->amount -= village[playno]->rbuild[select]->cost;
 
     //update building specs
-    rbuild[playno][real[select]] = ResourceBuildings(rbuild[playno][real[select]].type, rbuild[playno][real[select]].level+1, rbuild[playno][real[select]].cost+15);
-
+    village[playno]->rbuild[select]->level++;
+    village[playno]->rbuild[select]->cost += 15;
     refreshcli(playno);
 
     return 0;
@@ -134,76 +165,64 @@ int train(int playno){
 
     int select;
 
-    mvwprintw(win,texty,1,"Select which type of troops to train:");
+    mvwprintw(win,texty,1,"Select a type of troop to train:");
 
     int troopno;
 
-    int k=0,l=0,m=0;
-    for(auto & troop : village[playno]->troops){
-        if(troop->type=="untrained"){
-            k++;
-        }else if(troop->type=="rookie"){
-            l++;
-        }else if(troop->type=="expert"){
-            m++;
-        }
-    }
-
-    string choices[] = {"1. Untrained troops x"+to_string(k)+" available - cost: food x15",
-                       "2. Rookie troops x"+ to_string(l) +" available - cost: food x35",
-                       "3. Expert troops x" + to_string(m) + " available - cost: food x80"};
+    string choices[] = {"1. Snoopdawgz - cost: food x5",
+                       "2. Biggies - cost: food x15",
+                       "3. Tupacs - cost: food x10"};
     select = options(3,choices,texty+1,1,false);
 
     refreshcli(playno);
 
     int maxtroop=0;
+    int cost=0;
+    bool purchased = false;
+    string type;
 
     //max is either max available or max afforded
     //error if building not purchased
     if(select==1){
 
-        maxtroop = floor(resource[playno][1].amount / 15);
+        cost=5;
+        type = "snoopdawgz";
 
-        if(tbuild[playno][0].type=="undefined"){
-            refreshcli(playno);
-            mvwprintw(win,erry,1,"Error: Untrained troop-training building not purchased!");
-            return 1;
-        }else{
-            if(maxtroop>k){
-                maxtroop = k;
-            }
-        }
     }else if(select==2){
 
-        maxtroop = floor(resource[playno][1].amount / 35);
+        cost=15;
+        type = "biggies";
 
-        if(tbuild[playno][1].type=="undefined"){
-            refreshcli(playno);
-            mvwprintw(win,erry,1,"Error: Rookie troop-training building not purchased!");
-            return 1;
-        }else{
-            if(maxtroop>l){
-                maxtroop = l;
-            }
-        }
-    } else if(select==3){
+    }else if(select==3){
 
-        maxtroop = floor(resource[playno][1].amount / 80);
-
-        if(tbuild[playno][2].type=="undefined"){
-            refreshcli(playno);
-            mvwprintw(win,erry,1,"Error: Expert troop-training building not purchased!");
-            return 1;
-        }else{
-            if(maxtroop>m){
-                maxtroop = m;
-            }
-        }
+        cost=10;
+        type = "tupacs";
     }
+
+    if(village[playno]->resource[1]->amount<cost){
+        refreshcli(playno);
+        mvwprintw(win,erry,1,"Error: Insufficient funds!");
+        return 1;
+    }
+
+    maxtroop = floor(village[playno]->resource[1]->amount / cost);
 
     if(maxtroop==0){
         refreshcli(playno);
-        mvwprintw(win,erry,1,"Error: No %s troops to train!",village[playno]->troops[select]->type.c_str());
+        mvwprintw(win,erry,1,"Error: No %s to train!",type.c_str());
+        return 1;
+    }
+
+    for(auto & i : village[playno]->tbuild){
+        if(i->type==type){
+            purchased = true;
+            break;
+        }
+    }
+
+    if(!purchased){
+        refreshcli(playno);
+        mvwprintw(win,erry,1,"Error: %s training building not purchased!", type.c_str());
         return 1;
     }
 
@@ -212,67 +231,32 @@ int train(int playno){
         nums[i] = {to_string(i)};
     }
 
-    mvwprintw(win,texty,1,"How many %s troops would you like to upgrade? ",village[playno]->troops[select]->type.c_str());
+    mvwprintw(win,texty,1,"How many %s would you like to train? ",type.c_str());
     troopno = options(maxtroop+1,nums,texty+1,1,true)-1;
     refreshcli(playno);
 
-    int j=0;
-    if(select==1){ //rookies
 
-        for(int i=0; i<village[playno]->troops.size(); i++){
-            if(village[playno]->troops[i]->type=="untrained"){
+    if(select==1){ //snoopdawgz
 
-                if(j==troopno){
-                    break;
-                }
-                resource[playno][1].amount-=village[playno]->troops[i]->cost;
-
-                //update troop specs
-                int loc[2] = {village[playno]->loc[0],village[playno]->loc[1]};
-                village[playno]->troops.erase(village[playno]->troops.begin() + i);
-                village[playno]->addtroops(Troops(35,50,50,30,1,"rookie",loc));
-
-                j++;
-            }
-        }
-    }else if(select==2){ //expert
-
-        for(int i=0; i<village[playno]->troops.size(); i++){
-            if(village[playno]->troops[i]->type=="rookie"){
-
-                if(j==troopno){
-                    break;
-                }
-                resource[playno][1].amount-=village[playno]->troops[i]->cost;
-
-                //update troop specs
-                int loc[2] = {village[playno]->loc[0],village[playno]->loc[1]};
-                village[playno]->troops.erase(village[playno]->troops.begin() + i);
-                village[playno]->addtroops(Troops(80,175,175,50,2,"expert",loc));
-
-                j++;
-            }
+        for(int i=0; i<troopno; i++){
+            village[playno]->addtroops(Troops(5,350,50,30,type));
         }
 
-    }else if(select==3){ //master
+    }else if(select==2){ //biggies
 
-        for(int i=0; i<village[playno]->troops.size(); i++){
-            if(village[playno]->troops[i]->type=="expert"){
+        for(int i=0; i<troopno; i++){
+            village[playno]->addtroops(Troops(15,50,350,90,type));
+        }
 
-                if(j==troopno){
-                    break;
-                }
-                resource[playno][1].amount-=village[playno]->troops[i]->cost;
+    }else if(select==3){ //tupacs
 
-                //update troop specs
-                int loc[2] = {village[playno]->loc[0],village[playno]->loc[1]};
-                village[playno]->troops.erase(village[playno]->troops.begin() + i);
-                village[playno]->addtroops(Troops(0,350,350,90,3,"master",loc));
-
-                j++;
-            }
+        for(int i=0; i<troopno; i++){
+            village[playno]->addtroops(Troops(10,175,175,50,type));
         }
     }
+
+    village[playno]->resource[1]->amount -= cost*troopno;
+
     return 0;
 }
 
@@ -284,11 +268,11 @@ int attack(int playno){
     //count troops by type
     int k=0,l=0,m=0;
     for(auto & troop : village[playno]->troops){
-        if(troop->type=="rookie"){
+        if(troop->type=="snoopdawgz"){
             k++;
-        }else if(troop->type=="expert"){
+        }else if(troop->type=="biggies"){
             l++;
-        }else if(troop->type=="master"){
+        }else if(troop->type=="tupacs"){
             m++;
         }
     }
@@ -321,7 +305,7 @@ int attack(int playno){
                 vattack += troop->attack; //sum of villager troops attack
             }
 
-            vills[cnt] = {"Player "+to_string(village[j]->idx+1)+"'s Village - health "+to_string(village[j]->health)+" - total attack "+to_string(vattack)+" - tools x"+to_string(resource[j][0].amount)+" - food x"+to_string(resource[j][1].amount)+" - money x"+to_string(resource[j][2].amount)+" - "+to_string(minstep)+" rounds to reach target "};
+            vills[cnt] = {"Player "+to_string(village[j]->idx+1)+"'s Village - health "+to_string(village[j]->health)+" - total attack "+to_string(vattack)+" - tools x"+to_string(village[j]->resource[0]->amount)+" - food x"+to_string(village[j]->resource[1]->amount)+" - money x"+to_string(village[j]->resource[2]->amount)+" - "+to_string(minstep)+" rounds to reach target "};
             real[cnt] = j;
             cnt++;
         }
@@ -342,11 +326,11 @@ int attack(int playno){
 
     if(k>0){
         mvwprintw(win,texty,1,"Troops available for battle:");
-        mvwprintw(win,texty+1,1,"1.Rookie troops x%d",k);
-        mvwprintw(win,texty+2,1,"2.Expert troops x%d",l);
-        mvwprintw(win,texty+3,1,"3.Master troops x%d",m);
+        mvwprintw(win,texty+1,1,"1.Snoopdawgz x%d",k);
+        mvwprintw(win,texty+2,1,"2.Biggies x%d",l);
+        mvwprintw(win,texty+3,1,"3.Tupacs x%d",m);
 
-        mvwprintw(win,texty+5,1,"How many rookie troops are you taking?");
+        mvwprintw(win,texty+5,1,"How many snoopdawgz are you taking?");
         string rook[k+1];
         for(int i=0; i<k+1; i++){
             rook[i] = {to_string(i)};
@@ -358,11 +342,11 @@ int attack(int playno){
     if(l>0){
         //ask for troops to send for battle
         mvwprintw(win,texty,1,"Troops available for battle:");
-        mvwprintw(win,texty+1,1,"1.Rookie troops x%d",k);
-        mvwprintw(win,texty+2,1,"2.Expert troops x%d",l);
-        mvwprintw(win,texty+3,1,"3.Master troops x%d",m);
+        mvwprintw(win,texty+1,1,"1.Snoopdawgz troops x%d",k);
+        mvwprintw(win,texty+2,1,"2.Biggies troops x%d",l);
+        mvwprintw(win,texty+3,1,"3.Tupacs troops x%d",m);
 
-        mvwprintw(win,texty+5,1,"How many expert troops are you taking?");
+        mvwprintw(win,texty+5,1,"How many biggies are you taking?");
         string exp[l+1];
         for(int i=0; i<l+1; i++){
             exp[i] = {to_string(i)};
@@ -375,11 +359,11 @@ int attack(int playno){
     if(m>0){
         //ask for troops to send for battle
         mvwprintw(win,texty,1,"Troops available for battle:");
-        mvwprintw(win,texty+1,1,"1.Rookie troops x%d",k);
-        mvwprintw(win,texty+2,1,"2.Expert troops x%d",l);
-        mvwprintw(win,texty+3,1,"3.Master troops x%d",m);
+        mvwprintw(win,texty+1,1,"1.Snoopdawgz x%d",k);
+        mvwprintw(win,texty+2,1,"2.Biggies x%d",l);
+        mvwprintw(win,texty+3,1,"3.Tupacs x%d",m);
 
-        mvwprintw(win,texty+5,1,"How many master troops are you taking?");
+        mvwprintw(win,texty+5,1,"How many tupacs are you taking?");
         string mst[m+1];
         for(int i=0; i<m+1; i++){
             mst[i] = {to_string(i)};
@@ -400,7 +384,7 @@ int attack(int playno){
         if(tcnt==rookie){
             break;
         }
-        if(village[playno]->troops[i]->type=="rookie"){
+        if(village[playno]->troops[i]->type=="snoopdawgz"){
 
             //copy troop to army
             village[playno]->army[acnt]->addtroops(*village[playno]->troops[i]);
@@ -415,7 +399,7 @@ int attack(int playno){
         if(tcnt==expert+rookie){
             break;
         }
-        if(village[playno]->troops[i]->type=="expert"){
+        if(village[playno]->troops[i]->type=="biggies"){
 
             //copy troop to army
             village[playno]->army[acnt]->addtroops(*village[playno]->troops[i]);
@@ -430,7 +414,7 @@ int attack(int playno){
         if(tcnt==master+expert+rookie){
             break;
         }
-        if(village[playno]->troops[i]->type=="master"){
+        if(village[playno]->troops[i]->type=="tupacs"){
 
             //copy troop to army
             village[playno]->army[acnt]->addtroops(*village[playno]->troops[i]);
@@ -474,57 +458,6 @@ int attack(int playno){
 
     //update village to under attack
     village[villno]->attack = true;
-
-    return 0;
-}
-
-int resurrect(int playno){
-
-    //count army troops
-    int armytrps=0;
-    for(auto & i : village[playno]->army){
-        armytrps+=i->troops.size();
-    }
-
-    //count dead troops
-    int dead = 50-village[playno]->troops.size()-armytrps;
-
-    //if no dead troops exit
-    if(dead==0){
-        refreshcli(playno);
-        mvwprintw(win,erry,1,"Error: No dead to troops to resurrect!");
-        return 1;
-
-    }else if(resource[playno][3].amount<45){
-        refreshcli(playno);
-        mvwprintw(win,erry,1,"Error: Insufficient funds!");
-        return 1;
-    }
-
-    refreshcli(playno);
-
-    //max afforded
-    int maxdead= resource[playno][3].amount/45;
-
-    if(dead<maxdead){
-        maxdead = dead;
-    }
-
-    mvwprintw(win,texty+1,1,"How many troops do you want to resurrect?");
-    string d[maxdead+1];
-    for(int i=0; i<maxdead+1; i++){
-        d[i] = {to_string(i)};
-    }
-    int elixir = options(dead,d,texty+6,1,true)-1;
-
-    int loc[] = {village[playno]->loc[0],village[playno]->loc[1]};
-
-    for(int i=village[playno]->troops.size(); i<village[playno]->troops.size()+elixir; i++){
-
-        village[playno]->addtroops(Troops(15,0,20,0,0,"untrained",loc));
-    }
-
-    refreshcli(playno);
 
     return 0;
 }

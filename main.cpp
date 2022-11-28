@@ -1,11 +1,7 @@
 #include "villagegame.h"
 
 Map map[mapx][mapy];
-Resource resource[maxplay][4];
-ResourceBuildings rbuild[maxplay][maxrbuild];
-TroopBuildings tbuild[maxplay][maxtbuild];
 vector<unique_ptr<Village>> village;
-
 
 WINDOW *win;
 

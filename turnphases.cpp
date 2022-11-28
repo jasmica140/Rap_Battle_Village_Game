@@ -7,9 +7,9 @@ void friendtroop(int playno){
         //if army made it home
         if(village[playno]->army[i]->loc[0] == village[playno]->loc[0] && village[playno]->army[i]->loc[1] == village[playno]->loc[1]){
             //transfer resources obtained to player
-            resource[playno][0].amount += village[playno]->army[i]->resource[0];
-            resource[playno][1].amount += village[playno]->army[i]->resource[1];
-            resource[playno][2].amount += village[playno]->army[i]->resource[2];
+            village[playno]->resource[0]->amount += village[playno]->army[i]->resource[0];
+            village[playno]->resource[1]->amount += village[playno]->army[i]->resource[1];
+            village[playno]->resource[2]->amount += village[playno]->army[i]->resource[2];
 
             //bring troops home
             while(!village[playno]->army[i]->troops.empty()){
@@ -115,33 +115,33 @@ void enemytroop(int playno){
                     mvwprintw(win,texty+3,1,"How many of the following resources would you like to take:");
 
                     mvwprintw(win,texty+4,1,"Tools:");
-                    string tls[resource[villno][0].amount/5];
-                    for(int i=0; i<resource[villno][0].amount/5; i++){
+                    string tls[village[villno]->resource[0]->amount/5];
+                    for(int i=0; i<village[villno]->resource[0]->amount/5; i++){
                         tls[i] = {to_string(i*5)};
                     }
-                    tools = (options(resource[villno][0].amount/5,tls,texty+5,1,true)-1)*5;
+                    tools = (options(village[villno]->resource[0]->amount/5,tls,texty+5,1,true)-1)*5;
 
                     refreshcli(playno);
                     mvwprintw(win,texty+2,1,"Your carrying capacity is %d!", carrycap);
                     mvwprintw(win,texty+3,1,"How many of the following resources would you like to take:");
 
                     mvwprintw(win,texty+4,1,"Food: ");
-                    string fd[resource[villno][1].amount/5];
-                    for(int i=0; i<resource[villno][1].amount/5; i++){
+                    string fd[village[villno]->resource[1]->amount/5];
+                    for(int i=0; i<village[villno]->resource[1]->amount/5; i++){
                         fd[i] = {to_string(i*5)};
                     }
-                    food = (options(resource[villno][1].amount/5,fd,texty+5,1,true)-1)*5;
+                    food = (options(village[villno]->resource[1]->amount/5,fd,texty+5,1,true)-1)*5;
 
                     refreshcli(playno);
                     mvwprintw(win,texty+2,1,"Your carrying capacity is %d!", carrycap);
                     mvwprintw(win,texty+3,1,"How many of the following resources would you like to take:");
 
                     mvwprintw(win,texty+4,1,"Money:");
-                    string mny[resource[villno][2].amount/5];
-                    for(int i=0; i<resource[villno][2].amount/5; i++){
+                    string mny[village[villno]->resource[2]->amount/5];
+                    for(int i=0; i<village[villno]->resource[2]->amount/5; i++){
                         mny[i] = {to_string(i*5)};
                     }
-                    money = (options(resource[villno][2].amount/5,mny,texty+5,1,true)-1)*5;
+                    money = (options(village[villno]->resource[2]->amount/5,mny,texty+5,1,true)-1)*5;
 
                     if(tools+food+money>carrycap){
                         refreshcli(playno);
@@ -153,18 +153,18 @@ void enemytroop(int playno){
                     //steal resources
                     loop1:
                     tools=0;
-                    if(resource[villno][0].amount>5){
-                        tools = (rand()% (int)floor(resource[villno][0].amount/5));
+                    if(village[villno]->resource[0]->amount>5){
+                        tools = (rand()% (int)floor(village[villno]->resource[0]->amount/5));
                         tools *= 5;
                     }
                     food=0;
-                    if(resource[villno][1].amount>5){
-                        food = (rand()% (int)floor(resource[villno][1].amount/5));
+                    if(village[villno]->resource[1]->amount>5){
+                        food = (rand()% (int)floor(village[villno]->resource[1]->amount/5));
                         food *= 5;
                     }
                     money=0;
-                    if(resource[villno][2].amount>5){
-                        money = (rand()% (int)floor(resource[villno][2].amount/5));
+                    if(village[villno]->resource[2]->amount>5){
+                        money = (rand()% (int)floor(village[villno]->resource[2]->amount/5));
                         money *= 5;
                     }
 
@@ -175,9 +175,9 @@ void enemytroop(int playno){
                     }
                 }
 
-                resource[villno][0].amount -= tools;
-                resource[villno][1].amount -= food;
-                resource[villno][2].amount -= money;
+                village[villno]->resource[0]->amount -= tools;
+                village[villno]->resource[1]->amount -= food;
+                village[villno]->resource[2]->amount -= money;
 
                 village[playno]->army[cnt]->resource[0] = tools;
                 village[playno]->army[cnt]->resource[1] = food;
@@ -208,49 +208,47 @@ void enemytroop(int playno){
 
 void earnres(int playno){
 
-    int resbno = village[playno]->rbuildings;
+    for(int i=0; i<village[playno]->rbuild.size(); i++){
 
-    for(int i=0; i<resbno; i++){
-
-        if(rbuild[playno][i].level==1){
-            if(rbuild[playno][i].type=="tools"){
-                resource[playno][0].amount+=50;
-            }else if(rbuild[playno][i].type=="food"){
-                resource[playno][1].amount+=50;
-            }else if(rbuild[playno][i].type=="money"){
-                resource[playno][2].amount+=50;
+        if(village[playno]->rbuild[i]->level==1){
+            if(village[playno]->rbuild[i]->type=="tools"){
+                village[playno]->resource[0]->amount+=50;
+            }else if(village[playno]->rbuild[i]->type=="food"){
+                village[playno]->resource[1]->amount+=50;
+            }else if(village[playno]->rbuild[i]->type=="money"){
+                village[playno]->resource[2]->amount+=50;
             }
-        }else if(rbuild[playno][i].level==2){
-            if(rbuild[playno][i].type=="tools"){
-                resource[playno][0].amount+=75;
-            }else if(rbuild[playno][i].type=="food"){
-                resource[playno][1].amount+=75;
-            }else if(rbuild[playno][i].type=="money"){
-                resource[playno][2].amount+=75;
+        }else if(village[playno]->rbuild[i]->level==2){
+            if(village[playno]->rbuild[i]->type=="tools"){
+                village[playno]->resource[0]->amount+=75;
+            }else if(village[playno]->rbuild[i]->type=="food"){
+                village[playno]->resource[1]->amount+=75;
+            }else if(village[playno]->rbuild[i]->type=="money"){
+                village[playno]->resource[2]->amount+=75;
             }
-        }else if(rbuild[playno][i].level==3){
-            if(rbuild[playno][i].type=="tools"){
-                resource[playno][0].amount+=120;
-            }else if(rbuild[playno][i].type=="food"){
-                resource[playno][1].amount+=120;
-            }else if(rbuild[playno][i].type=="money"){
-                resource[playno][2].amount+=120;
+        }else if(village[playno]->rbuild[i]->level==3){
+            if(village[playno]->rbuild[i]->type=="tools"){
+                village[playno]->resource[0]->amount+=120;
+            }else if(village[playno]->rbuild[i]->type=="food"){
+                village[playno]->resource[1]->amount+=120;
+            }else if(village[playno]->rbuild[i]->type=="money"){
+                village[playno]->resource[2]->amount+=120;
             }
-        }else if(rbuild[playno][i].level==4){
-            if(rbuild[playno][i].type=="tools"){
-                resource[playno][0].amount+=175;
-            }else if(rbuild[playno][i].type=="food"){
-                resource[playno][1].amount+=175;
-            }else if(rbuild[playno][i].type=="money"){
-                resource[playno][2].amount+=175;
+        }else if(village[playno]->rbuild[i]->level==4){
+            if(village[playno]->rbuild[i]->type=="tools"){
+                village[playno]->resource[0]->amount+=175;
+            }else if(village[playno]->rbuild[i]->type=="food"){
+                village[playno]->resource[1]->amount+=175;
+            }else if(village[playno]->rbuild[i]->type=="money"){
+                village[playno]->resource[2]->amount+=175;
             }
-        }else if(rbuild[playno][i].level==5){
-            if(rbuild[playno][i].type=="tools"){
-                resource[playno][0].amount+=250;
-            }else if(rbuild[playno][i].type=="food"){
-                resource[playno][1].amount+=250;
-            }else if(rbuild[playno][i].type=="money"){
-                resource[playno][2].amount+=250;
+        }else if(village[playno]->rbuild[i]->level==5){
+            if(village[playno]->rbuild[i]->type=="tools"){
+                village[playno]->resource[0]->amount+=250;
+            }else if(village[playno]->rbuild[i]->type=="food"){
+                village[playno]->resource[1]->amount+=250;
+            }else if(village[playno]->rbuild[i]->type=="money"){
+                village[playno]->resource[2]->amount+=250;
             }
         }
     }
@@ -271,10 +269,10 @@ void actions(int playno, int roundno) {
 
             string choices[] = {
                     "1.Build new buildings", "2.Upgrade existing buildings", "3.Train troops",
-                    "4.Attack Villages", "5.Resurrect troops", "6.Surrender", "7.End turn"
+                    "4.Attack Villages",  "5.Surrender", "6.End turn"
             };
 
-            select = options(7, choices, texty + 2, 1, false);
+            select = options(6, choices, texty + 2, 1, false);
 
             refreshcli(playno);
 
@@ -308,13 +306,7 @@ void actions(int playno, int roundno) {
                     goto loop;
                 }
 
-            } else if (select == 5) { //resurrect
-
-                if (resurrect(playno) == 1) {
-                    goto loop;
-                }
-
-            } else if (select == 6) { //surrender
+            } else if (select == 5) { //surrender
 
                 mvwprintw(win, texty, 1, "Are you sure you want to surrender?");
                 string yn[] = {"YES", "NO"};
@@ -334,7 +326,7 @@ void actions(int playno, int roundno) {
                     goto loop;
                 }
 
-            } else if (select == 7) { //done
+            } else if (select == 6) { //done
 
                 break;
             }
@@ -348,12 +340,6 @@ void actions(int playno, int roundno) {
                 break;                          //end turn
             } else {
 
-                //count army troops
-                int armytrps=0;
-                for(auto & i : village[playno]->army){
-                    armytrps+=i->troops.size();
-                }
-
                 //build buildings
                 AIbuild(playno);
                 //upgrade buildings
@@ -362,12 +348,6 @@ void actions(int playno, int roundno) {
                 AItrain(playno);
                 //attack
                 AIattack(playno);
-                //ressurect troops
-                int dead = 50-village[playno]->troops.size()-armytrps;
-                //if dead troops and sufficient funds
-                if(dead!=0 && resource[playno][3].amount>=45){
-                    AIresurrect(playno, dead);
-                }
             }
             //end turn
             break;

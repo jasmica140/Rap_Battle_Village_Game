@@ -55,7 +55,7 @@ void villagecli(int playno){
 
     string vart;
 
-    int vill = village[playno]->rbuildings + village[playno]->tbuildings;
+    int vill = village[playno]->rbuild.size() + village[playno]->tbuild.size();
 
     if(vill==0){
         vart = "                                                          |>>>\n"
@@ -206,16 +206,14 @@ void villagecli(int playno){
 
 
     //count troops
-    int k=0,l=0,m=0,n=0;
+    int k=0,l=0,m=0;
     for(auto & troop : village[playno]->troops){
-        if(troop->type=="untrained"){
+        if(troop->type=="snoopdawgz"){
             k++;
-        }else if(troop->type=="rookie"){
+        }else if(troop->type=="biggies"){
             l++;
-        }else if(troop->type=="expert"){
+        }else if(troop->type=="tupacs") {
             m++;
-        }else if(troop->type=="master"){
-            n++;
         }
     }
 
@@ -227,21 +225,20 @@ void villagecli(int playno){
     mvwprintw(win,2,86,"Village health: %d",village[playno]->health);
     mvwprintw(win,3,86,"Troops: %d",village[playno]->troops.size());
     mvwprintw(win,4,86,"Armies: %d",village[playno]->army.size());
-    mvwprintw(win,5,86,"Resource-generating buildings: %d",village[playno]->rbuildings);
-    mvwprintw(win,6,86,"Troop-training buildings: %d",village[playno]->tbuildings);
+    mvwprintw(win,5,86,"Resource-generating buildings: %d",village[playno]->rbuild.size());
+    mvwprintw(win,6,86,"Troop-training buildings: %d",village[playno]->tbuild.size());
 
 
     mvwprintw(win,1,121,"Resources: ");
-    mvwprintw(win,2,121,"Tools: %d ",resource[playno][0].amount);
-    mvwprintw(win,3,121,"Food: %d ",resource[playno][1].amount);
-    mvwprintw(win,4,121,"Money: %d ",resource[playno][2].amount);
+    mvwprintw(win,2,121,"Tools: %d ",village[playno]->resource[0]->amount);
+    mvwprintw(win,3,121,"Food: %d ",village[playno]->resource[1]->amount);
+    mvwprintw(win,4,121,"Money: %d ",village[playno]->resource[2]->amount);
 
 
     mvwprintw(win,1,136,"Stationed Troops: ");
-    mvwprintw(win,2,136,"Untrained: %d ",k);
-    mvwprintw(win,3,136,"Rookies: %d ",l);
-    mvwprintw(win,4,136,"Experts: %d ",m);
-    mvwprintw(win,5,136,"Masters: %d ",n);
+    mvwprintw(win,2,136,"Snoopdawgz: %d ",k);
+    mvwprintw(win,3,136,"Biggies: %d ",l);
+    mvwprintw(win,4,136,"Tupacs: %d ",m);
 }
 
 int alertcli(int playno, const string& type){
@@ -336,7 +333,7 @@ void refreshcli(int playno){
     wclear(win);
     wrefresh(win);
     villagecli(playno);
-    mvwprintw(win,1,1,"Player %d's turn!",playno+1);
+    mvwprintw(win,1,1,"Player %d's turn!",village[playno]->idx+1);
     mapcli(playno);
     wattron(win,COLOR_PAIR(1));
     mvwhline(win, 24, 1, '_', 80);

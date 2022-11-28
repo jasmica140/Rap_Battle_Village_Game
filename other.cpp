@@ -2,31 +2,9 @@
 
 void deleteplayer(int playno){
 
-    int idx;
-    for(idx=0; idx<playno; idx++){}
-
     //delete village
     map[village[playno]->loc[0]][village[playno]->loc[1]].status = "     ";
-    village.erase(village.begin() + idx);
-
-
-    for(int i=playno; i<village.size(); i++){
-
-        //delete resources
-        for(int j=0; j<4; j++){
-            resource[i][j] = resource[i+1][j];
-        }
-
-        //delete resource buildings
-        for(int j=0; j<maxrbuild; j++){
-            rbuild[i][j] = rbuild[i+1][j];
-        }
-
-        //delete training buildings
-        for(int j=0; j<maxtbuild; j++){
-            tbuild[i][j] = tbuild[i+1][j];
-        }
-    }
+    village.erase(village.begin() + playno);
 }
 
 
@@ -84,14 +62,14 @@ int options(int n, string choices[n],int y, int x, bool sameline){
                     break;
 
                 case KEY_UP:
-                    hl=-20;
+                    hl-=20;
                     if (hl < 0) {
                         hl+=20;
                     }
                     break;
 
                 case KEY_DOWN:
-                    hl=+20;
+                    hl+=20;
                     if (hl >= n) {
                         hl-= 20;
                     }
