@@ -4,6 +4,20 @@ void deleteplayer(int playno){
 
     //delete village
     map[village[playno]->loc[0]][village[playno]->loc[1]].status = "     ";
+
+    //send attacking army home
+    if(village[playno]->attack){
+        for(int i=0; i<village.size(); i++){
+            for(int j=0; j<village[i]->army.size(); j++){
+                if(village[i]->army[j]->target==village[playno]->idx && i!=playno){
+                    village[i]->army[j]->target = village[i]->idx;
+                    goto label;
+                }
+            }
+        }
+    }
+
+    label:
     village.erase(village.begin() + playno);
 }
 
@@ -13,6 +27,7 @@ int options(int n, string choices[n],int y, int x, bool sameline){
 
     int choice;
     int hl=0;
+    int lim = 25;
 
     while(true) {
 
@@ -21,7 +36,7 @@ int options(int n, string choices[n],int y, int x, bool sameline){
 
         for (int i = 0; i < n; i++, xspace++) {
 
-            if(i%20==0 && i!=0){
+            if(i%lim==0 && i!=0){
                 yspace++;
                 xspace=0;
             }
@@ -62,16 +77,16 @@ int options(int n, string choices[n],int y, int x, bool sameline){
                     break;
 
                 case KEY_UP:
-                    hl-=20;
+                    hl-=lim;
                     if (hl < 0) {
-                        hl+=20;
+                        hl+=lim;
                     }
                     break;
 
                 case KEY_DOWN:
-                    hl+=20;
+                    hl+=lim;
                     if (hl >= n) {
-                        hl-= 20;
+                        hl-= lim;
                     }
                     break;
             }

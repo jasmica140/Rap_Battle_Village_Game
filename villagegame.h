@@ -16,10 +16,12 @@ using namespace std;
 
 #define mapx 13
 #define mapy 13
-#define maxhealth 5000
+#define maxhealth 10000
 #define maxplay 15
-#define texty 25
-#define erry 37
+#define maxtroops 50
+#define texty 26
+#define textx 2
+#define erry 38
 
 extern WINDOW *win;
 
@@ -46,7 +48,6 @@ public:
 class Troops
 {
 public:
-    int cost{};           //cost of training
     int health{};
     int attack{};         //strength
     int carrycap{};       //carrying capacity
@@ -54,8 +55,7 @@ public:
 
     Troops() = default;
 
-    Troops(int a, int b, int c, int d, string f){
-        cost = a;           //cost of training
+    Troops(int b, int c, int d, string f){
         health = b;
         attack = c;         //strength
         carrycap = d;       //carrying capacity
@@ -73,14 +73,14 @@ public:
     int attack{};           //total attack of army
     int health{};           //total health of army
     int carrycap{};         //total carrying capacity of army
-    int resource[3]{};      //amount of resources taken from village after attack
+    int resource[3] = {0,0,0};      //amount of resources taken from village after attack
     int target{};           //target village no.
 
     vector<shared_ptr<Troops>> troops;
 
     Army() = default;
 
-    void refresharmy(const Army& army, const int b[3], int c){
+    void refresharmy(const Army& army){
 
         int r=0, e=0;
 
@@ -108,11 +108,6 @@ public:
         }else{
             speed = 3;
         }
-
-        resource[0] = b[0];
-        resource[1] = b[1];
-        resource[2] = b[2];
-        target = c;
     }
 
     void addtroops(const Troops& newtroop){
@@ -198,16 +193,16 @@ int gamesetup();
 void gameloop();
 
 //roundphases
-void turnphase(int playno, int roundno);
+int turnphase(int playno, int roundno);
 void marching(int playno, int armyno, int target, int mspeed);
 int endround(int roundno);
-void startround(int playno);
+void startround(int roundno);
 
 //turnphases
 void friendtroop(int playno);
-void enemytroop(int playno);
+int enemytroop(int playno);
 void earnres(int playno);
-void actions(int playno, int roundno);
+int actions(int playno, int roundno);
 
 //actions
 int build(int playno);

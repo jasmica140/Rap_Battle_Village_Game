@@ -1,9 +1,9 @@
 #include "villagegame.h"
 
 
-void turnphase(int playno, int roundno){
+int turnphase(int playno, int roundno){
 
-    if(village[playno]->attack){
+    if(village[playno]->attack && village[playno]->preal){
         alertcli(playno,"attack");
     }
 
@@ -11,13 +11,15 @@ void turnphase(int playno, int roundno){
     friendtroop(playno);
 
     //enemy troop arrival
-    enemytroop(playno);
+    playno = enemytroop(playno);
 
     //resource earning
     earnres(playno);
 
     //player actions
-    actions(playno, roundno);
+    playno = actions(playno, roundno);
+
+    return playno;
 }
 
 void marching(int playno, int armyno, int target, int mspeed){
@@ -73,8 +75,12 @@ int endround(int round){
     return round;
 }
 
-void startround(int playno){
+void startround(int roundno){
 
-    alertcli(playno, "round");
-
+    for(auto & i : village){
+        if(i->preal){
+            alertcli(roundno,"round");
+            break;
+        }
+    }
 }

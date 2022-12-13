@@ -32,7 +32,7 @@ int AIround1(int playno){
         for (int i=0; i < rnd; i++) {
             //reduce food
             village[playno]->resource[1]->amount -= 5;
-            village[playno]->addtroops(Troops(5,350,50,30,"snoopdawgz"));
+            village[playno]->addtroops(Troops(70,10,10,"snoopdawgz"));
         }
     }
 
@@ -44,7 +44,7 @@ int AIround1(int playno){
 
     for(int i=0; i<rnd; i++){
         village[playno]->resource[1]->amount-=15;
-        village[playno]->addtroops(Troops(15,50,350,90,"biggies"));
+        village[playno]->addtroops(Troops(10,70,30,"biggies"));
     }
 
     return 0;
@@ -64,14 +64,13 @@ int AIbuild(int playno){
         return 1;
     }
 
-    int type = (rand() %4);
+    int type = (rand() %3);
 
     int maxbuild = floor(village[playno]->resource[2]->amount / 65);
     if(maxbuild==0){
         return 1;
     }
     int bno = (rand() %maxbuild);
-
     int cost = bno*65;
 
     //build resource building
@@ -94,23 +93,25 @@ int AIupgrade(int playno){
     int real[village[playno]->rbuild.size()];
     int count=0;
 
-    for(int j=0; j<village[playno]->rbuild.size(); count++, j++){
-        real[count]=j;
-        if(village[playno]->rbuild[j]->level==5 || village[playno]->resource[0]->amount<village[playno]->rbuild[j]->cost) {
-            count--;
+    for(int j=0; j<village[playno]->rbuild.size(); j++){
+        if(village[playno]->rbuild[j]->level<5 && village[playno]->resource[0]->amount>=village[playno]->rbuild[j]->cost) {
+            real[count]=j;
+            count++;
         }
     }
+
     if(count==0){
         return 1;
     }
     select = (rand() % count);
+    select = real[select];
 
     //decrease tools
-    village[playno]->resource[0]->amount-=village[playno]->rbuild[real[select]]->cost;
+    village[playno]->resource[0]->amount-=village[playno]->rbuild[select]->cost;
 
     //update building specs
-    village[playno]->rbuild[real[select]]->level++;
-    village[playno]->rbuild[real[select]]->cost++;
+    village[playno]->rbuild[select]->level++;
+    village[playno]->rbuild[select]->cost+=15;
 
     return 0;
 }
@@ -136,7 +137,7 @@ int AItrain(int playno){
 
         for(int i=0; i<troopno; i++){
             village[playno]->resource[1]->amount -= 5;
-            village[playno]->addtroops(Troops(5,350,50,30,"snoopdawgz"));
+            village[playno]->addtroops(Troops(70,10,10,"snoopdawgz"));
         }
 
     }else if(select==2){
@@ -150,7 +151,7 @@ int AItrain(int playno){
 
         for(int i=0; i<troopno; i++){
             village[playno]->resource[1]->amount -= 15;
-            village[playno]->addtroops(Troops(15,50,350,90,"biggies"));
+            village[playno]->addtroops(Troops(10,70,30,"biggies"));
         }
 
     }else if(select==3){
@@ -168,7 +169,7 @@ int AItrain(int playno){
 
         for(int i=0; i<troopno; i++){
             village[playno]->resource[1]->amount -= 10;
-            village[playno]->addtroops(Troops(10,175,175,50,"tupacs"));
+            village[playno]->addtroops(Troops(35,35,20,"tupacs"));
         }
 
     }
@@ -179,10 +180,9 @@ int AIattack(int playno){
 
     int optattack;  //keep track of points
     int opt[2];       //{points,player}
-    int j;
     int track=0;
 
-    for(j=0; j<village.size(); j++){
+    for(int j=0; j<village.size(); j++){
 
         //can't attack their own village
         //can't attack villages player is already attacking
@@ -200,13 +200,10 @@ int AIattack(int playno){
             }
             track++;
 
-            if(track==1){
-                opt[0] = optattack;
-                opt[1] = j;
-            }else if (optattack < opt[0]) {  //if current player has fewer points
-                opt[0] = optattack;
-                opt[1] = j;
-            }
+           if (track==1 || optattack < opt[0]){  //if current player has fewer points
+               opt[0] = optattack;
+               opt[1] = j;
+           }
         }
     }
 
@@ -231,17 +228,18 @@ int AIattack(int playno){
 
     int rookie=0, expert=0, master=0;
     if(l>0){
-        rookie = floor(l/2)+(rand() %l)+1;
+        rookie = (int)floor(l/2)+rand() %(l-(int)floor(l/2));
     }
     if(m>0){
-        expert = floor(m/2)+(rand() %m)+1;
+        expert = (int)floor(m/2)+rand() %(m-(int)floor(m/2));
     }
     if(n>0){
-        master = floor(n/2)+(rand() %n)+1;
+        master = (int)floor(n/2)+rand() %(n-(int)floor(n/2));
     }
 
+
     village[playno]->addarmy(Army());
-    int acnt = village[playno]->army.size()-1;
+    int acnt = (int)village[playno]->army.size()-1;
 
     int tcnt=0;
     for(int i=0; i<village[playno]->troops.size(); i++){
@@ -286,8 +284,7 @@ int AIattack(int playno){
         }
     }
 
-    int res[] = {0,0,0};
-    village[playno]->army[acnt]->refresharmy(*village[playno]->army[acnt],res, village[villno]->idx);
+    village[playno]->army[acnt]->refresharmy(*village[playno]->army[acnt]);
 
     int vattack=0;
     int phealth = village[playno]->army[acnt]->health;        //sum of player troops health
@@ -298,7 +295,7 @@ int AIattack(int playno){
 
     if(phealth<=vattack){ //don't attack
 
-        int lim = village[playno]->army[acnt]->troops.size();
+        int lim = (int)village[playno]->army[acnt]->troops.size();
 
         for(int k=0; k<lim; k++){
             village[playno]->addtroops(*village[playno]->army[acnt]->troops[0]);
@@ -312,6 +309,9 @@ int AIattack(int playno){
     //set army location
     village[playno]->army[acnt]->loc[0] = village[playno]->loc[0];
     village[playno]->army[acnt]->loc[1] = village[playno]->loc[1];
+
+    //set army target
+    village[playno]->army[acnt]->target = village[villno]->idx;
 
     //update village to under attack
     village[villno]->attack = true;

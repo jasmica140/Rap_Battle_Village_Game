@@ -10,31 +10,31 @@ int gamesetup(){
 
     //boarder
     wattron(win,COLOR_PAIR(1));
-    mvwhline(win, 13, 65, '*', 50);
-    mvwhline(win, 18, 65, '*', 51);
-    mvwvline(win, 13, 65, '*', 5);
-    mvwvline(win, 13, 115,'*', 5);
+    mvwhline(win, 13, 57, '*', 50);
+    mvwhline(win, 18, 57, '*', 51);
+    mvwvline(win, 13, 57, '*', 5);
+    mvwvline(win, 13, 107,'*', 5);
 
     //ask user for player amounts
     wattron(win,COLOR_PAIR(2));
-    mvwprintw(win,14,67,"Number of real players:");
+    mvwprintw(win,14,59,"Number of real players:");
     string choices[maxplay];
     for(int i=0; i<maxplay; i++){
         choices[i] = {to_string(i+1)};
     }
     wattron(win,COLOR_PAIR(3));
-    rplay = options(maxplay,choices,15,67,true);
+    rplay = options(maxplay,choices,15,59,true);
 
     //ask user for number of AI players
     if(rplay!=15){
         wattron(win,COLOR_PAIR(2));
-        mvwprintw(win,16,67,"Number of AI players:");
+        mvwprintw(win,16,59,"Number of AI players:");
         string ch[maxplay-rplay+1];
         for(int i=0; i<maxplay-rplay+1; i++){
             ch[i] = {to_string(i)};
         }
         wattron(win,COLOR_PAIR(3));
-        aiplay = options(maxplay-rplay+1,ch,17,67,true)-1;
+        aiplay = options(maxplay-rplay+1,ch,17,59,true)-1;
     }
 
     int totplay = rplay+aiplay;
@@ -109,26 +109,46 @@ int gamesetup(){
     return players;
 }
 
+
 void gameloop(){
 
-    int totplay = gamesetup();
+    gamesetup();
 
-    int playno = 0;
     int roundno = 1;
+    bool real=false;
 
     while(village.size() > 1){ //win condition
 
-        for(int i=0; i<village.size(); i++, playno++){
-            turnphase(playno,roundno);
+        for(int playno=0; playno<village.size(); playno++){
+            playno = turnphase(playno,roundno);
 
-            if(village.size()<totplay){
-                playno -= (totplay - village.size());
-                totplay = village.size();
-                i--;
+            for(auto & i : village){
+                if(i->preal){
+                    real=true;
+                }
+            }
+
+            if(!real){
+
+                while(village.size()>1){
+                    int healthidx = 0;
+                    int minhealth = village[0]->health;
+                    for(int idx=1; idx<village.size(); idx++){
+                        if(village[idx]->health<minhealth) {
+                            minhealth = village[idx]->health;
+                            healthidx = idx;
+                        }
+                    }
+                    deleteplayer(healthidx);
+                }
+                goto label;
+
+            }else{
+                real=false;
             }
 
             if(village.size()==1){
-                break;
+                goto label;
             }
         }
 
@@ -139,9 +159,11 @@ void gameloop(){
         }
 
         roundno = endround(roundno);
-        playno = 0; //start from first surviving player
-        startround(playno);
+        startround(roundno);
     }
+
+    label:
+    alertcli(0,"winner");
 }
 
 

@@ -17,8 +17,10 @@ int main() {
     curs_set(0);
 
     int xmax = getmaxx(stdscr);
+    int ymax = getmaxy(stdscr);
 
-    win = newwin(40, xmax-12, 3, 10);
+    win = newwin(40, 168, (ymax-40)/2, (xmax-168)/2);
+    box(win,0,0);
 
     start_color();
     init_pair(1, COLOR_MAGENTA, COLOR_BLACK);
