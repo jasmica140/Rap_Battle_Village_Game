@@ -18,7 +18,7 @@ using namespace std;
 #define mapy 13
 #define maxhealth 10000
 #define maxplay 15
-#define maxtroops 50
+#define maxtroops 100
 #define texty 26
 #define textx 2
 #define erry 38
@@ -123,6 +123,7 @@ public:
     string type;            //type of resources/troops to generate
     int level{};
     int cost{};             //cost of upgrading
+    int output{};           //amount of resources to produce/ cost to train troop
 
     Building() = default;
 
@@ -130,6 +131,35 @@ public:
         type = std::move(a);
         level = b;
         cost = c;
+    }
+
+    void refreshbuild(){
+
+        if(type == "tools" || type == "food" || type == "money"){ //resource
+            if(level == 1){
+                output = 50;
+            }else if(level == 2){
+                output = 75;
+            }else if(level == 3){
+                output = 120;
+            }else if(level == 4){
+                output = 175;
+            }else if(level == 4){
+                output = 250;
+            }
+
+        }else{ //troops
+
+            if(type == "snoopdawgz"){
+                output = 5;
+            }else if(type == "biggies"){
+                output = 15;
+            }else{
+                output = 10;
+            }
+
+            output *= (6 - level);
+        }
     }
 };
 

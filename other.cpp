@@ -36,8 +36,8 @@ int options(int n, string choices[n],int y, int x, bool sameline){
 
         for (int i = 0; i < n; i++, xspace++) {
 
-            if(i%lim==0 && i!=0){
-                yspace++;
+            if(i%lim==0 && i!=0){ //for every 25th element
+                yspace++; //new line
                 xspace=0;
             }
 

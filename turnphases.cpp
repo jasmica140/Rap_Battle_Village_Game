@@ -182,6 +182,17 @@ int enemytroop(int playno){
                     //surviving troops march back home
                     village[playno]->army[cnt]->target = village[playno]->idx;
 
+                    if (village[villno]->health <= 0) {
+
+                        if (village[villno]->idx < village[playno]->idx) {
+                            playno--;
+                        }
+
+                        alertcli(villno, "destroy");
+                        //delete player
+                        deleteplayer(villno);
+                    }
+
                 } else {
                     //delete army
                     village[playno]->army.erase(village[playno]->army.begin() + cnt);
@@ -189,17 +200,6 @@ int enemytroop(int playno){
                         alertcli(playno, "fail");
                     }
                     cnt--;
-                }
-
-                if (village[villno]->health <= 0) {
-
-                    if (village[villno]->idx < village[playno]->idx) {
-                        playno--;
-                    }
-
-                    alertcli(villno, "destroy");
-                    //delete player
-                    deleteplayer(villno);
                 }
             }
         }
@@ -211,48 +211,14 @@ int enemytroop(int playno){
 
 void earnres(int playno){
 
-    for(int i=0; i<village[playno]->rbuild.size(); i++){
+    for(int i=0; i<village[playno]->rbuild.size(); i++) {
 
-        if(village[playno]->rbuild[i]->level==1){
-            if(village[playno]->rbuild[i]->type=="tools"){
-                village[playno]->resource[0]->amount+=50;
-            }else if(village[playno]->rbuild[i]->type=="food"){
-                village[playno]->resource[1]->amount+=50;
-            }else if(village[playno]->rbuild[i]->type=="money"){
-                village[playno]->resource[2]->amount+=50;
-            }
-        }else if(village[playno]->rbuild[i]->level==2){
-            if(village[playno]->rbuild[i]->type=="tools"){
-                village[playno]->resource[0]->amount+=75;
-            }else if(village[playno]->rbuild[i]->type=="food"){
-                village[playno]->resource[1]->amount+=75;
-            }else if(village[playno]->rbuild[i]->type=="money"){
-                village[playno]->resource[2]->amount+=75;
-            }
-        }else if(village[playno]->rbuild[i]->level==3){
-            if(village[playno]->rbuild[i]->type=="tools"){
-                village[playno]->resource[0]->amount+=120;
-            }else if(village[playno]->rbuild[i]->type=="food"){
-                village[playno]->resource[1]->amount+=120;
-            }else if(village[playno]->rbuild[i]->type=="money"){
-                village[playno]->resource[2]->amount+=120;
-            }
-        }else if(village[playno]->rbuild[i]->level==4){
-            if(village[playno]->rbuild[i]->type=="tools"){
-                village[playno]->resource[0]->amount+=175;
-            }else if(village[playno]->rbuild[i]->type=="food"){
-                village[playno]->resource[1]->amount+=175;
-            }else if(village[playno]->rbuild[i]->type=="money"){
-                village[playno]->resource[2]->amount+=175;
-            }
-        }else if(village[playno]->rbuild[i]->level==5){
-            if(village[playno]->rbuild[i]->type=="tools"){
-                village[playno]->resource[0]->amount+=250;
-            }else if(village[playno]->rbuild[i]->type=="food"){
-                village[playno]->resource[1]->amount+=250;
-            }else if(village[playno]->rbuild[i]->type=="money"){
-                village[playno]->resource[2]->amount+=250;
-            }
+        if (village[playno]->rbuild[i]->type == "tools") {
+            village[playno]->resource[0]->amount += village[playno]->rbuild[i]->output;
+        } else if (village[playno]->rbuild[i]->type == "food") {
+            village[playno]->resource[1]->amount += village[playno]->rbuild[i]->output;
+        } else if (village[playno]->rbuild[i]->type == "money") {
+            village[playno]->resource[2]->amount += village[playno]->rbuild[i]->output;
         }
     }
 }
@@ -309,7 +275,7 @@ int actions(int playno, int roundno) {
 
             } else if (select == 4) { //attack village
 
-                if (village[playno]->army.size() < 6) {
+                if (village[playno]->army.size() < 4) {
                     if (attack(playno) == 1) {
                         goto loop;
                     }
@@ -368,7 +334,7 @@ int actions(int playno, int roundno) {
                 AItrain(playno);
             }
             //attack
-            if (village[playno]->army.size() < 6) {
+            if (village[playno]->army.size() < 4) {
                 AIattack(playno);
             }
         }

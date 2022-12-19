@@ -4,9 +4,13 @@ int AIround1(int playno){
 
     //build
     village[playno]->addrbuild(Building("food", 1, 15));
+    village[playno]->rbuild[0]->refreshbuild();
     village[playno]->addrbuild(Building("money", 1, 15));
-    village[playno]->addtbuild(Building("snoopdawgz",0,0));
-    village[playno]->addtbuild(Building("biggies",0,0));
+    village[playno]->rbuild[1]->refreshbuild();
+    village[playno]->addtbuild(Building("snoopdawgz",1,35));
+    village[playno]->tbuild[0]->refreshbuild();
+    village[playno]->addtbuild(Building("biggies",1,35));
+    village[playno]->tbuild[1]->refreshbuild();
 
     //reduce money
     village[playno]->resource[2]->amount -= ((65 * 2) + (125*2));
@@ -56,7 +60,8 @@ int AIbuild(int playno){
 
     //build troop building
     if(village[playno]->resource[2]->amount >= 125 && village[playno]->tbuild.size()<3){
-        village[playno]->addtbuild(Building("tupacs",0,0));
+        village[playno]->addtbuild(Building("tupacs",1,35));
+        village[playno]->tbuild[2]->refreshbuild();
     }
 
     //if insufficient funds
@@ -76,7 +81,9 @@ int AIbuild(int playno){
     //build resource building
     for(int i=0; i<bno; i++){
         village[playno]->addrbuild(Building(village[playno]->resource[type]->type, 1, 15));
+        village[playno]->rbuild[village[playno]->rbuild.size()-1]->refreshbuild();
     }
+
 
     village[playno]->resource[2]->amount-=cost;
     return 0;
@@ -85,74 +92,89 @@ int AIbuild(int playno){
 int AIupgrade(int playno){
 
     int select;
+    int btype = rand() %2;
 
-    if(village[playno]->rbuild.empty()){
-        return 1;
-    }
+    if(btype==0){ //resource building
 
-    int real[village[playno]->rbuild.size()];
-    int count=0;
-
-    for(int j=0; j<village[playno]->rbuild.size(); j++){
-        if(village[playno]->rbuild[j]->level<5 && village[playno]->resource[0]->amount>=village[playno]->rbuild[j]->cost) {
-            real[count]=j;
-            count++;
+        if(village[playno]->rbuild.empty()){
+            return 1;
         }
+
+        int real[village[playno]->rbuild.size()];
+        int count=0;
+
+        for(int j=0; j<village[playno]->rbuild.size(); j++){
+            if(village[playno]->rbuild[j]->level<5 && village[playno]->resource[0]->amount>=village[playno]->rbuild[j]->cost) {
+                real[count]=j;
+                count++;
+            }
+        }
+
+        if(count==0){
+            return 1;
+        }
+        select = (rand() % count);
+        select = real[select];
+
+        //decrease tools
+        village[playno]->resource[0]->amount-=village[playno]->rbuild[select]->cost;
+
+        //update building specs
+        village[playno]->rbuild[select]->level++;
+        village[playno]->rbuild[select]->cost+=15;
+        village[playno]->rbuild[select]->refreshbuild();
+
+    }else{ //troop building
+
+        if(village[playno]->tbuild.empty()){
+            return 1;
+        }
+
+        int real[village[playno]->tbuild.size()];
+        int count=0;
+
+        for(int j=0; j<village[playno]->tbuild.size(); j++){
+            if(village[playno]->tbuild[j]->level<5 && village[playno]->resource[0]->amount>=village[playno]->tbuild[j]->cost) {
+                real[count]=j;
+                count++;
+            }
+        }
+
+        if(count==0){
+            return 1;
+        }
+        select = (rand() % count);
+        select = real[select];
+
+        //decrease tools
+        village[playno]->resource[0]->amount-=village[playno]->tbuild[select]->cost;
+
+        //update building specs
+        village[playno]->tbuild[select]->level++;
+        village[playno]->tbuild[select]->cost+=35;
+        village[playno]->tbuild[select]->refreshbuild();
+
+        alertcli( village[playno]->tbuild[select]->output, "train");
+
     }
-
-    if(count==0){
-        return 1;
-    }
-    select = (rand() % count);
-    select = real[select];
-
-    //decrease tools
-    village[playno]->resource[0]->amount-=village[playno]->rbuild[select]->cost;
-
-    //update building specs
-    village[playno]->rbuild[select]->level++;
-    village[playno]->rbuild[select]->cost+=15;
 
     return 0;
 }
 
 int AItrain(int playno){
 
-    int select;
-    int troopno;
+    int select = (rand() %3)+1;
 
-    select = (rand() %3)+1;
-
-    int maxtroop;
+    int tt;
+    string type;
 
     if(select==1){
 
-        maxtroop = floor(village[playno]->resource[1]->amount / 5);
-
-        if(maxtroop==0){
-            return 1;
-        }
-
-        troopno = rand() %maxtroop;
-
-        for(int i=0; i<troopno; i++){
-            village[playno]->resource[1]->amount -= 5;
-            village[playno]->addtroops(Troops(70,10,10,"snoopdawgz"));
-        }
+        type = "snoopdawgz";
 
     }else if(select==2){
 
-        maxtroop = floor(village[playno]->resource[1]->amount / 15);
-
-        if(maxtroop==0){
-            return 1;
-        }
-        troopno = rand() %maxtroop;
-
-        for(int i=0; i<troopno; i++){
-            village[playno]->resource[1]->amount -= 15;
-            village[playno]->addtroops(Troops(10,70,30,"biggies"));
-        }
+        type = "biggies";
 
     }else if(select==3){
 
@@ -160,19 +182,28 @@ int AItrain(int playno){
             return 1;
         }
 
-        maxtroop = floor(village[playno]->resource[1]->amount / 10);
-
-        if(maxtroop==0){
-            return 1;
-        }
-        troopno = rand() %maxtroop;
-
-        for(int i=0; i<troopno; i++){
-            village[playno]->resource[1]->amount -= 10;
-            village[playno]->addtroops(Troops(35,35,20,"tupacs"));
-        }
-
+        type = "tupacs";
     }
+
+    for(tt=0; tt<village[playno]->tbuild.size(); tt++){
+        if(village[playno]->tbuild[tt]->type==type){
+            break;
+        }
+    }
+
+    int maxtroop = floor(village[playno]->resource[1]->amount / village[playno]->tbuild[tt]->output);
+
+    if(maxtroop==0){
+        return 1;
+    }
+
+    int troopno = rand() %maxtroop;
+
+    for(int i=0; i<troopno; i++){
+        village[playno]->resource[1]->amount -= village[playno]->tbuild[tt]->output;
+        village[playno]->addtroops(Troops(70,10,10,type));
+    }
+
     return 0;
 }
 
