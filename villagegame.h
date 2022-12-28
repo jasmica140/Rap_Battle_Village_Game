@@ -16,7 +16,7 @@ using namespace std;
 
 #define mapx 13
 #define mapy 13
-#define maxhealth 10000
+#define maxhealth 5000
 #define maxplay 15
 #define maxtroops 100
 #define texty 26
@@ -47,6 +47,7 @@ public:
 
 class Troops
 {
+
 public:
     int health{};
     int attack{};         //strength
@@ -251,6 +252,7 @@ int AIattack(int playno);
 void mapcli(int playno);
 void villagecli(int playno);
 int alertcli(int playno, const string& type);
+int startcli();
 void refreshcli(int playno);
 
 //other

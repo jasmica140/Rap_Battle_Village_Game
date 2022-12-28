@@ -2,6 +2,8 @@
 
 int gamesetup(){
 
+    startcli();
+
     int rplay;      //real players
     int aiplay=0;     //AI players
 
@@ -100,8 +102,8 @@ int gamesetup(){
 
         //initialise resources for each player
         village[i]->addres(Resource("tools", 500));
-        village[i]->addres(Resource("food", 500));
-        village[i]->addres(Resource("money", 500));
+        village[i]->addres(Resource("grub", 500));
+        village[i]->addres(Resource("dollaz", 500));
     }
 
     int players = totplay;

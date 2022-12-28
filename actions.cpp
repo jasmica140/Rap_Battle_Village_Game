@@ -5,7 +5,7 @@ int build(int playno){
     int select;
 
     mvwprintw(win,texty,textx,"Select building type: ");
-    string choices[]={"1.Resource-generating - cost: money x65","2.Troop-training - cost: money x125"};
+    string choices[]={"1.Resource-generating - cost: dollaz x65","2.Studio - cost: dollaz x125"};
     select = options(2,choices,texty+1, textx,false);
 
     refreshcli(playno);
@@ -22,7 +22,7 @@ int build(int playno){
         int bno;
 
         mvwprintw(win, texty, textx, "Select a type of resource to generate:");
-        string types[] = {"1.Tools", "2.Food", "3.Money"};
+        string types[] = {"1.Tools", "2.Grub", "3.Dollaz"};
 
         int type = options(3, types, texty + 1, textx, false);
         refreshcli(playno);
@@ -55,7 +55,7 @@ int build(int playno){
 
         if(village[playno]->tbuild.size()==3){
             refreshcli(playno);
-            mvwprintw(win,erry,textx,"Error: All troop training buildings built!");
+            mvwprintw(win,erry,textx,"Error: All studios built!");
             return 1;
         }
 
@@ -105,7 +105,7 @@ int build(int playno){
             }
         }
 
-        mvwprintw(win, texty, textx, "Select a type of troop to train:");
+        mvwprintw(win, texty, textx, "Select a type of gangsta to train:");
         int type = options(3-(int)village[playno]->tbuild.size(), types, texty + 1, textx, false);
         refreshcli(playno);
 
@@ -123,7 +123,7 @@ int upgrade(int playno){
 
 
     mvwprintw(win,texty,textx,"Select a type of building to upgrade:");
-    string btype[]={"1.Resource-generating","2.Troop-training"};
+    string btype[]={"1.Resource-generating","2.Studio"};
     int bt = options(2,btype,texty+1, textx,false);
 
     refreshcli(playno);
@@ -173,7 +173,7 @@ int upgrade(int playno){
 
         if(village[playno]->tbuild.empty()){
             refreshcli(playno);
-            mvwprintw(win,erry,textx,"Error: You have no troop-training buildings to upgrade yet!");
+            mvwprintw(win,erry,textx,"Error: You have no studios to upgrade yet!");
             return 1;
         }
 
@@ -192,11 +192,11 @@ int upgrade(int playno){
 
         if(count==0){
             refreshcli(playno);
-            mvwprintw(win,erry,textx,"Error: No troop-training buildings available for upgrade!");
+            mvwprintw(win,erry,textx,"Error: No studios available for upgrade!");
             return 1;
         }
 
-        mvwprintw(win,texty,textx,"Select a troop-training building to upgrade:");
+        mvwprintw(win,texty,textx,"Select a studio to upgrade:");
         select = options(count,choices,texty+1, textx,false)-1;
         select = real[select];
 
@@ -218,7 +218,7 @@ int train(int playno){
 
     int select;
 
-    mvwprintw(win,texty,textx,"Select a type of troop to train:");
+    mvwprintw(win,texty,textx,"Select a type of gangsta to train:");
 
     int troopno;
 
@@ -252,7 +252,7 @@ int train(int playno){
 
     if(!purchased){ //if not purchased
         refreshcli(playno);
-        mvwprintw(win,erry,textx,"Error: %s training building not purchased!", type.c_str());
+        mvwprintw(win,erry,textx,"Error: %s studio not purchased!", type.c_str());
         return 1;
     }
 
@@ -327,11 +327,11 @@ int attack(int playno){
     int trooptot = k+l+m;
     if(trooptot==0){
         refreshcli(playno);
-        mvwprintw(win,erry,textx,"Error: No troops available for battle!");
+        mvwprintw(win,erry,textx,"Error: No gangstaz available for battle!");
         return 1;
     }
 
-    mvwprintw(win,texty,textx,"Select a village to attack:");
+    mvwprintw(win,texty,textx,"Select a city to attack:");
 
     string vills[village.size()-1-village[playno]->army.size()];
 
@@ -352,7 +352,7 @@ int attack(int playno){
                 vattack += troop->attack; //sum of villager troops attack
             }
 
-            vills[cnt] = {"Player "+to_string(village[j]->idx+1)+"'s Village - health "+to_string(village[j]->health)+" - total attack "+to_string(vattack)+" - tools x"+to_string(village[j]->resource[0]->amount)+" - food x"+to_string(village[j]->resource[1]->amount)+" - money x"+to_string(village[j]->resource[2]->amount)+" - "+to_string(minstep)+" rounds to reach target "};
+            vills[cnt] = {"Player "+to_string(village[j]->idx+1)+"'s City - health "+to_string(village[j]->health)+" - total attack "+to_string(vattack)+" - tools x"+to_string(village[j]->resource[0]->amount)+" - grub x"+to_string(village[j]->resource[1]->amount)+" - dollaz x"+to_string(village[j]->resource[2]->amount)+" - "+to_string(minstep)+" rounds to reach target "};
             real[cnt] = j;
             cnt++;
         }
@@ -360,7 +360,7 @@ int attack(int playno){
 
     if(cnt==0){
         refreshcli(playno);
-        mvwprintw(win,erry,textx,"Error: No villages available to attack!");
+        mvwprintw(win,erry,textx,"Error: No cities available to attack!");
         return 1;
     }
 
@@ -369,10 +369,10 @@ int attack(int playno){
     refreshcli(playno);
 
     //ask for troops to send for battle
-    int rookie=0, expert=0, master=0;
+    int snoopdawgz=0, biggies=0, tupacs=0;
 
     if(k>0){
-        mvwprintw(win,texty,textx,"Troops available for battle:");
+        mvwprintw(win,texty,textx,"Gangstaz available for battle:");
         mvwprintw(win,texty+1,textx,"1.Snoopdawgz x%d",k);
         mvwprintw(win,texty+2,textx,"2.Biggies x%d",l);
         mvwprintw(win,texty+3,textx,"3.Tupacs x%d",m);
@@ -382,30 +382,30 @@ int attack(int playno){
         for(int i=0; i<k+1; i++){
             rook[i] = {to_string(i)};
         }
-        rookie = options(k+1,rook,texty+6,textx,true)-1;
+        snoopdawgz = options(k+1,rook,texty+6,textx,true)-1;
         refreshcli(playno);
     }
 
     if(l>0){
         //ask for troops to send for battlea
-        mvwprintw(win,texty,textx,"Troops available for battle:");
-        mvwprintw(win,texty+1,textx,"1.Snoopdawgz troops x%d",k);
-        mvwprintw(win,texty+2,textx,"2.Biggies troops x%d",l);
-        mvwprintw(win,texty+3,textx,"3.Tupacs troops x%d",m);
+        mvwprintw(win,texty,textx,"Gangstaz available for battle:");
+        mvwprintw(win,texty+1,textx,"1.Snoopdawgz x%d",k);
+        mvwprintw(win,texty+2,textx,"2.Biggies x%d",l);
+        mvwprintw(win,texty+3,textx,"3.Tupacs x%d",m);
 
         mvwprintw(win,texty+5,textx,"How many biggies are you taking?");
         string exp[l+1];
         for(int i=0; i<l+1; i++){
             exp[i] = {to_string(i)};
         }
-        expert = options(l+1,exp,texty+6,textx,true)-1;
+        biggies = options(l+1,exp,texty+6,textx,true)-1;
         refreshcli(playno);
     }
 
 
     if(m>0){
         //ask for troops to send for battle
-        mvwprintw(win,texty,textx,"Troops available for battle:");
+        mvwprintw(win,texty,textx,"Gangstaz available for battle:");
         mvwprintw(win,texty+1,textx,"1.Snoopdawgz x%d",k);
         mvwprintw(win,texty+2,textx,"2.Biggies x%d",l);
         mvwprintw(win,texty+3,textx,"3.Tupacs x%d",m);
@@ -415,11 +415,11 @@ int attack(int playno){
         for(int i=0; i<m+1; i++){
             mst[i] = {to_string(i)};
         }
-        master = options(m+1,mst,texty+6,textx,true)-1;
+        tupacs = options(m+1,mst,texty+6,textx,true)-1;
         refreshcli(playno);
     }
 
-    trooptot = rookie+expert+master;
+    trooptot = snoopdawgz+biggies+tupacs;
 
     //create new army
     village[playno]->addarmy(Army());
@@ -428,7 +428,7 @@ int attack(int playno){
     int tcnt=0;
 
     for(int i=0; i<village[playno]->troops.size(); i++){
-        if(tcnt==rookie){
+        if(tcnt==snoopdawgz){
             break;
         }
         if(village[playno]->troops[i]->type=="snoopdawgz"){
@@ -443,7 +443,7 @@ int attack(int playno){
     }
 
     for(int i=0; i<village[playno]->troops.size(); i++){
-        if(tcnt==expert+rookie){
+        if(tcnt==biggies+snoopdawgz){
             break;
         }
         if(village[playno]->troops[i]->type=="biggies"){
@@ -458,7 +458,7 @@ int attack(int playno){
     }
 
     for(int i=0; i<village[playno]->troops.size(); i++){
-        if(tcnt==master+expert+rookie){
+        if(tcnt==tupacs+biggies+snoopdawgz){
             break;
         }
         if(village[playno]->troops[i]->type=="tupacs"){
@@ -494,7 +494,7 @@ int attack(int playno){
         village[playno]->army.erase(village[playno]->army.begin()+acnt);
 
         refreshcli(playno);
-        mvwprintw(win,erry,textx,"Error: Increase army health to attack selected village!");
+        mvwprintw(win,erry,textx,"Error: Increase gang health to attack selected city!");
         return 1;
     }
 

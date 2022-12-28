@@ -116,12 +116,13 @@ int enemytroop(int playno){
                         alertcli(playno, "success");
 
                         loop6:
+                        refreshcli(playno);
                         //steal resources
                         for (int res = 0; res < 3; res++) {
 
                             mvwprintw(win, texty - 2, textx + 30, "ATTACK SUCCESSFUL!");
                             mvwprintw(win, texty - 1, textx, "Carrying Capacity: %d", carrycap);
-                            mvwprintw(win, texty, textx, "Player %d's resources: tools x%d   food x%d    money x%d",
+                            mvwprintw(win, texty, textx, "Player %d's resources: tools x%d   grub x%d    dollaz x%d",
                                       village[villno]->idx, village[villno]->resource[0]->amount,
                                       village[villno]->resource[1]->amount, village[villno]->resource[2]->amount);
 
@@ -147,11 +148,11 @@ int enemytroop(int playno){
                         }
 
                         mvwprintw(win, texty, textx, "You are taking:");
-                        mvwprintw(win, texty + 1, textx, "tools x%d   food x%d    money x%d",
+                        mvwprintw(win, texty + 1, textx, "tools x%d   grub x%d    dollaz x%d",
                                   village[playno]->army[cnt]->resource[0], village[playno]->army[cnt]->resource[1],
                                   village[playno]->army[cnt]->resource[2]);
                         mvwprintw(win, texty + 3, textx, "Choose resources again?");
-                        string choices[] = {"Nah cuz, i'm good", "Yeah man, this looks wack"};
+                        string choices[] = {"Nah cuz, i'm good.", "Yeah fool, this looks wack."};
                         int choice = (options(2, choices, texty + 4, textx, false));
                         if (choice == 2) {
                             carrycap = village[playno]->army[cnt]->carrycap;
@@ -215,9 +216,9 @@ void earnres(int playno){
 
         if (village[playno]->rbuild[i]->type == "tools") {
             village[playno]->resource[0]->amount += village[playno]->rbuild[i]->output;
-        } else if (village[playno]->rbuild[i]->type == "food") {
+        } else if (village[playno]->rbuild[i]->type == "grub") {
             village[playno]->resource[1]->amount += village[playno]->rbuild[i]->output;
-        } else if (village[playno]->rbuild[i]->type == "money") {
+        } else if (village[playno]->rbuild[i]->type == "dollaz") {
             village[playno]->resource[2]->amount += village[playno]->rbuild[i]->output;
         }
     }
@@ -236,8 +237,8 @@ int actions(int playno, int roundno) {
             mvwprintw(win, texty, textx, "Select an action: ");
 
             string choices[] = {
-                    "1.Build new buildings", "2.Upgrade existing buildings", "3.Train troops",
-                    "4.Attack Villages",  "5.Surrender", "6.End turn"
+                    "1.Build new buildings", "2.Upgrade existing buildings", "3.Train gangstaz",
+                    "4.Attack Cities",  "5.Surrender", "6.End turn"
             };
 
             select = options(6, choices, texty + 2, textx, false);
@@ -269,7 +270,7 @@ int actions(int playno, int roundno) {
                     }
                 }else{
                     refreshcli(playno);
-                    mvwprintw(win, erry, textx, "Error: Maximum troop limit reached!");
+                    mvwprintw(win, erry, textx, "Error: Maximum gangsta limit reached!");
                     goto loop;
                 }
 

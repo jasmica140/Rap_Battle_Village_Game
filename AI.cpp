@@ -3,9 +3,9 @@
 int AIround1(int playno){
 
     //build
-    village[playno]->addrbuild(Building("food", 1, 15));
+    village[playno]->addrbuild(Building("grub", 1, 15));
     village[playno]->rbuild[0]->refreshbuild();
-    village[playno]->addrbuild(Building("money", 1, 15));
+    village[playno]->addrbuild(Building("dollaz", 1, 15));
     village[playno]->rbuild[1]->refreshbuild();
     village[playno]->addtbuild(Building("snoopdawgz",1,35));
     village[playno]->tbuild[0]->refreshbuild();
@@ -40,7 +40,7 @@ int AIround1(int playno){
         }
     }
 
-    maxtroop = floor(village[playno]->resource[1]->amount / 35);   //max rookie troop training afforded
+    maxtroop = floor(village[playno]->resource[1]->amount / 35);   //max snoopdawgz troop training afforded
     if(maxtroop==0){
         return 1;
     }
@@ -153,9 +153,6 @@ int AIupgrade(int playno){
         village[playno]->tbuild[select]->level++;
         village[playno]->tbuild[select]->cost+=35;
         village[playno]->tbuild[select]->refreshbuild();
-
-        alertcli( village[playno]->tbuild[select]->output, "train");
-
     }
 
     return 0;
@@ -166,15 +163,24 @@ int AItrain(int playno){
     int select = (rand() %3)+1;
 
     int tt;
+    int health;
+    int attack;
+    int carrycap;
     string type;
 
     if(select==1){
 
         type = "snoopdawgz";
+        health = 70;
+        attack = 10;
+        carrycap = 10;
 
     }else if(select==2){
 
         type = "biggies";
+        health = 10;
+        attack = 70;
+        carrycap = 30;
 
     }else if(select==3){
 
@@ -183,6 +189,9 @@ int AItrain(int playno){
         }
 
         type = "tupacs";
+        health = 35;
+        attack = 35;
+        carrycap = 20;
     }
 
     for(tt=0; tt<village[playno]->tbuild.size(); tt++){
@@ -201,7 +210,7 @@ int AItrain(int playno){
 
     for(int i=0; i<troopno; i++){
         village[playno]->resource[1]->amount -= village[playno]->tbuild[tt]->output;
-        village[playno]->addtroops(Troops(70,10,10,type));
+        village[playno]->addtroops(Troops(health,attack,carrycap,type));
     }
 
     return 0;
@@ -257,15 +266,15 @@ int AIattack(int playno){
         }
     }
 
-    int rookie=0, expert=0, master=0;
+    int snoopdawgz=0, biggies=0, tupacs=0;
     if(l>0){
-        rookie = (int)floor(l/2)+rand() %(l-(int)floor(l/2));
+        snoopdawgz = (int)floor(l/2)+rand() %(l-(int)floor(l/2));
     }
     if(m>0){
-        expert = (int)floor(m/2)+rand() %(m-(int)floor(m/2));
+        biggies = (int)floor(m/2)+rand() %(m-(int)floor(m/2));
     }
     if(n>0){
-        master = (int)floor(n/2)+rand() %(n-(int)floor(n/2));
+        tupacs = (int)floor(n/2)+rand() %(n-(int)floor(n/2));
     }
 
 
@@ -274,7 +283,7 @@ int AIattack(int playno){
 
     int tcnt=0;
     for(int i=0; i<village[playno]->troops.size(); i++){
-        if(tcnt==rookie){
+        if(tcnt==snoopdawgz){
             break;
         }
         if(village[playno]->troops[i]->type=="snoopdawgz"){
@@ -288,7 +297,7 @@ int AIattack(int playno){
     }
 
     for(int i=0; i<village[playno]->troops.size(); i++){
-        if(tcnt==expert+rookie){
+        if(tcnt==biggies+snoopdawgz){
             break;
         }
         if(village[playno]->troops[i]->type=="biggies"){
@@ -302,7 +311,7 @@ int AIattack(int playno){
     }
 
     for(int i=0; i<village[playno]->troops.size(); i++){
-        if(tcnt==master+expert+rookie){
+        if(tcnt==tupacs+biggies+snoopdawgz){
             break;
         }
         if(village[playno]->troops[i]->type=="tupacs"){
