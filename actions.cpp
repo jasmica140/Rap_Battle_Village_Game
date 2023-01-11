@@ -53,7 +53,7 @@ int build(int playno){
             return 1;
         }
 
-        if(village[playno]->tbuild.size()==3){
+        if((int)village[playno]->tbuild.size()==3){
             refreshcli(playno);
             mvwprintw(win,erry,textx,"Error: All studios built!");
             return 1;
@@ -81,7 +81,7 @@ int build(int playno){
                 }
             }
 
-            if(village[playno]->tbuild.size()==1){
+            if((int)village[playno]->tbuild.size()==1){
                 if(!s){
                     types[0] = "biggies";
                     types[1] = "tupacs";
@@ -94,7 +94,7 @@ int build(int playno){
                 }
             }
 
-            if(village[playno]->tbuild.size()==2){
+            if((int)village[playno]->tbuild.size()==2){
                 if(!s && !b){
                     types[0] = "tupacs";
                 }else if(!s && !t){
@@ -143,7 +143,7 @@ int upgrade(int playno){
 
         string choices[village[playno]->rbuild.size()];
 
-        for(int j=0; j<village[playno]->rbuild.size(); j++){
+        for(int j=0; j<(int)village[playno]->rbuild.size(); j++){
             if(village[playno]->rbuild[j]->level<5 && village[playno]->resource[0]->amount>=village[playno]->rbuild[j]->cost){
                 choices[count] = {to_string(count+1) + ". level " + to_string(village[playno]->rbuild[j]->level) + " - generates " + village[playno]->rbuild[j]->type + "- cost: tools x" + to_string(village[playno]->rbuild[j]->cost)};
                 real[count]=j;
@@ -182,7 +182,7 @@ int upgrade(int playno){
 
         string choices[village[playno]->tbuild.size()];
 
-        for(int j=0; j<village[playno]->tbuild.size(); j++){
+        for(int j=0; j<(int)village[playno]->tbuild.size(); j++){
             if(village[playno]->tbuild[j]->level<5 && village[playno]->resource[0]->amount>=village[playno]->tbuild[j]->cost){
                 choices[count] = {to_string(count+1) + ". level " + to_string(village[playno]->tbuild[j]->level) + " - trains " + village[playno]->tbuild[j]->type + "- cost: tools x" + to_string(village[playno]->tbuild[j]->cost)};
                 real[count]=j;
@@ -257,7 +257,7 @@ int train(int playno){
     }
 
     int tt;
-    for(tt=0; tt<village[playno]->tbuild.size(); tt++){
+    for(tt=0; tt<(int)village[playno]->tbuild.size(); tt++){
         if(village[playno]->tbuild[tt]->type==type){
             break;
         }
@@ -333,15 +333,15 @@ int attack(int playno){
 
     mvwprintw(win,texty,textx,"Select a city to attack:");
 
-    string vills[village.size()-1-village[playno]->army.size()];
+    string vills[village.size()-1];
 
     int cnt=0;
     int real[village.size()];
-    for(int j=0; j<village.size(); j++){
+    for(int j=0; j<(int)village.size(); j++){
 
         //can't attack villages player is already under attack
         //can't attack their own village
-        if(!village[j]->attack && j != playno){
+        if(j != playno){
 
             //rounds required
             int minstep = max(abs(village[playno]->loc[0] - village[j]->loc[0]), abs(village[playno]->loc[1] - village[j]->loc[1]));
@@ -427,7 +427,7 @@ int attack(int playno){
     int acnt = (int)village[playno]->army.size()-1;
     int tcnt=0;
 
-    for(int i=0; i<village[playno]->troops.size(); i++){
+    for(int i=0; i<(int)village[playno]->troops.size(); i++){
         if(tcnt==snoopdawgz){
             break;
         }
@@ -442,7 +442,7 @@ int attack(int playno){
         }
     }
 
-    for(int i=0; i<village[playno]->troops.size(); i++){
+    for(int i=0; i<(int)village[playno]->troops.size(); i++){
         if(tcnt==biggies+snoopdawgz){
             break;
         }
@@ -457,7 +457,7 @@ int attack(int playno){
         }
     }
 
-    for(int i=0; i<village[playno]->troops.size(); i++){
+    for(int i=0; i<(int)village[playno]->troops.size(); i++){
         if(tcnt==tupacs+biggies+snoopdawgz){
             break;
         }

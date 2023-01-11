@@ -26,8 +26,8 @@ void marching(int playno, int armyno, int target, int mspeed){
 
     int i=0;
 
-    for(int v=0; v<village.size(); v++){
-        if(village[v]->idx == village[playno]->army[armyno]->target){
+    for(int v=0; v<(int)village.size(); v++){
+        if(village[v]->idx == target){
             target = v;
             break;
         }
@@ -36,8 +36,15 @@ void marching(int playno, int armyno, int target, int mspeed){
     int villx = village[target]->loc[0];
     int villy = village[target]->loc[1];
 
+
     //clear old position
     map[village[playno]->army[armyno]->loc[0]][village[playno]->army[armyno]->loc[1]].status = "     ";
+    for(int v=0; v<(int)village.size(); v++){
+        if(village[playno]->army[armyno]->loc[0]==village[v]->loc[0]&&village[playno]->army[armyno]->loc[1]==village[v]->loc[1]){
+            map[village[playno]->army[armyno]->loc[0]][village[playno]->army[armyno]->loc[1]].status = "  V  ";
+            break;
+        }
+    }
 
     // while army is not in same row or column as target and army's steps per round not exceeded
     while ((village[playno]->army[armyno]->loc[0] != villx || village[playno]->army[armyno]->loc[1] != villy) && i<mspeed){
@@ -50,6 +57,11 @@ void marching(int playno, int armyno, int target, int mspeed){
         //go down
         if (village[playno]->army[armyno]->loc[0] > villx) {
             village[playno]->army[armyno]->loc[0]--;      //update army location
+        }
+
+        i++;
+        if(i==mspeed){
+            break;
         }
 
         //go left

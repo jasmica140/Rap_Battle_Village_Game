@@ -5,25 +5,40 @@ void deleteplayer(int playno){
     //delete village
     map[village[playno]->loc[0]][village[playno]->loc[1]].status = "     ";
 
-    //send attacking army home
-    if(village[playno]->attack){
-        for(int i=0; i<village.size(); i++){
-            for(int j=0; j<village[i]->army.size(); j++){
-                if(village[i]->army[j]->target==village[playno]->idx && i!=playno){
-                    village[i]->army[j]->target = village[i]->idx;
-                    goto label;
-                }
+    for(int v=0; v<(int)village.size(); v++){ //search for villages destroyed player is attacking
+        for(int j=0; j<village[playno]->army.size(); j++){
+            if(village[v]->idx == village[playno]->army[j]->target){
+                village[v]->attack=false;
             }
         }
     }
 
-    label:
+    //send attacking army home
+    for(int i=0; i<(int)village.size(); i++){ //for each village
+        for(int j=0; j<(int)village[i]->army.size(); j++){ //for each army
+            if(village[i]->army[j]->target==village[playno]->idx){ //if village target is destroyed village
+                village[i]->army[j]->comeHome = true;
+                village[i]->army[j]->target = village[i]->idx; //send home
+            }
+        }
+    }
+
     village.erase(village.begin() + playno);
+
+    for(int v=0; v<(int)village.size(); v++){ //search for villages destroyed player is attacking
+        for(int i=0; i<(int)village.size(); i++){
+            for(int j=0; j<(int)village[i]->army.size(); j++){
+                if(village[v]->idx == village[i]->army[j]->target && !village[i]->army[j]->comeHome){
+                    village[v]->attack=true;
+                }
+            }
+        }
+    }
 }
 
 
 
-int options(int n, string choices[n],int y, int x, bool sameline){
+int options(int n, string choices[],int y, int x, bool sameline){
 
     int choice;
     int hl=0;

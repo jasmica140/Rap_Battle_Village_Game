@@ -1,5 +1,6 @@
 #include "villagegame.h"
 
+
 int gamesetup(){
 
     startcli();
@@ -117,45 +118,19 @@ void gameloop(){
     gamesetup();
 
     int roundno = 1;
-    bool real=false;
 
-    while(village.size() > 1){ //win condition
+    while((int)village.size() > 1){ //win condition
 
-        for(int playno=0; playno<village.size(); playno++){
+        for(int playno=0; playno<(int)village.size(); playno++){
             playno = turnphase(playno,roundno);
 
-            for(auto & i : village){
-                if(i->preal){
-                    real=true;
-                }
-            }
-
-            if(!real){
-
-                while(village.size()>1){
-                    int healthidx = 0;
-                    int minhealth = village[0]->health;
-                    for(int idx=1; idx<village.size(); idx++){
-                        if(village[idx]->health<minhealth) {
-                            minhealth = village[idx]->health;
-                            healthidx = idx;
-                        }
-                    }
-                    deleteplayer(healthidx);
-                }
-                goto label;
-
-            }else{
-                real=false;
-            }
-
-            if(village.size()==1){
+            if((int)village.size()==1){
                 goto label;
             }
         }
 
-        for(int i=0; i<village.size(); i++){
-            for(int j=0; j<village[i]->army.size(); j++){
+        for(int i=0; i<(int)village.size(); i++){
+            for(int j=0; j<(int)village[i]->army.size(); j++){
                 marching(i, j, village[i]->army[j]->target, village[i]->army[j]->speed);
             }
         }

@@ -59,7 +59,7 @@ int AIround1(int playno){
 int AIbuild(int playno){
 
     //build troop building
-    if(village[playno]->resource[2]->amount >= 125 && village[playno]->tbuild.size()<3){
+    if(village[playno]->resource[2]->amount >= 125 && (int)village[playno]->tbuild.size()<3){
         village[playno]->addtbuild(Building("tupacs",1,35));
         village[playno]->tbuild[2]->refreshbuild();
     }
@@ -84,7 +84,6 @@ int AIbuild(int playno){
         village[playno]->rbuild[village[playno]->rbuild.size()-1]->refreshbuild();
     }
 
-
     village[playno]->resource[2]->amount-=cost;
     return 0;
 }
@@ -96,14 +95,10 @@ int AIupgrade(int playno){
 
     if(btype==0){ //resource building
 
-        if(village[playno]->rbuild.empty()){
-            return 1;
-        }
-
         int real[village[playno]->rbuild.size()];
         int count=0;
 
-        for(int j=0; j<village[playno]->rbuild.size(); j++){
+        for(int j=0; j<(int)village[playno]->rbuild.size(); j++){
             if(village[playno]->rbuild[j]->level<5 && village[playno]->resource[0]->amount>=village[playno]->rbuild[j]->cost) {
                 real[count]=j;
                 count++;
@@ -113,6 +108,7 @@ int AIupgrade(int playno){
         if(count==0){
             return 1;
         }
+
         select = (rand() % count);
         select = real[select];
 
@@ -126,14 +122,10 @@ int AIupgrade(int playno){
 
     }else{ //troop building
 
-        if(village[playno]->tbuild.empty()){
-            return 1;
-        }
-
         int real[village[playno]->tbuild.size()];
         int count=0;
 
-        for(int j=0; j<village[playno]->tbuild.size(); j++){
+        for(int j=0; j<(int)village[playno]->tbuild.size(); j++){
             if(village[playno]->tbuild[j]->level<5 && village[playno]->resource[0]->amount>=village[playno]->tbuild[j]->cost) {
                 real[count]=j;
                 count++;
@@ -184,7 +176,7 @@ int AItrain(int playno){
 
     }else if(select==3){
 
-        if(village[playno]->tbuild.size()<3){
+        if((int)village[playno]->tbuild.size()<3){
             return 1;
         }
 
@@ -194,7 +186,7 @@ int AItrain(int playno){
         carrycap = 20;
     }
 
-    for(tt=0; tt<village[playno]->tbuild.size(); tt++){
+    for(tt=0; tt<(int)village[playno]->tbuild.size(); tt++){
         if(village[playno]->tbuild[tt]->type==type){
             break;
         }
@@ -202,7 +194,7 @@ int AItrain(int playno){
 
     int maxtroop = floor(village[playno]->resource[1]->amount / village[playno]->tbuild[tt]->output);
 
-    if(maxtroop==0){
+    if(maxtroop<=0){
         return 1;
     }
 
@@ -222,14 +214,13 @@ int AIattack(int playno){
     int opt[2];       //{points,player}
     int track=0;
 
-    for(int j=0; j<village.size(); j++){
+    for(int j=0; j<(int)village.size(); j++){
 
         //can't attack their own village
         //can't attack villages player is already attacking
-        if (!village[j]->attack && j != playno) {
+        if (j != playno) {
 
             optattack=0;
-
             //rounds required
             optattack += max(abs(village[playno]->loc[0] - village[j]->loc[0]),abs(village[playno]->loc[1] - village[j]->loc[1]));
 
@@ -277,12 +268,11 @@ int AIattack(int playno){
         tupacs = (int)floor(n/2)+rand() %(n-(int)floor(n/2));
     }
 
-
     village[playno]->addarmy(Army());
     int acnt = (int)village[playno]->army.size()-1;
 
     int tcnt=0;
-    for(int i=0; i<village[playno]->troops.size(); i++){
+    for(int i=0; i<(int)village[playno]->troops.size(); i++){
         if(tcnt==snoopdawgz){
             break;
         }
@@ -296,7 +286,7 @@ int AIattack(int playno){
         }
     }
 
-    for(int i=0; i<village[playno]->troops.size(); i++){
+    for(int i=0; i<(int)village[playno]->troops.size(); i++){
         if(tcnt==biggies+snoopdawgz){
             break;
         }
@@ -310,7 +300,7 @@ int AIattack(int playno){
         }
     }
 
-    for(int i=0; i<village[playno]->troops.size(); i++){
+    for(int i=0; i<(int)village[playno]->troops.size(); i++){
         if(tcnt==tupacs+biggies+snoopdawgz){
             break;
         }
@@ -352,6 +342,7 @@ int AIattack(int playno){
 
     //set army target
     village[playno]->army[acnt]->target = village[villno]->idx;
+    village[playno]->army[acnt]->comeHome = false;
 
     //update village to under attack
     village[villno]->attack = true;

@@ -47,7 +47,6 @@ public:
 
 class Troops
 {
-
 public:
     int health{};
     int attack{};         //strength
@@ -76,6 +75,7 @@ public:
     int carrycap{};         //total carrying capacity of army
     int resource[3] = {0,0,0};      //amount of resources taken from village after attack
     int target{};           //target village no.
+    bool comeHome{};
 
     vector<shared_ptr<Troops>> troops;
 
@@ -256,7 +256,7 @@ int startcli();
 void refreshcli(int playno);
 
 //other
-int options(int n, string choices[n],int y, int x, bool sameline);
+int options(int n, string choices[],int y, int x, bool sameline);
 void deleteplayer(int playno);
 
 
