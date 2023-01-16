@@ -6,8 +6,8 @@ void deleteplayer(int playno){
     map[village[playno]->loc[0]][village[playno]->loc[1]].status = "     ";
 
     for(int v=0; v<(int)village.size(); v++){ //search for villages destroyed player is attacking
-        for(int j=0; j<village[playno]->army.size(); j++){
-            if(village[v]->idx == village[playno]->army[j]->target){
+        for(int j=0; j<(int)village[playno]->army.size(); j++){
+            if(village[v]->id == village[playno]->army[j]->target){
                 village[v]->attack=false;
             }
         }
@@ -16,9 +16,9 @@ void deleteplayer(int playno){
     //send attacking army home
     for(int i=0; i<(int)village.size(); i++){ //for each village
         for(int j=0; j<(int)village[i]->army.size(); j++){ //for each army
-            if(village[i]->army[j]->target==village[playno]->idx){ //if village target is destroyed village
+            if(village[i]->army[j]->target==village[playno]->id){ //if village target is destroyed village
                 village[i]->army[j]->comeHome = true;
-                village[i]->army[j]->target = village[i]->idx; //send home
+                village[i]->army[j]->target = village[i]->id; //send home
             }
         }
     }
@@ -28,7 +28,7 @@ void deleteplayer(int playno){
     for(int v=0; v<(int)village.size(); v++){ //search for villages destroyed player is attacking
         for(int i=0; i<(int)village.size(); i++){
             for(int j=0; j<(int)village[i]->army.size(); j++){
-                if(village[v]->idx == village[i]->army[j]->target && !village[i]->army[j]->comeHome){
+                if(village[v]->id == village[i]->army[j]->target && !village[i]->army[j]->comeHome){
                     village[v]->attack=true;
                 }
             }
@@ -40,18 +40,21 @@ void deleteplayer(int playno){
 
 int options(int n, string choices[],int y, int x, bool sameline){
 
-    int choice;
-    int hl=0;
-    int lim = 25;
+    int choice, lim, hl=0;
+    bool multi = false;
+
+    for(int i = 0; i < n; i++){
+        if(choices[i].length() == 3){
+            multi=true;
+            break;
+        }
+    }
 
     while(true) {
-
-        int xspace=0;
-        int yspace=0;
-
+        int xspace=0, yspace=0;
         for (int i = 0; i < n; i++, xspace++) {
 
-            if(i%lim==0 && i!=0){ //for every 25th element
+            if(x==textx && ((x+(xspace*3)>=55 && multi) || x+(xspace*3)>=70)){
                 yspace++; //new line
                 xspace=0;
             }
@@ -59,9 +62,9 @@ int options(int n, string choices[],int y, int x, bool sameline){
             if (i == hl) {
                 wattron(win, A_REVERSE);
             }
-            if(sameline){
 
-                if(choices[i].length() == 3){
+            if(sameline){
+                if(multi){
                     mvwprintw(win, y+yspace, x+(xspace*4), choices[i].c_str());
                 }else{
                     mvwprintw(win, y+yspace, x+(xspace*3), choices[i].c_str());
@@ -72,9 +75,15 @@ int options(int n, string choices[],int y, int x, bool sameline){
                 wattroff(win, A_REVERSE);
             }
         }
+
         choice = wgetch(win);
 
         if(sameline){
+            if(!multi){
+                lim=23;
+            }else{
+                lim=18;
+            }
             switch(choice) {
 
                 case KEY_LEFT:

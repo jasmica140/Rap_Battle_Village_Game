@@ -11,13 +11,13 @@
 #include <memory>
 #include <vector>
 
-
 using namespace std;
 
 #define mapx 13
 #define mapy 13
 #define maxhealth 5000
 #define maxplay 15
+#define maxrbuild 12
 #define maxtroops 100
 #define texty 26
 #define textx 2
@@ -34,32 +34,43 @@ extern Map map[mapx][mapy];
 class Resource
 {
 public:
-    string type;
+    string type;        //connections/grub/dollaz
     int amount{};
 
     Resource()= default;
 
-    Resource(string a, int b){
-        type = std::move(a);           //tools/food/money/elixir
-        amount = b;
-    }
+    Resource(string type, int amount) : type(std::move(type)), amount(amount) {}
 };
 
 class Troops
 {
 public:
     int health{};
-    int attack{};         //strength
-    int carrycap{};       //carrying capacity
-    string type;          //type of troop - untrained/rookie/expert/master
+    int attack{};
+    int carryCap{};       //carrying capacity
+    int cost{};
+    string type;          //snoopdawgz/biggies/tupacs
 
     Troops() = default;
 
-    Troops(int b, int c, int d, string f){
-        health = b;
-        attack = c;         //strength
-        carrycap = d;       //carrying capacity
-        type = std::move(f);           //type of troop - untrained/rookie/expert/master
+    explicit Troops(string type){
+        if(type=="snoopdawgz"){
+            health = 70;
+            attack = 10;
+            cost = 5;
+            carryCap = 10;
+        }else if(type=="biggies"){
+            health = 10;
+            attack = 35;
+            cost = 10;
+            carryCap = 30;
+        }else if(type=="tupacs"){
+            health = 35;
+            attack = 70;
+            cost = 15;
+            carryCap = 20;
+        }
+        this->type = std::move(type);
     }
 };
 
@@ -67,33 +78,32 @@ public:
 class Army{
 
 public:
-
     int loc[2]{};           //army locations
     int speed{};            //army speed
     int attack{};           //total attack of army
     int health{};           //total health of army
-    int carrycap{};         //total carrying capacity of army
-    int resource[3] = {0,0,0};      //amount of resources taken from village after attack
-    int target{};           //target village no.
-    bool comeHome{};
+    int carryCap{};         //total carrying capacity of army
+    int resource[3]{};      //amount of resources taken from village after attack
+    int target{};           //target village id
+    bool comeHome{};        //coming home
 
     vector<shared_ptr<Troops>> troops;
 
     Army() = default;
 
-    void refresharmy(const Army& army){
+    void refresharmy(){
 
         int r=0, e=0;
 
         attack=0;
         health=0;
-        carrycap=0;
+        carryCap=0;
 
         for(auto & troop : troops){
 
             attack += troop->attack;
             health += troop->health;
-            carrycap += troop->carrycap;
+            carryCap += troop->carryCap;
 
             if(troop->type == "rookie"){
                 r++;
@@ -117,62 +127,48 @@ public:
     }
 };
 
-
 class Building{
 
 public:
     string type;            //type of resources/troops to generate
-    int level{};
+    int level{};            //level 1-5
     int cost{};             //cost of upgrading
-    int output{};           //amount of resources to produce/ cost to train troop
+    int resOutput{};        //amount of resources to produce
+    int troopCost{};        //cost of training troop
 
     Building() = default;
 
-    Building(string a, int b, int c){
-        type = std::move(a);
-        level = b;
-        cost = c;
-    }
+    Building(string type, int level, int cost) : type(std::move(type)), level(level), cost(cost) {}
 
     void refreshbuild(){
 
-        if(type == "tools" || type == "food" || type == "money"){ //resource
+        if(type == "connections" || type == "grub" || type == "dollaz"){ //resource
             if(level == 1){
-                output = 50;
+                resOutput = 50;
             }else if(level == 2){
-                output = 75;
+                resOutput = 75;
             }else if(level == 3){
-                output = 120;
+                resOutput = 120;
             }else if(level == 4){
-                output = 175;
+                resOutput = 175;
             }else if(level == 4){
-                output = 250;
+                resOutput = 250;
             }
 
         }else{ //troops
-
-            if(type == "snoopdawgz"){
-                output = 5;
-            }else if(type == "biggies"){
-                output = 15;
-            }else{
-                output = 10;
-            }
-
-            output *= (6 - level);
+            troopCost = Troops(type).cost*(6-level);
         }
     }
 };
 
-
 class Village {
 
 public:
-    int idx{};                            //player index
-    int loc[2] = {0, 0};         //(x,y) - village location
-    int health = maxhealth;               //village health
-    bool attack = false;                  //under attack
-    bool preal = true;                    //AI or real player
+    int id{};             //player index
+    int loc[2]{};         //(x,y) - village location
+    int health{};         //village health
+    bool attack{};        //under attack
+    bool real{};          //AI or real player
 
     vector<shared_ptr<Troops>> troops;
     vector<shared_ptr<Resource>> resource;
@@ -182,13 +178,17 @@ public:
 
     Village()= default;
 
-    Village(int i, const int a[2], int b, bool g, bool h) {
-        idx = i;
-        loc[0] = a[0];
-        loc[1] = a[1];
-        health = b;
-        attack = g;
-        preal = h;
+    Village(int id, const int loc[2], int health, bool attack, bool real) {
+        this->id = id;
+        this->loc[0] = loc[0];
+        this->loc[1] = loc[1];
+        this->health = health;
+        this->attack = attack;
+        this->real = real;
+    }
+
+    virtual ~Village() {
+
     }
 
     void addtroops(const Troops& newtroop){
@@ -258,6 +258,5 @@ void refreshcli(int playno);
 //other
 int options(int n, string choices[],int y, int x, bool sameline);
 void deleteplayer(int playno);
-
 
 #endif //TASK1_VILLAGEGAME_H

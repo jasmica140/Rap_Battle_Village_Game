@@ -48,49 +48,49 @@ build cmake_object_order_depends_target_Task1: phony || CMakeFiles/Task1.dir
 
 build CMakeFiles/Task1.dir/main.cpp.o: CXX_COMPILER__Task1_Debug /Users/jasminemicallef/Desktop/Uni$ Docs/Comp$ Sci/Yr2/CPS2004/Assignment/task1/main.cpp || cmake_object_order_depends_target_Task1
   DEP_FILE = CMakeFiles/Task1.dir/main.cpp.o.d
-  FLAGS = -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.1.sdk -fcolor-diagnostics -std=gnu++20
+  FLAGS = -g -fcolor-diagnostics -std=gnu++20
   OBJECT_DIR = CMakeFiles/Task1.dir
   OBJECT_FILE_DIR = CMakeFiles/Task1.dir
 
 build CMakeFiles/Task1.dir/roundphases.cpp.o: CXX_COMPILER__Task1_Debug /Users/jasminemicallef/Desktop/Uni$ Docs/Comp$ Sci/Yr2/CPS2004/Assignment/task1/roundphases.cpp || cmake_object_order_depends_target_Task1
   DEP_FILE = CMakeFiles/Task1.dir/roundphases.cpp.o.d
-  FLAGS = -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.1.sdk -fcolor-diagnostics -std=gnu++20
+  FLAGS = -g -fcolor-diagnostics -std=gnu++20
   OBJECT_DIR = CMakeFiles/Task1.dir
   OBJECT_FILE_DIR = CMakeFiles/Task1.dir
 
 build CMakeFiles/Task1.dir/turnphases.cpp.o: CXX_COMPILER__Task1_Debug /Users/jasminemicallef/Desktop/Uni$ Docs/Comp$ Sci/Yr2/CPS2004/Assignment/task1/turnphases.cpp || cmake_object_order_depends_target_Task1
   DEP_FILE = CMakeFiles/Task1.dir/turnphases.cpp.o.d
-  FLAGS = -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.1.sdk -fcolor-diagnostics -std=gnu++20
+  FLAGS = -g -fcolor-diagnostics -std=gnu++20
   OBJECT_DIR = CMakeFiles/Task1.dir
   OBJECT_FILE_DIR = CMakeFiles/Task1.dir
 
 build CMakeFiles/Task1.dir/setup.cpp.o: CXX_COMPILER__Task1_Debug /Users/jasminemicallef/Desktop/Uni$ Docs/Comp$ Sci/Yr2/CPS2004/Assignment/task1/setup.cpp || cmake_object_order_depends_target_Task1
   DEP_FILE = CMakeFiles/Task1.dir/setup.cpp.o.d
-  FLAGS = -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.1.sdk -fcolor-diagnostics -std=gnu++20
+  FLAGS = -g -fcolor-diagnostics -std=gnu++20
   OBJECT_DIR = CMakeFiles/Task1.dir
   OBJECT_FILE_DIR = CMakeFiles/Task1.dir
 
 build CMakeFiles/Task1.dir/cli.cpp.o: CXX_COMPILER__Task1_Debug /Users/jasminemicallef/Desktop/Uni$ Docs/Comp$ Sci/Yr2/CPS2004/Assignment/task1/cli.cpp || cmake_object_order_depends_target_Task1
   DEP_FILE = CMakeFiles/Task1.dir/cli.cpp.o.d
-  FLAGS = -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.1.sdk -fcolor-diagnostics -std=gnu++20
+  FLAGS = -g -fcolor-diagnostics -std=gnu++20
   OBJECT_DIR = CMakeFiles/Task1.dir
   OBJECT_FILE_DIR = CMakeFiles/Task1.dir
 
 build CMakeFiles/Task1.dir/actions.cpp.o: CXX_COMPILER__Task1_Debug /Users/jasminemicallef/Desktop/Uni$ Docs/Comp$ Sci/Yr2/CPS2004/Assignment/task1/actions.cpp || cmake_object_order_depends_target_Task1
   DEP_FILE = CMakeFiles/Task1.dir/actions.cpp.o.d
-  FLAGS = -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.1.sdk -fcolor-diagnostics -std=gnu++20
+  FLAGS = -g -fcolor-diagnostics -std=gnu++20
   OBJECT_DIR = CMakeFiles/Task1.dir
   OBJECT_FILE_DIR = CMakeFiles/Task1.dir
 
 build CMakeFiles/Task1.dir/AI.cpp.o: CXX_COMPILER__Task1_Debug /Users/jasminemicallef/Desktop/Uni$ Docs/Comp$ Sci/Yr2/CPS2004/Assignment/task1/AI.cpp || cmake_object_order_depends_target_Task1
   DEP_FILE = CMakeFiles/Task1.dir/AI.cpp.o.d
-  FLAGS = -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.1.sdk -fcolor-diagnostics -std=gnu++20
+  FLAGS = -g -fcolor-diagnostics -std=gnu++20
   OBJECT_DIR = CMakeFiles/Task1.dir
   OBJECT_FILE_DIR = CMakeFiles/Task1.dir
 
 build CMakeFiles/Task1.dir/other.cpp.o: CXX_COMPILER__Task1_Debug /Users/jasminemicallef/Desktop/Uni$ Docs/Comp$ Sci/Yr2/CPS2004/Assignment/task1/other.cpp || cmake_object_order_depends_target_Task1
   DEP_FILE = CMakeFiles/Task1.dir/other.cpp.o.d
-  FLAGS = -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.1.sdk -fcolor-diagnostics -std=gnu++20
+  FLAGS = -g -fcolor-diagnostics -std=gnu++20
   OBJECT_DIR = CMakeFiles/Task1.dir
   OBJECT_FILE_DIR = CMakeFiles/Task1.dir
 
@@ -103,7 +103,7 @@ build CMakeFiles/Task1.dir/other.cpp.o: CXX_COMPILER__Task1_Debug /Users/jasmine
 # Link the executable Task1
 
 build Task1: CXX_EXECUTABLE_LINKER__Task1_Debug CMakeFiles/Task1.dir/main.cpp.o CMakeFiles/Task1.dir/roundphases.cpp.o CMakeFiles/Task1.dir/turnphases.cpp.o CMakeFiles/Task1.dir/setup.cpp.o CMakeFiles/Task1.dir/cli.cpp.o CMakeFiles/Task1.dir/actions.cpp.o CMakeFiles/Task1.dir/AI.cpp.o CMakeFiles/Task1.dir/other.cpp.o | /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.1.sdk/usr/lib/libcurses.tbd /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.1.sdk/usr/lib/libform.tbd
-  FLAGS = -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.1.sdk
+  FLAGS = -g
   LINK_LIBRARIES = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.1.sdk/usr/lib/libcurses.tbd  /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.1.sdk/usr/lib/libform.tbd
   OBJECT_DIR = CMakeFiles/Task1.dir
   POST_BUILD = :

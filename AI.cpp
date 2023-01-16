@@ -12,7 +12,7 @@ int AIround1(int playno){
     village[playno]->addtbuild(Building("biggies",1,35));
     village[playno]->tbuild[1]->refreshbuild();
 
-    //reduce money
+    //reduce dollaz
     village[playno]->resource[2]->amount -= ((65 * 2) + (125*2));
 
     //upgrade buildings
@@ -21,7 +21,7 @@ int AIround1(int playno){
     village[playno]->rbuild[1]->level++;
     village[playno]->rbuild[1]->cost+=15;
 
-    //reduce tools
+    //reduce connections
     village[playno]->resource[2]->amount -= (15 * 2);
 
     //train troops
@@ -34,9 +34,9 @@ int AIround1(int playno){
         rnd = 1 + (rand() % maxtroop);   //randomly select how many troops to train
 
         for (int i=0; i < rnd; i++) {
-            //reduce food
+            //reduce grub
             village[playno]->resource[1]->amount -= 5;
-            village[playno]->addtroops(Troops(70,10,10,"snoopdawgz"));
+            village[playno]->addtroops(Troops("snoopdawgz"));
         }
     }
 
@@ -48,7 +48,7 @@ int AIround1(int playno){
 
     for(int i=0; i<rnd; i++){
         village[playno]->resource[1]->amount-=15;
-        village[playno]->addtroops(Troops(10,70,30,"biggies"));
+        village[playno]->addtroops(Troops("biggies"));
     }
 
     return 0;
@@ -71,9 +71,24 @@ int AIbuild(int playno){
 
     int type = (rand() %3);
 
+    if(village[playno]->rbuild.size()==maxrbuild){ //max build reached
+        if(rand() %2 == 0){
+            int rb = rand()%13; //building to replace
+            village[playno]->rbuild.erase(village[playno]->rbuild.begin()+rb);
+            village[playno]->addrbuild(Building(village[playno]->resource[type]->type, 1, 15));
+            village[playno]->rbuild[village[playno]->rbuild.size()-1]->refreshbuild();
+            village[playno]->resource[2]->amount-=65;
+            return 0;
+        }else{
+            return 1;
+        }
+    }
+
     int maxbuild = floor(village[playno]->resource[2]->amount / 65);
     if(maxbuild==0){
         return 1;
+    }else if(maxbuild>maxrbuild-village[playno]->rbuild.size()){
+        maxbuild = maxrbuild-village[playno]->rbuild.size();
     }
     int bno = (rand() %maxbuild);
     int cost = bno*65;
@@ -112,7 +127,7 @@ int AIupgrade(int playno){
         select = (rand() % count);
         select = real[select];
 
-        //decrease tools
+        //decrease connections
         village[playno]->resource[0]->amount-=village[playno]->rbuild[select]->cost;
 
         //update building specs
@@ -138,7 +153,7 @@ int AIupgrade(int playno){
         select = (rand() % count);
         select = real[select];
 
-        //decrease tools
+        //decrease connections
         village[playno]->resource[0]->amount-=village[playno]->tbuild[select]->cost;
 
         //update building specs
@@ -153,56 +168,43 @@ int AIupgrade(int playno){
 int AItrain(int playno){
 
     int select = (rand() %3)+1;
-
-    int tt;
-    int health;
-    int attack;
-    int carrycap;
     string type;
 
     if(select==1){
-
         type = "snoopdawgz";
-        health = 70;
-        attack = 10;
-        carrycap = 10;
-
     }else if(select==2){
-
         type = "biggies";
-        health = 10;
-        attack = 70;
-        carrycap = 30;
-
     }else if(select==3){
-
         if((int)village[playno]->tbuild.size()<3){
             return 1;
         }
-
         type = "tupacs";
-        health = 35;
-        attack = 35;
-        carrycap = 20;
     }
 
+    int tt;
     for(tt=0; tt<(int)village[playno]->tbuild.size(); tt++){
         if(village[playno]->tbuild[tt]->type==type){
             break;
         }
     }
 
-    int maxtroop = floor(village[playno]->resource[1]->amount / village[playno]->tbuild[tt]->output);
+    int ttot=0;
+    for(const auto & i : village[playno]->army){
+        ttot+=i->troops.size();
+    }
+
+    int maxtroop = floor(village[playno]->resource[1]->amount / village[playno]->tbuild[tt]->troopCost);
 
     if(maxtroop<=0){
         return 1;
+    }else if(maxtroop>maxtroops-(village[playno]->troops.size()+ttot)){
+        maxtroop = maxtroops-(village[playno]->troops.size()+ttot);
     }
-
     int troopno = rand() %maxtroop;
 
     for(int i=0; i<troopno; i++){
-        village[playno]->resource[1]->amount -= village[playno]->tbuild[tt]->output;
-        village[playno]->addtroops(Troops(health,attack,carrycap,type));
+        village[playno]->resource[1]->amount -= village[playno]->tbuild[tt]->troopCost;
+        village[playno]->addtroops(Troops(type));
     }
 
     return 0;
@@ -314,7 +316,7 @@ int AIattack(int playno){
         }
     }
 
-    village[playno]->army[acnt]->refresharmy(*village[playno]->army[acnt]);
+    village[playno]->army[acnt]->refresharmy();
 
     int vattack=0;
     int phealth = village[playno]->army[acnt]->health;        //sum of player troops health
@@ -341,7 +343,7 @@ int AIattack(int playno){
     village[playno]->army[acnt]->loc[1] = village[playno]->loc[1];
 
     //set army target
-    village[playno]->army[acnt]->target = village[villno]->idx;
+    village[playno]->army[acnt]->target = village[villno]->id;
     village[playno]->army[acnt]->comeHome = false;
 
     //update village to under attack

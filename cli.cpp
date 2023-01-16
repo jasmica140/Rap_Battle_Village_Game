@@ -3,7 +3,7 @@
 void mapcli(int playno){
 
     for(int v=0; v<(int)village.size(); v++){
-        map[village[playno]->loc[0]][village[playno]->loc[1]].status = "  V  ";
+        map[village[playno]->loc[0]][village[playno]->loc[1]].status = " CTY";
     }
 
     int acnt = (int)village[playno]->army.size();
@@ -242,17 +242,22 @@ void villagecli(int playno){
         }
     }
 
+    int tt=0;
+    for(const auto & i : village[playno]->army){
+        tt+=i->troops.size();
+    }
+
     wattron(win,COLOR_PAIR(3));
-    mvwprintw(win,1,91,"Player %d's City",village[playno]->idx+1);
+    mvwprintw(win,1,91,"Player %d's City",village[playno]->id+1);
     mvwprintw(win,y+1,82,"City health: %d",village[playno]->health);
-    mvwprintw(win,y+2,82,"Gangstaz: %d",village[playno]->troops.size());
-    mvwprintw(win,y+3,82,"Gangs: %d",village[playno]->army.size());
+    mvwprintw(win,y+2,82,"Gangstaz: %d",tt+village[playno]->troops.size());
+    mvwprintw(win,y+3,82,"Crews: %d",village[playno]->army.size());
     mvwprintw(win,y+4,82,"Resource-generating buildings: %d",village[playno]->rbuild.size());
     mvwprintw(win,y+5,82,"Studios: %d",village[playno]->tbuild.size());
 
 
     mvwprintw(win,1,125,"Resources ");
-    mvwprintw(win,y+1,119,"Tools: %d ",village[playno]->resource[0]->amount);
+    mvwprintw(win,y+1,119,"Connections: %d ",village[playno]->resource[0]->amount);
     mvwprintw(win,y+2,119,"Grub: %d ",village[playno]->resource[1]->amount);
     mvwprintw(win,y+3,119,"Dollaz: %d ",village[playno]->resource[2]->amount);
 
@@ -265,94 +270,91 @@ void villagecli(int playno){
 
 int alertcli(int playno, const string& type){
 
-    if(village.size()<5){
-        wclear(win);
-        wrefresh(win);
+    wclear(win);
+    wrefresh(win);
 
-        wattron(win,COLOR_PAIR(1));
-        mvwhline(win, 13, 65, '*', 40);
-        mvwhline(win, 17, 65, '*', 40);
-        mvwvline(win, 13, 65, '*', 4);
-        mvwvline(win, 13, 105,'*', 5);
-        box(win,0,0);
+    wattron(win,COLOR_PAIR(1));
+    mvwhline(win, 13, 65, '*', 40);
+    mvwhline(win, 17, 65, '*', 40);
+    mvwvline(win, 13, 65, '*', 4);
+    mvwvline(win, 13, 105,'*', 5);
+    box(win,0,0);
 
-        int x = 25;
-        int y = 8;
+    int x = 25;
+    int y = 8;
 
-        wattron(win,COLOR_PAIR(2));
+    wattron(win,COLOR_PAIR(2));
 
-        mvwprintw(win,y,x,"⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡶⠶⢤⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀");
-        mvwprintw(win,y+1,x,"⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⡞⠉⢹⡀⣾⠁⠀⠀⡷⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀");
-        mvwprintw(win,y+2,x,"⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣼⡇⠀⣸⣇⣿⠀⠀⢸⠇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀");
-        mvwprintw(win,y+3,x,"⣠⡤⣤⡀⠀⠀⠀⠀⠀⣠⣿⣷⣴⣿⣿⣿⡓⢲⡾⠀⠀⠀⠀⢀⣴⠛⠛⣷⠀⠀");
-        mvwprintw(win,y+4,x,"⢿⡀⠀⠙⢶⣄⠀⢀⣾⡿⣿⣿⣿⣿⣿⣿⣿⣿⠇⣠⣴⣶⣿⣿⠁⢀⣷⠋⠀⠀");
-        mvwprintw(win,y+5,x,"⠀⠙⢶⣦⡤⠉⠻⢿⣿⣧⡙⢛⠛⢻⣿⣿⣿⣿⣿⡿⢿⣿⣿⣿⡿⠟⠁⠀⠀⠀");
-        mvwprintw(win,y+6,x,"⠀⠀⠀⠙⢿⣿⣆⣀⠉⠉⠙⠉⠀⠀⠉⣟⠁⠈⠠⣴⣿⣿⠟⠋⠀⠀⠀⠀⠀⠀");
-        mvwprintw(win,y+7,x,"⠀⠀⠀⠀⠀⢿⣧⣀⣀⣀⣤⣾⣿⣿⣿⣿⣧⣤⣠⣼⡟⠁⠀⠀⠀⠀⠀⠀⠀⠀");
-        mvwprintw(win,y+8,x,"⠀⠀⠀⠀⠀⠀⠙⠻⠿⢿⣿⣿⣿⡟⠻⣿⡿⠛⠋⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀");
-        mvwprintw(win,y+9,x,"⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠹⣿⣷⡀⠀⠀⠀⠀⢻⡇⠀⣠⣤⡶⠖⠒⠲⣆⠀");
-        mvwprintw(win,y+10,x,"⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠛⠿⢶⣤⣀⣀⣼⡿⠋⠁⠀⢧⠀⠀⠀⢸⡆");
-        mvwprintw(win,y+11,x,"⠀⠀⠀⠀⠀⠀⠀⠀⣀⣀⣠⣤⡤⠴⠖⠛⠋⠉⠀⣀⡀⡄⠀⠀⢾⠀⠀⠀⢠⡧");
-        mvwprintw(win,y+12,x,"⢀⣠⣤⣤⡶⠾⠿⠛⠛⠉⣉⣀⣀⣤⡴⠶⠾⠟⢛⣛⣫⣉⣄⣀⣠⣶⣶⡾⠟⠃");
-        mvwprintw(win,y+13,x,"⢿⡟⠛⢁⣤⣤⣴⠶⢞⣛⣻⣭⣭⣵⡶⠷⠛⠚⠛⢿⣍⡉⠉⠉⣯⠉⠁⠀⠀⠀");
-        mvwprintw(win,y+14,x,"⠸⣿⣿⣿⣿⡿⠿⠟⠛⠋⠉⠉⠀⠀⠀⠀⠀⠀⠀⠀⠈⠛⠶⠶⠋⠀⠀⠀⠀⠀");
-        mvwprintw(win,y+15,x,"⠀⠈⠉⣀⣀⣀⣀⡀⠀⢀⣀⣀⡀⠀⢀⣀⣀⣀⠀⣀⣀⠀⢀⣀⣀⣀⣀⣀⠀⠀");
-        mvwprintw(win,y+16,x,"⠀⠀⠀⡇⠀⡦⡀⢹⡶⠃⡤⣄⠙⣦⠋⣤⣤⠈⢳⡄⠀⠳⡎⠀⢸⢸⠀⡟⠀⠀");
-        mvwprintw(win,y+17,x,"⠀⠀⠀⡇⢀⣉⡀⢾⡇⠀⡇⢐⠀⣿⠀⣻⣺⠀⢸⠇⢰⠦⣼⠀⢘⢸⣀⡇⠀⠀");
-        mvwprintw(win,y+18,x,"⠀⠀⠀⣇⠈⠷⠇⣠⢻⡀⠳⠾⣠⠿⣄⠘⠞⢀⡼⡆⢸⠀⢸⠀⢸⢼⢛⣧⠀⠀");
-        mvwprintw(win,y+19,x,"⠀⠀⠀⠉⠉⠉⠉⠁⠀⠉⠉⠉⠉⠀⠈⠉⠉⠉⠀⠉⠉⠀⠈⠉⠉⠈⠉⠁⠀⠀");
+    mvwprintw(win,y,x,"⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡶⠶⢤⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀");
+    mvwprintw(win,y+1,x,"⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⡞⠉⢹⡀⣾⠁⠀⠀⡷⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀");
+    mvwprintw(win,y+2,x,"⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣼⡇⠀⣸⣇⣿⠀⠀⢸⠇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀");
+    mvwprintw(win,y+3,x,"⣠⡤⣤⡀⠀⠀⠀⠀⠀⣠⣿⣷⣴⣿⣿⣿⡓⢲⡾⠀⠀⠀⠀⢀⣴⠛⠛⣷⠀⠀");
+    mvwprintw(win,y+4,x,"⢿⡀⠀⠙⢶⣄⠀⢀⣾⡿⣿⣿⣿⣿⣿⣿⣿⣿⠇⣠⣴⣶⣿⣿⠁⢀⣷⠋⠀⠀");
+    mvwprintw(win,y+5,x,"⠀⠙⢶⣦⡤⠉⠻⢿⣿⣧⡙⢛⠛⢻⣿⣿⣿⣿⣿⡿⢿⣿⣿⣿⡿⠟⠁⠀⠀⠀");
+    mvwprintw(win,y+6,x,"⠀⠀⠀⠙⢿⣿⣆⣀⠉⠉⠙⠉⠀⠀⠉⣟⠁⠈⠠⣴⣿⣿⠟⠋⠀⠀⠀⠀⠀⠀");
+    mvwprintw(win,y+7,x,"⠀⠀⠀⠀⠀⢿⣧⣀⣀⣀⣤⣾⣿⣿⣿⣿⣧⣤⣠⣼⡟⠁⠀⠀⠀⠀⠀⠀⠀⠀");
+    mvwprintw(win,y+8,x,"⠀⠀⠀⠀⠀⠀⠙⠻⠿⢿⣿⣿⣿⡟⠻⣿⡿⠛⠋⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀");
+    mvwprintw(win,y+9,x,"⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠹⣿⣷⡀⠀⠀⠀⠀⢻⡇⠀⣠⣤⡶⠖⠒⠲⣆⠀");
+    mvwprintw(win,y+10,x,"⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠛⠿⢶⣤⣀⣀⣼⡿⠋⠁⠀⢧⠀⠀⠀⢸⡆");
+    mvwprintw(win,y+11,x,"⠀⠀⠀⠀⠀⠀⠀⠀⣀⣀⣠⣤⡤⠴⠖⠛⠋⠉⠀⣀⡀⡄⠀⠀⢾⠀⠀⠀⢠⡧");
+    mvwprintw(win,y+12,x,"⢀⣠⣤⣤⡶⠾⠿⠛⠛⠉⣉⣀⣀⣤⡴⠶⠾⠟⢛⣛⣫⣉⣄⣀⣠⣶⣶⡾⠟⠃");
+    mvwprintw(win,y+13,x,"⢿⡟⠛⢁⣤⣤⣴⠶⢞⣛⣻⣭⣭⣵⡶⠷⠛⠚⠛⢿⣍⡉⠉⠉⣯⠉⠁⠀⠀⠀");
+    mvwprintw(win,y+14,x,"⠸⣿⣿⣿⣿⡿⠿⠟⠛⠋⠉⠉⠀⠀⠀⠀⠀⠀⠀⠀⠈⠛⠶⠶⠋⠀⠀⠀⠀⠀");
+    mvwprintw(win,y+15,x,"⠀⠈⠉⣀⣀⣀⣀⡀⠀⢀⣀⣀⡀⠀⢀⣀⣀⣀⠀⣀⣀⠀⢀⣀⣀⣀⣀⣀⠀⠀");
+    mvwprintw(win,y+16,x,"⠀⠀⠀⡇⠀⡦⡀⢹⡶⠃⡤⣄⠙⣦⠋⣤⣤⠈⢳⡄⠀⠳⡎⠀⢸⢸⠀⡟⠀⠀");
+    mvwprintw(win,y+17,x,"⠀⠀⠀⡇⢀⣉⡀⢾⡇⠀⡇⢐⠀⣿⠀⣻⣺⠀⢸⠇⢰⠦⣼⠀⢘⢸⣀⡇⠀⠀");
+    mvwprintw(win,y+18,x,"⠀⠀⠀⣇⠈⠷⠇⣠⢻⡀⠳⠾⣠⠿⣄⠘⠞⢀⡼⡆⢸⠀⢸⠀⢸⢼⢛⣧⠀⠀");
+    mvwprintw(win,y+19,x,"⠀⠀⠀⠉⠉⠉⠉⠁⠀⠉⠉⠉⠉⠀⠈⠉⠉⠉⠀⠉⠉⠀⠈⠉⠉⠈⠉⠁⠀⠀");
 
-        x = 115;
-        mvwprintw(win,y,x,"⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡶⠶⢤⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀");
-        mvwprintw(win,y+1,x,"⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⡞⠉⢹⡀⣾⠁⠀⠀⡷⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀");
-        mvwprintw(win,y+2,x,"⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣼⡇⠀⣸⣇⣿⠀⠀⢸⠇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀");
-        mvwprintw(win,y+3,x,"⣠⡤⣤⡀⠀⠀⠀⠀⠀⣠⣿⣷⣴⣿⣿⣿⡓⢲⡾⠀⠀⠀⠀⢀⣴⠛⠛⣷⠀⠀");
-        mvwprintw(win,y+4,x,"⢿⡀⠀⠙⢶⣄⠀⢀⣾⡿⣿⣿⣿⣿⣿⣿⣿⣿⠇⣠⣴⣶⣿⣿⠁⢀⣷⠋⠀⠀");
-        mvwprintw(win,y+5,x,"⠀⠙⢶⣦⡤⠉⠻⢿⣿⣧⡙⢛⠛⢻⣿⣿⣿⣿⣿⡿⢿⣿⣿⣿⡿⠟⠁⠀⠀⠀");
-        mvwprintw(win,y+6,x,"⠀⠀⠀⠙⢿⣿⣆⣀⠉⠉⠙⠉⠀⠀⠉⣟⠁⠈⠠⣴⣿⣿⠟⠋⠀⠀⠀⠀⠀⠀");
-        mvwprintw(win,y+7,x,"⠀⠀⠀⠀⠀⢿⣧⣀⣀⣀⣤⣾⣿⣿⣿⣿⣧⣤⣠⣼⡟⠁⠀⠀⠀⠀⠀⠀⠀⠀");
-        mvwprintw(win,y+8,x,"⠀⠀⠀⠀⠀⠀⠙⠻⠿⢿⣿⣿⣿⡟⠻⣿⡿⠛⠋⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀");
-        mvwprintw(win,y+9,x,"⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠹⣿⣷⡀⠀⠀⠀⠀⢻⡇⠀⣠⣤⡶⠖⠒⠲⣆⠀");
-        mvwprintw(win,y+10,x,"⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠛⠿⢶⣤⣀⣀⣼⡿⠋⠁⠀⢧⠀⠀⠀⢸⡆");
-        mvwprintw(win,y+11,x,"⠀⠀⠀⠀⠀⠀⠀⠀⣀⣀⣠⣤⡤⠴⠖⠛⠋⠉⠀⣀⡀⡄⠀⠀⢾⠀⠀⠀⢠⡧");
-        mvwprintw(win,y+12,x,"⢀⣠⣤⣤⡶⠾⠿⠛⠛⠉⣉⣀⣀⣤⡴⠶⠾⠟⢛⣛⣫⣉⣄⣀⣠⣶⣶⡾⠟⠃");
-        mvwprintw(win,y+13,x,"⢿⡟⠛⢁⣤⣤⣴⠶⢞⣛⣻⣭⣭⣵⡶⠷⠛⠚⠛⢿⣍⡉⠉⠉⣯⠉⠁⠀⠀⠀");
-        mvwprintw(win,y+14,x,"⠸⣿⣿⣿⣿⡿⠿⠟⠛⠋⠉⠉⠀⠀⠀⠀⠀⠀⠀⠀⠈⠛⠶⠶⠋⠀⠀⠀⠀⠀");
-        mvwprintw(win,y+15,x,"⠀⠈⠉⣀⣀⣀⣀⡀⠀⢀⣀⣀⡀⠀⢀⣀⣀⣀⠀⣀⣀⠀⢀⣀⣀⣀⣀⣀⠀⠀");
-        mvwprintw(win,y+16,x,"⠀⠀⠀⡇⠀⡦⡀⢹⡶⠃⡤⣄⠙⣦⠋⣤⣤⠈⢳⡄⠀⠳⡎⠀⢸⢸⠀⡟⠀⠀");
-        mvwprintw(win,y+17,x,"⠀⠀⠀⡇⢀⣉⡀⢾⡇⠀⡇⢐⠀⣿⠀⣻⣺⠀⢸⠇⢰⠦⣼⠀⢘⢸⣀⡇⠀⠀");
-        mvwprintw(win,y+18,x,"⠀⠀⠀⣇⠈⠷⠇⣠⢻⡀⠳⠾⣠⠿⣄⠘⠞⢀⡼⡆⢸⠀⢸⠀⢸⢼⢛⣧⠀⠀");
-        mvwprintw(win,y+19,x,"⠀⠀⠀⠉⠉⠉⠉⠁⠀⠉⠉⠉⠉⠀⠈⠉⠉⠉⠀⠉⠉⠀⠈⠉⠉⠈⠉⠁⠀⠀");
+    x = 115;
+    mvwprintw(win,y,x,"⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡶⠶⢤⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀");
+    mvwprintw(win,y+1,x,"⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⡞⠉⢹⡀⣾⠁⠀⠀⡷⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀");
+    mvwprintw(win,y+2,x,"⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣼⡇⠀⣸⣇⣿⠀⠀⢸⠇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀");
+    mvwprintw(win,y+3,x,"⣠⡤⣤⡀⠀⠀⠀⠀⠀⣠⣿⣷⣴⣿⣿⣿⡓⢲⡾⠀⠀⠀⠀⢀⣴⠛⠛⣷⠀⠀");
+    mvwprintw(win,y+4,x,"⢿⡀⠀⠙⢶⣄⠀⢀⣾⡿⣿⣿⣿⣿⣿⣿⣿⣿⠇⣠⣴⣶⣿⣿⠁⢀⣷⠋⠀⠀");
+    mvwprintw(win,y+5,x,"⠀⠙⢶⣦⡤⠉⠻⢿⣿⣧⡙⢛⠛⢻⣿⣿⣿⣿⣿⡿⢿⣿⣿⣿⡿⠟⠁⠀⠀⠀");
+    mvwprintw(win,y+6,x,"⠀⠀⠀⠙⢿⣿⣆⣀⠉⠉⠙⠉⠀⠀⠉⣟⠁⠈⠠⣴⣿⣿⠟⠋⠀⠀⠀⠀⠀⠀");
+    mvwprintw(win,y+7,x,"⠀⠀⠀⠀⠀⢿⣧⣀⣀⣀⣤⣾⣿⣿⣿⣿⣧⣤⣠⣼⡟⠁⠀⠀⠀⠀⠀⠀⠀⠀");
+    mvwprintw(win,y+8,x,"⠀⠀⠀⠀⠀⠀⠙⠻⠿⢿⣿⣿⣿⡟⠻⣿⡿⠛⠋⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀");
+    mvwprintw(win,y+9,x,"⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠹⣿⣷⡀⠀⠀⠀⠀⢻⡇⠀⣠⣤⡶⠖⠒⠲⣆⠀");
+    mvwprintw(win,y+10,x,"⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠛⠿⢶⣤⣀⣀⣼⡿⠋⠁⠀⢧⠀⠀⠀⢸⡆");
+    mvwprintw(win,y+11,x,"⠀⠀⠀⠀⠀⠀⠀⠀⣀⣀⣠⣤⡤⠴⠖⠛⠋⠉⠀⣀⡀⡄⠀⠀⢾⠀⠀⠀⢠⡧");
+    mvwprintw(win,y+12,x,"⢀⣠⣤⣤⡶⠾⠿⠛⠛⠉⣉⣀⣀⣤⡴⠶⠾⠟⢛⣛⣫⣉⣄⣀⣠⣶⣶⡾⠟⠃");
+    mvwprintw(win,y+13,x,"⢿⡟⠛⢁⣤⣤⣴⠶⢞⣛⣻⣭⣭⣵⡶⠷⠛⠚⠛⢿⣍⡉⠉⠉⣯⠉⠁⠀⠀⠀");
+    mvwprintw(win,y+14,x,"⠸⣿⣿⣿⣿⡿⠿⠟⠛⠋⠉⠉⠀⠀⠀⠀⠀⠀⠀⠀⠈⠛⠶⠶⠋⠀⠀⠀⠀⠀");
+    mvwprintw(win,y+15,x,"⠀⠈⠉⣀⣀⣀⣀⡀⠀⢀⣀⣀⡀⠀⢀⣀⣀⣀⠀⣀⣀⠀⢀⣀⣀⣀⣀⣀⠀⠀");
+    mvwprintw(win,y+16,x,"⠀⠀⠀⡇⠀⡦⡀⢹⡶⠃⡤⣄⠙⣦⠋⣤⣤⠈⢳⡄⠀⠳⡎⠀⢸⢸⠀⡟⠀⠀");
+    mvwprintw(win,y+17,x,"⠀⠀⠀⡇⢀⣉⡀⢾⡇⠀⡇⢐⠀⣿⠀⣻⣺⠀⢸⠇⢰⠦⣼⠀⢘⢸⣀⡇⠀⠀");
+    mvwprintw(win,y+18,x,"⠀⠀⠀⣇⠈⠷⠇⣠⢻⡀⠳⠾⣠⠿⣄⠘⠞⢀⡼⡆⢸⠀⢸⠀⢸⢼⢛⣧⠀⠀");
+    mvwprintw(win,y+19,x,"⠀⠀⠀⠉⠉⠉⠉⠁⠀⠉⠉⠉⠉⠀⠈⠉⠉⠉⠀⠉⠉⠀⠈⠉⠉⠈⠉⠁⠀⠀");
 
-        if(type=="attack"){
-            mvwprintw(win,15,77,"CITY UNDER ATTACK!");
+    if(type=="attack"){
+        mvwprintw(win,15,77,"CITY UNDER ATTACK!");
 
-        }else if(type == "success"){
-            mvwprintw(win,15,77,"ATTACK SUCCESSFUL!");
+    }else if(type == "success"){
+        mvwprintw(win,15,79,"BATTLE WON!");
 
-        }else if(type == "fail"){
-            mvwprintw(win,15,78,"ATTACK FAILED!");
+    }else if(type == "fail"){
+        mvwprintw(win,15,78,"ATTACK FAILED!");
 
-        }else if(type == "destroy"){
-            mvwprintw(win,15,71,"PLAYER %d'S CITY DESTROYED!",village[playno]->idx+1);
+    }else if(type == "destroy"){
+        mvwprintw(win,15,71,"PLAYER %d'S CITY DESTROYED!",village[playno]->id+1);
 
-        }else if(type == "round"){
-            mvwprintw(win,15,82,"ROUND %d",playno);
-            int choice = wgetch(win);
-            if (choice == 10) {
-                return 1;
-            }
-        }else if(type == "winner"){
-            mvwprintw(win,15,76,"WINNER IS PLAYER %d!", village[playno]->idx+1);
-        }
-
+    }else if(type == "round"){
+        mvwprintw(win,15,82,"ROUND %d",playno);
         int choice = wgetch(win);
         if (choice == 10) {
-            refreshcli(playno);
             return 1;
         }
+    }else if(type == "winner"){
+        mvwprintw(win,15,76,"WINNER IS PLAYER %d!", village[playno]->id+1);
     }
 
+    int choice = wgetch(win);
+    if (choice == 10) {
+        refreshcli(playno);
+        return 1;
+    }
 
     return 0;
 }
@@ -413,14 +415,14 @@ int startcli(){
 
     mvwprintw(win,22,65,"Biggies are a little chubby so ");
     mvwprintw(win,23,65,"they're the slowest but they have ");
-    mvwprintw(win,24,65,"the most attack because they pack");
-    mvwprintw(win,25,65,"a punch.");
+    mvwprintw(win,24,65,"the most carrying capacity, making");
+    mvwprintw(win,25,65,"it easier to steal resources from");
+    mvwprintw(win,26,65,"surrounding cities.");
 
     mvwprintw(win,22,115,"Tupacs are peaceful gangstaz, but");
     mvwprintw(win,23,115,"don't mess with them because you ");
     mvwprintw(win,24,115,"best believe they will mess with ");
-    mvwprintw(win,25,115,"you. They have a good balance of ");
-    mvwprintw(win,26,115,"health and attack.");
+    mvwprintw(win,25,115,"you. Tupacs have the most attack.");
 
     wgetch(win);
 
@@ -435,7 +437,7 @@ void refreshcli(int playno){
     wclear(win);
     wrefresh(win);
     villagecli(playno);
-    mvwprintw(win,2,2,"Player %d's turn!",village[playno]->idx+1);
+    mvwprintw(win,2,2,"Player %d's turn!",village[playno]->id+1);
     mapcli(playno);
 
     wattron(win,COLOR_PAIR(1));

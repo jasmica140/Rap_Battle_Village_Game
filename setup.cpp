@@ -1,6 +1,5 @@
 #include "villagegame.h"
 
-
 int gamesetup(){
 
     startcli();
@@ -99,10 +98,10 @@ int gamesetup(){
                 r++;
             }
         }
-        map[rndx][rndy].status = "  V  ";
+        map[rndx][rndy].status = " CTY";
 
         //initialise resources for each player
-        village[i]->addres(Resource("tools", 500));
+        village[i]->addres(Resource("connections", 500));
         village[i]->addres(Resource("grub", 500));
         village[i]->addres(Resource("dollaz", 500));
     }

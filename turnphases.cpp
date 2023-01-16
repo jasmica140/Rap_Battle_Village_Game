@@ -32,14 +32,12 @@ int enemytroop(int playno){
 
     for(int cnt=0; cnt<(int)village[playno]->army.size(); cnt++){
 
-
         for(int v=0; v<(int)village.size(); v++){
-            if(village[v]->idx == village[playno]->army[cnt]->target){
+            if(village[v]->id == village[playno]->army[cnt]->target){
                 villno = v;
                 break;
             }
         }
-
 
         //if army successfully arrived to target
         if(village[playno]->army[cnt]->loc[0] == village[villno]->loc[0]
@@ -59,10 +57,10 @@ int enemytroop(int playno){
 
             if (phealth <= vattack) {
                 village[villno]->attack = false;
-                if (village[playno]->preal) {
+                if (village[playno]->real) {
                     alertcli(playno, "fail");
                 }
-                village[playno]->army[cnt]->target = village[playno]->idx;
+                village[playno]->army[cnt]->target = village[playno]->id;
 
             }else {
 
@@ -84,9 +82,8 @@ int enemytroop(int playno){
                                 break;
                             }
                             //recalculate health
-                            village[playno]->army[cnt]->refresharmy(*village[playno]->army[cnt]);
+                            village[playno]->army[cnt]->refresharmy();
                             phealth = village[playno]->army[cnt]->health;        //sum of player troops health
-
                         }
 
                         //kill villager troop
@@ -119,9 +116,9 @@ int enemytroop(int playno){
                     village[villno]->health -= pattack;
 
                     //army carrying capacity
-                    int carrycap = village[playno]->army[cnt]->carrycap;
+                    int carryCap = village[playno]->army[cnt]->carryCap;
 
-                    if (village[playno]->preal) {  //real player
+                    if (village[playno]->real) {  //real player
 
                         alertcli(playno, "success");
 
@@ -130,18 +127,18 @@ int enemytroop(int playno){
                         //steal resources
                         for (int res = 0; res < 3; res++) {
 
-                            mvwprintw(win, texty - 2, textx + 30, "ATTACK SUCCESSFUL!");
-                            mvwprintw(win, texty - 1, textx, "Carrying Capacity: %d", carrycap);
-                            mvwprintw(win, texty, textx, "Player %d's resources: tools x%d   grub x%d    dollaz x%d",
-                                      village[villno]->idx, village[villno]->resource[0]->amount,
+                            mvwprintw(win, texty - 2, textx + 30, "BATTLE SUCCESSFUL!");
+                            mvwprintw(win, texty - 1, textx, "Carrying Capacity: %d", carryCap);
+                            mvwprintw(win, texty, textx, "Player %d's resources: connections x%d   grub x%d    dollaz x%d",
+                                      village[villno]->id+1, village[villno]->resource[0]->amount,
                                       village[villno]->resource[1]->amount, village[villno]->resource[2]->amount);
 
                             mvwprintw(win, texty + 2, textx, "How many %s are you taking:",
                                       village[villno]->resource[res]->type.c_str());
 
                             int maxres;
-                            if (carrycap < village[villno]->resource[res]->amount) {
-                                maxres = carrycap;
+                            if (carryCap < village[villno]->resource[res]->amount) {
+                                maxres = carryCap;
                             } else {
                                 maxres = village[villno]->resource[res]->amount;
                             }
@@ -153,37 +150,37 @@ int enemytroop(int playno){
 
                             village[playno]->army[cnt]->resource[res] =
                                     (options((maxres+5) / 5, r, texty + 3, textx, true) - 1) * 5;
-                            carrycap -= village[playno]->army[cnt]->resource[res];
+                            carryCap -= village[playno]->army[cnt]->resource[res];
                             refreshcli(playno);
                         }
 
                         mvwprintw(win, texty, textx, "You are taking:");
-                        mvwprintw(win, texty + 1, textx, "tools x%d   grub x%d    dollaz x%d",
+                        mvwprintw(win, texty + 1, textx, "connections x%d   grub x%d    dollaz x%d",
                                   village[playno]->army[cnt]->resource[0], village[playno]->army[cnt]->resource[1],
                                   village[playno]->army[cnt]->resource[2]);
                         mvwprintw(win, texty + 3, textx, "Choose resources again?");
                         string choices[] = {"Nah cuz, i'm good.", "Yeah fool, this looks wack."};
                         int choice = (options(2, choices, texty + 4, textx, false));
                         if (choice == 2) {
-                            carrycap = village[playno]->army[cnt]->carrycap;
+                            carryCap = village[playno]->army[cnt]->carryCap;
                             goto loop6;
                         }
 
                     } else {  //AI player
 
-                        int maxcarrycap = carrycap; //max carrying capacity
+                        int maxCarryCap = carryCap; //max carrying capacity
 
                         //steal resources in multiples of 5
                         for (int res = 0; res < 3; res++) {
-                            if (village[villno]->resource[res]->amount > 5 && maxcarrycap > 5) {
-                                if (carrycap > village[villno]->resource[res]->amount) {
-                                    maxcarrycap = village[villno]->resource[res]->amount;
+                            if (village[villno]->resource[res]->amount > 5 && maxCarryCap > 5) {
+                                if (carryCap > village[villno]->resource[res]->amount) {
+                                    maxCarryCap = village[villno]->resource[res]->amount;
                                 }else{
-                                    maxcarrycap = carrycap;
+                                    maxCarryCap = carryCap;
                                 }
-                                int take = (rand() % (maxcarrycap / 5));
+                                int take = (rand() % (maxCarryCap / 5));
                                 village[playno]->army[cnt]->resource[res] = take*5;
-                                carrycap -= village[playno]->army[cnt]->resource[res];
+                                carryCap -= village[playno]->army[cnt]->resource[res];
                             }
                         }
                     }
@@ -193,7 +190,7 @@ int enemytroop(int playno){
                     village[villno]->resource[2]->amount -= village[playno]->army[cnt]->resource[2];
 
                     //surviving troops march back home
-                    village[playno]->army[cnt]->target = village[playno]->idx;
+                    village[playno]->army[cnt]->target = village[playno]->id;
                     village[playno]->army[cnt]->comeHome = true;
 
                     if (village[villno]->health <= 0) {
@@ -204,14 +201,13 @@ int enemytroop(int playno){
 
                         alertcli(villno, "destroy");
                         //delete player
-                        village[villno]->attack = true;
                         deleteplayer(villno);
                     }
 
                 } else {
                     //delete army
                     village[playno]->army.erase(village[playno]->army.begin() + cnt);
-                    if (village[playno]->preal) {
+                    if (village[playno]->real) {
                         alertcli(playno, "fail");
                     }
                     cnt--;
@@ -228,12 +224,12 @@ void earnres(int playno){
 
     for(int i=0; i<(int)village[playno]->rbuild.size(); i++) {
 
-        if (village[playno]->rbuild[i]->type == "tools") {
-            village[playno]->resource[0]->amount += village[playno]->rbuild[i]->output;
+        if (village[playno]->rbuild[i]->type == "connections") {
+            village[playno]->resource[0]->amount += village[playno]->rbuild[i]->resOutput;
         } else if (village[playno]->rbuild[i]->type == "grub") {
-            village[playno]->resource[1]->amount += village[playno]->rbuild[i]->output;
+            village[playno]->resource[1]->amount += village[playno]->rbuild[i]->resOutput;
         } else if (village[playno]->rbuild[i]->type == "dollaz") {
-            village[playno]->resource[2]->amount += village[playno]->rbuild[i]->output;
+            village[playno]->resource[2]->amount += village[playno]->rbuild[i]->resOutput;
         }
     }
 }
@@ -242,7 +238,7 @@ int actions(int playno, int roundno) {
 
     int select;
 
-    if (village[playno]->preal) {
+    if (village[playno]->real) {
         while(true) {
 
             refreshcli(playno);
@@ -252,7 +248,7 @@ int actions(int playno, int roundno) {
 
             string choices[] = {
                     "1.Build new buildings", "2.Upgrade existing buildings", "3.Train gangstaz",
-                    "4.Attack Cities",  "5.Surrender", "6.End turn"
+                    "4.Battle Cities",  "5.Surrender", "6.End turn"
             };
 
             select = options(6, choices, texty + 2, textx, false);
@@ -278,7 +274,7 @@ int actions(int playno, int roundno) {
                     trpcnt+=cnt->troops.size();
                 }
 
-                if(trpcnt<=maxtroops){
+                if(trpcnt<maxtroops){
                     if (train(playno) == 1) {
                         goto loop;
                     }
@@ -290,13 +286,13 @@ int actions(int playno, int roundno) {
 
             } else if (select == 4) { //attack village
 
-                if ((int)village[playno]->army.size() < 4) {
+                if ((int)village[playno]->army.size() < 3) {
                     if (attack(playno) == 1) {
                         goto loop;
                     }
                 } else {
                     refreshcli(playno);
-                    mvwprintw(win, erry, textx, "Error: Maximum army limit reached!");
+                    mvwprintw(win, erry, textx, "Error: Maximum crew limit reached!");
                     goto loop;
                 }
 
@@ -345,11 +341,11 @@ int actions(int playno, int roundno) {
             //upgrade buildings
             AIupgrade(playno);
             //train troops
-            if(trpcnt<=maxtroops){
+            if(trpcnt<maxtroops){
                 AItrain(playno);
             }
             //attack
-            if ((int)village[playno]->army.size() < 4) {
+            if ((int)village[playno]->army.size() < 3) {
                 AIattack(playno);
             }
 

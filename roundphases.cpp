@@ -3,7 +3,7 @@
 
 int turnphase(int playno, int roundno){
 
-    if(village[playno]->attack && village[playno]->preal){
+    if(village[playno]->attack && village[playno]->real){
         alertcli(playno,"attack");
     }
 
@@ -27,7 +27,7 @@ void marching(int playno, int armyno, int target, int mspeed){
     int i=0;
 
     for(int v=0; v<(int)village.size(); v++){
-        if(village[v]->idx == target){
+        if(village[v]->id == target){
             target = v;
             break;
         }
@@ -41,7 +41,7 @@ void marching(int playno, int armyno, int target, int mspeed){
     map[village[playno]->army[armyno]->loc[0]][village[playno]->army[armyno]->loc[1]].status = "     ";
     for(int v=0; v<(int)village.size(); v++){
         if(village[playno]->army[armyno]->loc[0]==village[v]->loc[0]&&village[playno]->army[armyno]->loc[1]==village[v]->loc[1]){
-            map[village[playno]->army[armyno]->loc[0]][village[playno]->army[armyno]->loc[1]].status = "  V  ";
+            map[village[playno]->army[armyno]->loc[0]][village[playno]->army[armyno]->loc[1]].status = " CTY";
             break;
         }
     }
@@ -59,11 +59,6 @@ void marching(int playno, int armyno, int target, int mspeed){
             village[playno]->army[armyno]->loc[0]--;      //update army location
         }
 
-        i++;
-        if(i==mspeed){
-            break;
-        }
-
         //go left
         if (village[playno]->army[armyno]->loc[1] > villy) {
             village[playno]->army[armyno]->loc[1]--;      //update army location
@@ -76,7 +71,7 @@ void marching(int playno, int armyno, int target, int mspeed){
         i++;
     }
 
-    map[village[playno]->army[armyno]->loc[0]][village[playno]->army[armyno]->loc[1]].status = "  A  ";
+    map[village[playno]->army[armyno]->loc[0]][village[playno]->army[armyno]->loc[1]].status = " CRW";
     refreshcli(playno);
 }
 
@@ -90,7 +85,7 @@ int endround(int round){
 void startround(int roundno){
 
     for(auto & i : village){
-        if(i->preal){
+        if(i->real){
             alertcli(roundno,"round");
             break;
         }
